@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CSSでデザインを整える | New Tab 教材</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<link rel="stylesheet" href="../styles/page.css">
+<link rel="stylesheet" href="../styles/layout.css">
+<link rel="stylesheet" href="../styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-03" data-unit="03">
+<header class="book-unit-header"><p class="book-unit-kicker">第3章</p><h1 class="book-unit-title">CSSでデザインを整える</h1></header>
+<section class="book-body">
+<h1 id="第3章-CSSでデザインを整える">第3章　CSSでデザインを整える</h1>
+<p><em>HTMLの構造と画面の見た目を結び付け、変更の結果を自分で確かめる</em></p>
+<h2 id="31-知るHTMLの骨格にデザインを加える">3.1 知る：HTMLの骨格にデザインを加える</h2>
+<p>CSSはHTMLの要素の<strong>見た目</strong>を指定します。本章では色・余白・配置の指定が画面にどう反映されるかを見て、一か所変更します。</p>
+<h2 id="32-知るCSSの基本的な書き方と読み込み方">3.2 知る：CSSの基本的な書き方と読み込み方</h2>
+<h3 id="321-セレクターと宣言">3.2.1 セレクターと宣言</h3>
+<p>CSSは、基本的に「どの要素に対して」指定するのかを決め、その要素の「どの見た目を」「どの値にするか」を記述します。</p>
+<pre class="code-block"><code class="language-txt">セレクター {
+  プロパティ:プロパティ値;
+}</code></pre>
+<p>という記述の仕方となります。実例を見てみましょう。</p>
+<pre class="code-block"><code class="language-css">.subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+}</code></pre>
+<p><code>.subtitle</code>は<strong>セレクター</strong>と呼ばれ、<code>class=&quot;subtitle&quot;</code>の要素を選びます。波括弧内の<code>color</code>や<code>font-size</code>は<strong>プロパティ</strong>、右側の値は<strong>プロパティ値</strong>です。<code>color: var(--text-muted);</code>のような組を<strong>宣言</strong>と呼びます。次のHTMLは説明文に<code>subtitle</code>を指定しています。</p>
+<pre class="code-block"><code class="language-html">&lt;p class=&quot;subtitle&quot;&gt;「検索」はGoogleに送信されます。&lt;/p&gt;</code></pre>
+<p>HTMLの<code>class</code>とCSSのセレクターが対応し、プロパティと値が見た目を指定します。複数の指定が重なる場合の優先関係は<strong>カスケード</strong>と呼びます。この対応を図V-03-001で確認してください。</p>
+<h3 id="322-CSSファイルをHTMLから読み込む">3.2.2 CSSファイルをHTMLから読み込む</h3>
+<p>教材の<code>index.html</code>には、<code>head</code>内に次の記述があります。</p>
+<pre class="code-block"><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;</code></pre>
+<p><code>link</code>要素は、HTML文書と外部の資料を関連付けます。ここでは<code>rel=&quot;stylesheet&quot;</code>でスタイルシートであることを示し、<code>href=&quot;style.css&quot;</code>で読み込むファイルを指定しています。<code>style.css</code>は次のように<strong>同じフォルダー</strong>へ配置すると読み込めます。</p>
+<pre class="code-block"><code class="language-text">03-css/
+├── index.html
+└── style.css</code></pre>
+<p>CSSが読み込まれていなくても、HTMLの見出しや検索欄は通常表示されます。ただし、その見た目にはブラウザの標準スタイルが用いられます。この違いは、後の演習で実際に確認します。</p>
+<h2 id="33-読み解く画面全体とCSSの対応をつかむ">3.3 読み解く：画面全体とCSSの対応をつかむ</h2>
+<p>対象のHTMLは<code>div.shell</code>の中に<code>nav.tabs</code>と<code>main.container</code>があり、後者に見出し・説明文・検索・ニュースの領域が入っています。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/03-css/assets/%E5%9B%B33-1_HTML%E3%81%A8CSS%E3%81%AE%E5%AF%BE%E5%BF%9C.svg" alt="HTMLの要素とCSSセレクターの対応図"></figure>
+<p><em>図3-1　HTMLの構造とCSSセレクターの対応。左側のHTML要素に付いたclassが、右側のレイアウト指定の対象になります。</em></p>
+<p>この関係を整理すると、教材のCSSは次のように分担されうることが想像できます。</p>
+<table><thead><tr><th>CSSの対象</th><th>対応する画面の部分</th><th>主に指定していること</th></tr></thead><tbody><tr><td><code>body</code>, <code>.shell</code>, <code>.container</code></td><td>ページ全体と中央の内容領域</td><td>背景、最大幅、余白</td></tr><tr><td><code>.tabs</code>, <code>.filetab</code></td><td>「1 検索」「2 ニュース」のタブ</td><td>横並び、形、選択中の外観</td></tr><tr><td><code>h1</code>, <code>.subtitle</code></td><td>見出しと説明文</td><td>文字の大きさ、色、中央揃え</td></tr><tr><td><code>.search-form</code>, <code>.search-input</code>, <code>.search-button</code></td><td>検索欄と検索ボタン</td><td>横並び、幅、背景、境界線</td></tr><tr><td><code>.news-card</code>, <code>.news-item</code>など</td><td>ニュース表示領域</td><td>カードや記事の外観（現段階では非表示）</td></tr></tbody></table>
+<p>重要なのは、<strong>画面に存在する部分と、今見えている部分は同じではない</strong>という点です。ニュースパネルにはHTMLで<code>hidden</code>属性が指定され、初期状態では表示されません。<code>hidden</code>が解除された際のスタイルを先行して書いていることに留意しましょう。</p>
+<h2 id="34-読み解く色に名前を付けて再利用する">3.4 読み解く：色に名前を付けて再利用する</h2>
+<h3 id="341-カスタムプロパティでデザインの基準をまとめる">3.4.1 カスタムプロパティでデザインの基準をまとめる</h3>
+<p>共通の色をまとめて管理するため、<strong>CSSカスタムプロパティ</strong>を使います。<code>--page</code>や<code>--surface</code>はCSSの値に付けた名前です。</p>
+<pre class="code-block"><code class="language-css">:root {
+  color-scheme: light;
+  --page: #f1eee7;
+  --surface: #fffdf8;
+  --surface-muted: #e9e5dc;
+  --text: #252522;
+  --text-muted: #77746c;
+  --border: rgba(40, 38, 32, .15);
+  --focus: #487b61;
+  --error: #b3261e;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #202124;
+    --surface: #292a2d;
+    --surface-muted: #3c4043;
+    --text: #e8eaed;
+    --text-muted: #bdc1c6;
+    --border: rgba(255, 255, 255, .18);
+    --focus: #a4d9bb;
+    --error: #ffb4ab;
+  }
+}</code></pre>
+<p><code>:root</code>は通常のHTML文書で<code>html</code>要素を選びます。ここに<code>--page</code>（背景）や<code>--text</code>（文字色）などを定義し、各所から使います。<code>--radius</code>は角の丸みです。</p>
+<p>カスタムプロパティを使うときは、次のように<code>var()</code>で参照します。</p>
+<pre class="code-block"><code class="language-css">body {
+  background: var(--page);
+  color: var(--text);
+}
+.search-input {
+  background: var(--surface);
+  border-radius: var(--radius);
+}</code></pre>
+<h3 id="342-ダークモードでは何が切り替わるのか">3.4.2 ダークモードでは何が切り替わるのか</h3>
+<p>先ほどのコードにある<code>@media (prefers-color-scheme: dark)</code>は、<strong>メディアクエリ</strong>です。閲覧環境などの条件に応じてCSSの一部を適用する仕組みです。ここでは、OSやブラウザがダーク配色を希望している場合に、その中の指定が適用されます。</p>
+<p>ライト時の<code>--page</code>は<code>#f1eee7</code>、ダーク時は<code>#202124</code>です。同じ<code>background: var(--page)</code>でも、参照する値に応じて背景が変わります。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/03-css/assets/%E5%9B%B33-2_%E6%98%8E%E6%9A%97%E3%81%AE%E8%A1%A8%E7%A4%BA%E6%AF%94%E8%BC%83.png" alt="同じHTMLのライト配色とダーク配色を比較した画面"></figure>
+<p><em>図3-2　同じHTMLをライト設定とダーク設定で表示した比較。教材HTMLとCSSをブラウザで描画した例。</em></p>
+<p><code>color-scheme</code>は入力欄などブラウザが描く部品の配色を知らせます。ページ独自の色を変える<code>--page</code>とは役割が違います。</p>
+<h2 id="35-読み解く大きさと余白からレイアウトを理解する">3.5 読み解く：大きさと余白からレイアウトを理解する</h2>
+<h3 id="351-ページの幅を制限して中央に配置する">3.5.1 ページの幅を制限して中央に配置する</h3>
+<p>ページ全体の配置を担当するコードを見ます。以下は教材の一部を抜粋したものです。</p>
+<pre class="code-block"><code class="language-css">*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 32px;
+  background: var(--page);
+  color: var(--text);
+  font-family: &#39;Noto Sans JP&#39;, Inter, system-ui, sans-serif;
+}
+.shell { width: min(700px, 100%); margin: 0 auto; }
+.container { padding: 24px; }</code></pre>
+<p><strong>ボックスモデル</strong>は内容・余白・境界線からなる大きさの考え方です。<code>box-sizing: border-box</code>では、指定した幅や高さに<code>padding</code>と<code>border</code>を含めます。</p>
+<h3 id="352-タブを横に並べ選択状態を見せる">3.5.2 タブを横に並べ、選択状態を見せる</h3>
+<p>タブ部分では、次の指定が重要です。必要な部分だけを抜粋しています。</p>
+<pre class="code-block"><code class="language-css">.tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 0 12px;
+  background: rgba(161, 215, 181, .68);
+  border-radius: 10px 10px 0 0;
+}
+.filetab {
+  min-width: 64px;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.filetab[aria-selected=&quot;true&quot;] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}</code></pre>
+<p><code>.tabs</code>の<code>display: inline-flex</code>は、子要素を並べる<strong>Flexbox（フレックスボックス）</strong>というレイアウトの仕組みを使い、タブ全体を内容に応じた幅のまとまりとして扱います。</p>
+<p><code>.filetab[aria-selected=&quot;true&quot;]</code>は、<code>aria-selected=&quot;true&quot;</code>のタブを選ぶ<strong>属性セレクター</strong>です。選択中のタブの色を変えるために使います。</p>
+<p>ただし、<strong>CSSが属性を読んで色を変えることと、クリックで属性を書き換えることは別です</strong>。CSSによる状態の「表現」と、JavaScriptによる状態の「変更」は異なるものであることを留意しましょう。</p>
+<h3 id="353-検索フォームは入力欄の幅を柔軟にする">3.5.3 検索フォームは入力欄の幅を柔軟にする</h3>
+<p>検索フォームのHTMLは、<code>form.search-form</code>の中に入力欄と検索ボタンを配置しています。CSSでは次のように指定しています。</p>
+<pre class="code-block"><code class="language-css">.search-form {
+  display: flex;
+  gap: 8px;
+  margin: 24px auto;
+  max-width: 560px;
+}
+.search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}</code></pre>
+<p><code>display: flex</code>で検索欄とボタンを横並びにし、<code>gap: 8px</code>で間隔を空けます。<code>max-width: 560px</code>で全体幅を制限し、<code>flex: 1</code>と<code>min-width: 0</code>で入力欄を伸縮させます。</p>
+<pre class="code-block"><code class="language-text">form.search-form（横並び・最大560px）
+┌────────────────────────────────┐ 8px ┌──────────┐
+│ input.search-input（flex: 1）   │←gap→│ 検索ボタン│
+└────────────────────────────────┘     └──────────┘</code></pre>
+<p><em>図3-3　検索フォームの横並び構造を表した模式図。実際の寸法を正確な縮尺で示したものではありません。</em></p>
+<p><code>flex: 1</code>を外した場合、入力欄は残りの横幅を同じようには埋めなくなります。このように、一つの宣言を変更した影響を具体的に予想できることが、CSSを理解する第一歩です。</p>
+<h2 id="36-読み解く見えるデザインと操作しやすさ">3.6 読み解く：見えるデザインと操作しやすさ</h2>
+<p>デザインは見た目だけで完結するものではありません。キーボード操作や支援技術からの利用を考える必要もあります。教材には、次のような指定があります。</p>
+<pre class="code-block"><code class="language-css">.search-input:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.filetab:focus-visible, .search-button:focus-visible,
+.refresh-button:focus-visible, .news-item a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}</code></pre>
+<p><code>:focus</code>はフォーカス中、<code>:focus-visible</code>はフォーカスの目印が必要と判断された状態を選びます。<code>outline</code>は輪郭線です。クリックとTabキーで違いを確認しましょう。</p>
+<p>一方、<code>.sr-only</code>は要素を画面上ではほとんど見えない状態にするためのclassです。検索欄のHTMLには<code>&lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;</code>があります。ラベルの説明は視覚的には隠しながら、支援技術に伝える情報として残す目的で用いられています。<strong>表示しないことと、情報そのものを削除することは異なる</strong>ことを把握しておきましょう。</p>
+<p>ニュース領域については、CSSに<code>.news-card</code>や<code>.news-item</code>のほか、<code>.refresh-button</code>、<code>.news-notice</code>、<code>.error</code>などの指定があります。しかし、今回のHTMLには対応する要素がないものもあります。さらに、<code>#panel-news</code>には<code>hidden</code>が指定されており、CSSでも次のルールを置いています。</p>
+<pre class="code-block"><code class="language-css">[hidden] { display: none !important; }</code></pre>
+<p>このルールは、<code>hidden</code>属性を持つ要素を表示しないようにするものです。ニュース用の見た目は、<strong>後の章に向けて準備されている部分</strong>と考えましょう。</p>
+<h2 id="37-読み解く画面幅や利用環境に合わせて調整する">3.7 読み解く：画面幅や利用環境に合わせて調整する</h2>
+<h3 id="371-600px以下で余白を小さくする">3.7.1 600px以下で余白を小さくする</h3>
+<p>教材の末尾には、画面幅に応じた調整が書かれています。</p>
+<pre class="code-block"><code class="language-css">@media (max-width: 600px) {
+  body { padding: 12px; }
+  .container { padding: 16px 4px; }
+  .filetab { min-width: 56px; padding: 0 14px; }
+  .news-image { width: 90px; height: 60px; flex-basis: 90px; }
+  .search-button { padding: 9px 12px; }
+}</code></pre>
+<p><code>@media (max-width: 600px)</code>は、<strong>表示領域の幅が600 ピクセル以下</strong>のときに内側の指定を適用します。このように表示環境に応じて配置やサイズを調整する考え方を<strong>レスポンシブデザイン</strong>と呼びます。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/03-css/assets/%E5%9B%B33-4_%E5%B9%85390px.png" alt="画面幅390pxで描画した検索画面"></figure>
+<p><em>図3-4　390px幅での表示例。入力欄とボタンが横並びのまま収まるかを観察できます。実際の端末での見え方は別途確認が必要です。</em></p>
+<h3 id="372-動きを抑える設定にも配慮する">3.7.2 動きを抑える設定にも配慮する</h3>
+<p>同じく末尾には、次の指定があります。</p>
+<pre class="code-block"><code class="language-css">@media (prefers-reduced-motion: no-preference) {
+  .filetab, .search-button, .refresh-button {
+    transition: background .18s ease, color .18s ease;
+  }
+}</code></pre>
+<p><code>transition</code>は色の変化を滑らかにします。<code>prefers-reduced-motion</code>を使い、動きを減らしたい利用者への配慮も加えています。</p>
+<h2 id="38-考えるCSSを外すと何が残るか">3.8 考える：CSSを外すと何が残るか</h2>
+<p>CSSを外すと見た目は変わりますが、HTMLの見出しやフォームの意味、GET送信の仕組みは残ります。</p>
+<p>ただし、CSSが「見た目だけ」だから重要でないという意味ではありません。文字の読みやすさ、操作対象の見分けやすさ、狭い画面での操作性などもCSSの影響を受けます。<strong>構造・見た目・動作を分けて理解し、それらが利用者の体験として結び付くこと</strong>を意識してください。</p>
+<h2 id="39-試す一か所ずつ変更して確かめる">3.9 試す：一か所ずつ変更して確かめる</h2>
+<p>ここでは毎回、作業用コピーを編集し、結果を記録してください。複数の箇所を同時に変えると、どの変更が結果を生んだのか分かりにくくなります。</p>
+<h3 id="391-実験Aページの背景だけを変更する">3.9.1 実験A：ページの背景だけを変更する</h3>
+<p>最初にライト設定で画面を表示し、ページの背景と検索欄の背景が別の色であることを確認します。次に、背景がどう変わるか予測してから、<code>style.css</code>の最初の<code>:root</code>にある次の一行だけを変更してください。</p>
+<pre class="code-block"><code class="language-css">--page: #dceaf5; /* 実験用：元は #f1eee7 */</code></pre>
+<p>再読み込みして、ページの背景と検索欄の背景を比べます。ページの背景が変わり、入力欄の表面が別の色のままであれば、<code>--page</code>と<code>--surface</code>が異なる用途で使われていると説明できます。<strong>ダーク設定では</strong>、後に書かれたダーク用の<code>--page</code>が適用されるため、この変更が画面に現れない場合があります。</p>
+<h3 id="392-実験B検索欄とボタンの間隔を変える">3.9.2 実験B：検索欄とボタンの間隔を変える</h3>
+<p>ライト設定の検索フォームで、入力欄とボタンの間隔を観察します。<code>gap</code>を広げるとどうなるか予測し、<code>.search-form</code>にある一行だけを次のように変更します。</p>
+<pre class="code-block"><code class="language-css">gap: 24px; /* 実験用：元は 8px */</code></pre>
+<p>再読み込みして、入力欄とボタンの間隔が広がることを確認します。フォーム全体の幅が変わらない条件では、間隔が広がった分だけ入力欄に使える幅は減るはずです。<code>display: flex</code>と<code>flex: 1</code>の関係を意識して説明してください。</p>
+<h3 id="393-実験C境界の前後で表示を比較する">3.9.3 実験C：境界の前後で表示を比較する</h3>
+<p>開発者ツールで幅を<strong>601px→600px→390px</strong>に変え、余白を比べます。600px以下では<code>body</code>の<code>padding</code>が<code>12px</code>になります。はみ出しも確認しましょう。</p>
+<h2 id="310-根拠を確かめる開発者ツールと公式資料">3.10 根拠を確かめる：開発者ツールと公式資料</h2>
+<p>開発者ツールは、ブラウザが現在どのHTMLやCSSを使用して表示しているかを調べる機能です。Chromeなどでは画面上で右クリックして「検証」を選び、<strong>Elements</strong>と<strong>Styles</strong>（またはそれに相当する画面）を使います。</p>
+<p>開発者ツールで<code>.search-input</code>を選び、Stylesの<code>background: var(--surface)</code>とComputedの色を確認します。変更を保存する場合は元のCSSファイルを編集しましょう。</p>
+<p>ダークモードは、OSの設定を変更するほか、Chrome DevToolsの<strong>Rendering</strong>にある<code>prefers-color-scheme</code>のエミュレーションでも試せます。表示を切り替えたとき、<code>--page</code>や<code>--text</code>の計算結果がどう変化するか確認してください。ただし、エミュレーションでの確認を、そのまま実機での検証と同一視してはいけません。</p>
+<p>分からないことを生成AIに質問する場合は、</p>
+<blockquote><p>このCSSの<code>.filetab[aria-selected=&quot;true&quot;]</code>はどのHTMLを選びますか。属性の値を変更せずにクリックした場合の挙動も説明してください</p></blockquote>
+<p>のように<strong>実際のコードを示して質問</strong>します。回答のうちCSSの仕様はMDNなどの公式資料で、教材固有の挙動は開発者ツールで検証しましょう。</p>
+<h2 id="311-章末演習と発展課題">3.11 章末演習と発展課題</h2>
+<p>次の問いに、CSSとHTMLを見ながら答えてください。可能な場合は予測を立てましょう。</p>
+<ol><li><code>.subtitle</code>の先頭に<code>.</code>が付く理由は何でしょうか。HTMLのどの要素に対応していますか。</li><li><code>--surface</code>の値を変えたとき、検索欄の背景はどうなるでしょうか。ページの背景が必ず同じ色に変わるでしょうか。</li><li><code>.filetab[aria-selected=&quot;true&quot;]</code>が選ぶ要素は、初期状態ではどちらのタブでしょうか。ニュースタブをクリックすると自動的に変わりますか。</li><li><code>max-width: 600px</code>という条件は、600pxちょうどの表示領域にも当てはまるでしょうか。</li><li>CSSを読み込まない状態でも、検索フォームが送信できる理由をHTMLの記述から説明してください。</li></ol>
+<p><strong>発展課題：</strong> <code>--radius</code>だけを<code>12px</code>から<code>4px</code>へ変更し、検索欄と検索ボタンの角がどう変わるか観察してください。次に、<code>.filetab</code>の角は同じように変わるか予想してから確認します。結果が異なる場合は、<code>.filetab</code>が<code>var(--radius)</code>ではなく、独自の<code>border-radius</code>を使っていることをコードから説明できます。</p>
+<p>答えを確かめる際は、単に「変わった・変わらなかった」と書くのではなく、<strong>変更した宣言→選ばれた要素→画面上の結果</strong>を一続きで説明してください。これが、生成AIが提示したCSSを自分で評価するときにも役立ちます。</p>
+<h2 id="312-ふりかえり見た目と動作を分けて理解する">3.12 ふりかえり：見た目と動作を分けて理解する</h2>
+<p>本章では、第2章で作ったHTMLにCSSを読み込み、タブや検索フォームの外観がどのように決まるかを調べました。<code>.shell</code>は内容の幅を整え、Flexboxはタブや検索フォームを横並びにし、カスタムプロパティは色や角の丸みを再利用する役割を持っていました。メディアクエリによって、配色の希望や画面幅、動きの軽減設定に応じた指定も用意されていました。</p>
+<p>ここで身につけてほしいのは、CSSのプロパティ名を数多く暗記することではありません。<strong>画面上の一部分を選び、対応するHTMLとCSSを探し、変更の影響を予測して検証する方法</strong>です。今後、他人が書いたコードや生成AIが提案したコードを使うときにも、この手順が判断の根拠になります。</p>
+<p>次の第4章ではJavaScriptを使い、タブの操作に応じて表示するパネルを切り替えていきます。本章で学んだ<code>.filetab[aria-selected=&quot;true&quot;]</code>のような指定は、JavaScriptによって状態が更新されると、その結果を見た目に反映する役割を担います。<strong>HTMLの構造、CSSの表現、JavaScriptの処理</strong>がどのように結び付くかを意識しながら進んでください。</p>
+</section></article>
+</main></body></html>

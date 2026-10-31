@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HTMLでページの骨格を作る | New Tab 教材</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<link rel="stylesheet" href="../styles/page.css">
+<link rel="stylesheet" href="../styles/layout.css">
+<link rel="stylesheet" href="../styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-02" data-unit="02">
+<header class="book-unit-header"><p class="book-unit-kicker">第2章</p><h1 class="book-unit-title">HTMLでページの骨格を作る</h1></header>
+<section class="book-body">
+<h1 id="第2章-HTMLでページの骨格を作る">第2章　HTMLでページの骨格を作る</h1>
+<p><em>画面の構造を理解し、要素同士の関係を読み解く</em></p>
+<h2 id="この章で学ぶこと">この章で学ぶこと</h2>
+<p>Webページには、見出しや文章、画像、入力欄、ボタンなどの要素が配置されています。本章では、HTMLの役割を学び、実際のコードと画面上の対応を読み解きます。</p>
+<p>本章で扱う<code>index.html</code>には、検索機能とニュース表示領域が用意されています。ただし、現時点ではCSSやJavaScriptを読み込んでいません。そのため、見た目の調整やタブの切り替えはまだ行わず、画面の構造とHTMLが持つ基本的な機能に注目します。</p>
+<h2 id="21-HTMLとは何か">2.1 HTMLとは何か</h2>
+<h3 id="211-Webページを構成する3つの技術">2.1.1 Webページを構成する3つの技術</h3>
+<p>本書におけるWebページの制作では、主にHTML、CSS、JavaScriptという3つの技術を使用します。それぞれは別の役割を持っています。</p>
+<h4 id="Webページを構成する主な技術とその役割">Webページを構成する主な技術とその役割</h4>
+<p>HTMLは、見出しや文章、入力欄などの構造と意味を定義します。CSSは、それらの大きさや色、余白、配置などを調整します。JavaScriptは、ボタンの操作に応じて画面を切り替えたり、データを取得したりする処理を担当します。</p>
+<p>検索フォームでは、HTMLで検索欄とボタンを用意し、CSSで幅や色を整え、JavaScriptで入力に応じた検索候補などを追加できます。</p>
+<p>ただし、JavaScriptがなければすべての操作ができないわけではありません。HTML自体にも、リンク先への移動やフォームの送信など、ブラウザが標準で処理できる機能が用意されています。本章の検索フォームは、その一例です。</p>
+<p>3つの技術を一度に理解しようとすると、コードのどの部分が画面のどの働きを担当しているのか、分からなくなりやすいものです。そこで本書では、最初にHTMLで画面の構造を理解し、その上にCSSによるデザインとJavaScriptによる動作を段階的に追加していきます。</p>
+<h3 id="212-タグと要素">2.1.2 タグと要素</h3>
+<p>HTML(.html　等）は、文章やコンテンツに意味を与えブラウザーなどに解釈をさせるためのマークアップ言語です。その基本となるのが、タグと呼ばれる記述です。</p>
+<pre class="code-block"><code class="language-html">&lt;h1&gt;New Tab&lt;/h1&gt;
+&lt;p&gt;Googleで検索できます。&lt;/p&gt;
+&lt;button&gt;検索&lt;/button&gt;</code></pre>
+<p>ブラウザでは、<code>New Tab</code>が見出しとして扱われ、その下に文章とボタンが表示されます。このとき、<code>&lt;h1&gt;</code>や<code>&lt;p&gt;</code>、<code>&lt;button&gt;</code>がタグです。一般的に、開始タグと終了タグ、それらに囲まれた内容を合わせて「要素」と呼びます。 開始タグは要素の始まりを、終了タグは終わりを示します。なお、<code>input</code>や<code>meta</code>など、終了タグを持たない要素も存在します。</p>
+<p>HTMLの要素には、それぞれ定められた意味があります。例えば、<code>h1</code>は見出し、<code>p</code>は段落、<code>button</code>はボタンを表します。ここで重要なのは、<strong>要素は単に見た目を変えるための記述ではない</strong>ということです。</p>
+<p><code>h1</code>は見出し、<code>button</code>は操作できる部品を表します。HTMLは見た目だけでなく、要素の意味をブラウザや支援技術へ伝えます。</p>
+<p>HTMLで使用できる標準的な要素や属性は、WHATWGが管理するHTML Living Standardなどで定義されています。制作する人が自由に名前を付けられるものと、仕様で意味が決められているものを区別することが大切です。</p>
+<h3 id="213-属性によって要素に情報を追加する">2.1.3 属性によって要素に情報を追加する</h3>
+<p>要素には、属性と呼ばれる追加情報を記述できます。</p>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-search&quot; class=&quot;filetab&quot; type=&quot;button&quot;&gt;
+  検索
+&lt;/button&gt;</code></pre>
+<p><code>button</code>という要素に対して、<code>id</code>、<code>class</code>、<code>type</code>という3つの属性が指定されています。属性は通常、開始タグの中に記述します。<code>id=&quot;tab-search&quot;</code>のように、属性名と値を組み合わせて指定する形式が一般的です。</p>
+<table><thead><tr><th>属性</th><th>役割</th></tr></thead><tbody><tr><td><code>id</code></td><td>要素を識別するための名前を付ける</td></tr><tr><td><code>class</code></td><td>複数の要素を分類し、CSSなどから参照できるようにする</td></tr></tbody></table>
+<p><code>id</code>と<code>class</code>は似ていますが、使い方には違いがあります。<code>id</code>は、同じ文書の中で一意になるように指定する識別子です。一方、<code>class</code>は同じ値を複数の要素に付けられます。 要素の役割に応じて、ほかの属性を追加することもあります。</p>
+<p>本章のHTMLでは、<code>filetab</code>というclassが検索タブとニュースタブの両方に使用されています。それに対して、<code>tab-search</code>と<code>tab-news</code>というidは、それぞれのボタンを区別するために使用されています。この違いは、後ほどタブとパネルの関係を読み解く際にも重要になります。</p>
+<h2 id="22-HTML文書の基本構造">2.2 HTML文書の基本構造</h2>
+<h3 id="221-VS-CodeでHTMLを作成する">2.2.1 VS CodeでHTMLを作成する</h3>
+<p>ここでは、Visual Studio Code（以下、VS Code）を使用してHTML文書の基本形を確認します。新しいファイルを作成し、<code>emmet.html</code>という名前で保存してください。</p>
+<p>ファイル名の末尾にある<code>.html</code>は、HTML文書であることを示す拡張子です。VS Codeはこの拡張子からファイルの種類を判断し、HTMLの入力補助や色分け表示などを行います。</p>
+<p>ファイルを開いて半角の<code>!</code>を入力すると、Emmetの補完候補が表示されます。候補を選んでEnterキーを押すと、HTML文書の基本構造が挿入されます。Emmetは、短い省略記法からHTMLやCSSのコードを展開する仕組みで、VS Codeに標準で組み込まれています。展開内容は設定によって異なるため、言語設定やタイトルは制作するページに合わせて確認・変更します。</p>
+<pre class="code-block"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p><em>図2-2-1　HTML文書の基本的な構造</em></p>
+<h3 id="222-headとbodyの違い">2.2.2 headとbodyの違い</h3>
+<p>生成されたコード図2-2-1を見てみましょう。大きく分けると<code>head</code>と<code>body</code>の2つの領域に別れることがわかります。</p>
+<p><code>head</code>には、文字コードやページタイトルなど、文書を扱うための情報を記述します。<code>charset</code>は文字コードをUTF-8に指定し、<code>viewport</code>は端末の表示領域を指定します。一方、<code>body</code>には、利用者が読む文章や操作するボタンなど、ページの内容を記述します。</p>
+<h3 id="223-Emmet記法を利用して構造を読む">2.2.3 Emmet記法を利用して構造を読む</h3>
+<p>Emmetはコードの入力を補助するだけでなく、HTMLの親子関係を簡潔に表現することにも使えます。</p>
+<pre class="code-block"><code class="language-text">div.shell&gt;main.container&gt;h1</code></pre>
+<p>これは、次のHTMLへ展開できます。</p>
+<pre class="code-block"><code class="language-html">&lt;div class=&quot;shell&quot;&gt;
+  &lt;main class=&quot;container&quot;&gt;
+    &lt;h1&gt;&lt;/h1&gt;
+  &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+<p>Emmetでは、<code>.</code>はclass、<code>#</code>はidの指定に使用します。また、<code>&gt;</code>は子要素、<code>+</code>は同じ階層に並ぶ要素を表します。</p>
+<pre class="code-block"><code class="language-text">section.panel#panel-search</code></pre>
+<pre class="code-block"><code class="language-html">&lt;section class=&quot;panel&quot; id=&quot;panel-search&quot;&gt;&lt;/section&gt;</code></pre>
+<p>本書では、HTMLの構造を短く示すためにEmmet形式の表現を使用する場合があります。ただし、Emmetで使う記号と、実際のHTMLで使うタグや属性は別のものです。コードを読む際には混同しないようにしてください。</p>
+<h2 id="23-HTMLの構造を読み解く">2.3 HTMLの構造を読み解く</h2>
+<p>ここからは、実際にNew Tabアプリの<code>index.html</code>を読み解いていきます。本章では、コードを上から一行ずつ説明するのではなく、最初にページ全体の構造を確認し、その後で各領域の役割を調べていきます。これは、デザイン制作で画面全体のレイアウトを考えてから細部の作業を行うのと同様です。</p>
+<h3 id="231-親要素と子要素">2.3.1 親要素と子要素</h3>
+<p>HTMLでは、ある要素の内側に別の要素を配置できます。このような関係を、親要素と子要素と呼びます。</p>
+<p><code>div</code>の内側に<code>main</code>があり、さらにその内側に<code>h1</code>が配置されています。<code>div</code>から見れば<code>main</code>は子要素、<code>main</code>から見れば<code>h1</code>が子要素です。複数の要素が内側に重なる構造を「入れ子」や「ネスト」と呼びます。</p>
+<pre class="code-block"><code class="language-html">&lt;div class=&quot;shell&quot;&gt;
+  &lt;main class=&quot;container&quot;&gt;
+    &lt;h1&gt;New Tab&lt;/h1&gt;
+  &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+<p>HTMLの構造が複雑になると、どこからコードを書き始めればよいのか迷う場合があります。そのようなときには、親要素から順番に考えると整理しやすくなります。</p>
+<p>まず、ページ全体をまとめる領域を用意します。次に、その中にメニューやメインコンテンツなどの大きな領域を配置します。最後に、それぞれの領域の中に見出しやボタンを追加するといった順序を考えて見てください。</p>
+<p>なお、親子関係は単にコードを見やすくするためだけのものではありません。例えばCSSでは、親要素を基準として子要素の配置を指定したり、一部の親に対するスタイルの指定が子孫要素へと影響を与えることがあります。</p>
+<h3 id="232-ページ全体の構造を確認する">2.3.2 ページ全体の構造を確認する</h3>
+<p>以下は、添付された<code>index.html</code>から、ページの主要な構造を抜き出したものです。</p>
+<pre class="code-block"><code class="language-html">&lt;div class=&quot;shell&quot;&gt;
+  &lt;nav class=&quot;tabs&quot; role=&quot;tablist&quot;&gt;
+    &lt;button id=&quot;tab-search&quot; class=&quot;filetab&quot; role=&quot;tab&quot;&gt;検索&lt;/button&gt;
+    &lt;button id=&quot;tab-news&quot; class=&quot;filetab&quot; role=&quot;tab&quot;&gt;ニュース&lt;/button&gt;
+  &lt;/nav&gt;
+
+  &lt;main class=&quot;container&quot;&gt;
+    &lt;section id=&quot;panel-search&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;&gt;
+      &lt;!-- 検索フォーム --&gt;
+    &lt;/section&gt;
+    &lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; hidden&gt;
+      &lt;!-- ニュース表示領域 --&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+<p>最も外側にあるのが<code>div.shell</code>です。その中に、<code>nav.tabs</code>と<code>main.container</code>という2つの領域が配置されています。</p>
+<p><code>nav</code>は検索とニュースを選ぶタブのまとまり、<code>main</code>は検索・ニュース領域を含む主要部分です。</p>
+<p>これをテキストで表現するなら以下のようになるでしょう。</p>
+<pre class="code-block"><code class="language-text">shell（ページ全体）
+├── nav.tabs
+│   ├── button#tab-search（検索）
+│   └── button#tab-news（ニュース）
+└── main.container
+    ├── h1（New Tab）
+    ├── p.subtitle（説明文）
+    ├── section#panel-search（検索フォーム）
+    └── section#panel-news（ニュース領域・初期状態では非表示）</code></pre>
+<p>このように、コード全体の構造を見るだけでも、アプリケーションにどのような機能が用意されているかを読み取れる場合があります。逆に、アプリケーションを制作する際には、最初に構造を考えることが重要です。</p>
+<h3 id="233-divnavmainsectionを使い分ける">2.3.3 div、nav、main、sectionを使い分ける</h3>
+<p><code>div</code>は、それ自体には特別な意味を持たない汎用な要素です。 主に、CSSによるレイアウトやプログラムからの操作を目的として、複数の要素をまとめる際に使われます。 他の要素で代替可能な場合は極力使用しないようにしましょう。</p>
+<p>これに対して、<code>nav</code>はナビゲーション、<code>main</code>は主要コンテンツ、<code>section</code>は内容を主題ごとにまとめた区画を表します。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-search&quot;&gt;
+  &lt;!-- 検索に関する内容 --&gt;
+&lt;/section&gt;</code></pre>
+<h3 id="234-classやidから構造を予測する">2.3.4 classやidから構造を予測する</h3>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-search&quot; class=&quot;filetab&quot;&gt;検索&lt;/button&gt;
+&lt;section id=&quot;panel-search&quot; class=&quot;panel&quot;&gt;&lt;/section&gt;</code></pre>
+<p>この2つには、<code>search</code>という共通した名前が含まれています。名前の付け方から、両者が関連していると予想できるでしょう。</p>
+<p>idやclassの名前は、制作者が決めることができます。<code>panel-search</code>という名前はHTMLの仕様で特別な意味が決められているわけではありません。 それでも、名前から役割を推測できるようにすると、コードを読みやすくなります。<code>panel-search</code>のように役割を示す名前を付けるルールを<strong>命名規則</strong>と呼びます。</p>
+<p><strong>考えてみよう：</strong> <code>tab-search</code>というidを<code>button1</code>に変更した場合、ブラウザの処理は同じでも、人間にとっての読みやすさは変わるでしょうか。</p>
+<h2 id="24-検索フォームの仕組みを理解する">2.4 検索フォームの仕組みを理解する</h2>
+<p>次は、<code>main.container</code>の内側を詳しく見ていきます。New Tabアプリには、Googleで検索を行うための入力欄と検索ボタンがあります。これらは、HTMLの<code>form</code>要素によってまとめられています。</p>
+<h3 id="241-見出しと検索領域">2.4.1 見出しと検索領域</h3>
+<pre class="code-block"><code class="language-html">&lt;main class=&quot;container&quot;&gt;
+  &lt;h1&gt;New Tab&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;「検索」はGoogleに送信されます。&lt;/p&gt;
+
+  &lt;section id=&quot;panel-search&quot; class=&quot;panel&quot;
+           role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-search&quot;&gt;
+    &lt;!-- 検索フォーム --&gt;
+  &lt;/section&gt;
+&lt;/main&gt;</code></pre>
+<p><code>h1</code>はページの見出し、<code>p</code>はその下に表示する説明文です。これらは検索パネルの外側に配置されています。 そのため、検索画面からニュース画面に切り替える仕組みを追加した場合でも、見出しと説明文は共通の領域として扱うことができます。</p>
+<p>一方、<code>section</code>は検索パネルとして独立しています。このような構造を採用すると、共通して表示したい要素と、切り替えて表示したい要素を区別できます。</p>
+<p>制作をする際にこのような拡張可能な構造になっているかは視点として持っておくべきです。</p>
+<h3 id="242-form要素の役割">2.4.2 form要素の役割</h3>
+<pre class="code-block"><code class="language-html">&lt;form class=&quot;search-form&quot; action=&quot;https://www.google.com/search&quot;
+      method=&quot;get&quot; role=&quot;search&quot;&gt;
+  &lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;
+  &lt;input class=&quot;search-input&quot; id=&quot;search-input&quot; name=&quot;q&quot; type=&quot;search&quot;
+         placeholder=&quot;Googleで検索&quot; autocomplete=&quot;off&quot;
+         enterkeyhint=&quot;search&quot; required&gt;
+  &lt;button class=&quot;search-button&quot; type=&quot;submit&quot;&gt;検索&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+<p>大きく分けると、入力内容を送信するための<code>form</code>、文字を入力するための<code>input</code>、送信を実行する<code>button</code>が含まれています。 これらをHTMLの標準的な機能として組み合わせることで、JavaScriptを使わずに検索フォームを動かすことができます。</p>
+<pre class="code-block"><code class="language-html">action=&quot;https://www.google.com/search&quot;
+method=&quot;get&quot;</code></pre>
+<p><code>action</code>はフォームの送信先、<code>method</code>は送信方法です。GET方式では、フォームのデータを送信します。 例えば、検索欄に<code>HTML</code>と入力して検索ボタンを押すと、次のようなURLへの移動が行われます。</p>
+<pre class="code-block"><code class="language-text">https://www.google.com/search?q=HTML</code></pre>
+<p><code>?</code>以降がクエリ文字列です。ここで重要なのが、入力欄に指定されている<code>name=&quot;q&quot;</code>です。</p>
+<pre class="code-block"><code class="language-html">&lt;input name=&quot;q&quot; type=&quot;search&quot;&gt;</code></pre>
+<p><code>name</code>は、フォームの送信時に使用されるデータの項目名です。Googleの検索用URLでは、検索語を<code>q</code>という名前のパラメータで受け取ります。そのため、入力欄に<code>name=&quot;q&quot;</code>を指定しています。</p>
+<pre class="code-block"><code class="language-text">入力欄に「HTML」と入力
+        ↓
+input の name=&quot;q&quot;
+        ↓
+form の GET 送信
+        ↓
+https://www.google.com/search?q=HTML
+```*図2-6　HTMLの検索フォームがデータを送る流れ*
+
+### 2.4.3 input要素と属性
+
+```html
+&lt;input class=&quot;search-input&quot;
+       id=&quot;search-input&quot;
+       name=&quot;q&quot;
+       type=&quot;search&quot;
+       placeholder=&quot;Googleで検索&quot;
+       autocomplete=&quot;off&quot;
+       enterkeyhint=&quot;search&quot;
+       required&gt;</code></pre>
+<table><thead><tr><th>属性</th><th>役割</th></tr></thead><tbody><tr><td><code>type=&quot;search&quot;</code></td><td>検索語の入力欄であることを示す</td></tr><tr><td><code>name=&quot;q&quot;</code></td><td>送信する値の項目名を指定する</td></tr><tr><td><code>id=&quot;search-input&quot;</code></td><td>要素を識別する</td></tr><tr><td><code>placeholder</code></td><td>入力欄が空のときに補助的な文字を表示する</td></tr><tr><td><code>autocomplete=&quot;off&quot;</code></td><td>ブラウザによる入力補完を抑制するよう指定する</td></tr><tr><td><code>enterkeyhint=&quot;search&quot;</code></td><td>対応する端末で、入力用キーの表示を検索向けにするヒントを与える</td></tr><tr><td><code>required</code></td><td>入力を必須とする</td></tr></tbody></table>
+<p>ここで注目したいのは、<code>required</code>です。この属性が指定された入力欄では、値が空の場合、通常のフォーム送信時にブラウザが入力を求めます。</p>
+<p>実際に検索欄を空のまま検索ボタンを押してみてください。入力を求めるメッセージなどが表示されるはずです。</p>
+<p>この動作も、HTMLとブラウザに用意された標準的な機能です。ただし、<code>required</code>は単にブラウザ側の検証であることは留意が必要です。</p>
+<h3 id="244-labelと入力欄の関係">2.4.4 labelと入力欄の関係</h3>
+<pre class="code-block"><code class="language-html">&lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;
+&lt;input id=&quot;search-input&quot; name=&quot;q&quot; type=&quot;search&quot;&gt;</code></pre>
+<p><code>label</code>は、入力欄などのフォーム部品に説明を付けるための要素です。<code>for</code>には対応する入力要素のidを指定します。<code>for=&quot;search-input&quot;</code>と<code>id=&quot;search-input&quot;</code>が一致することで、ラベルと入力欄が関連付けられます。</p>
+<pre class="code-block"><code class="language-text">label [for=&quot;search-input&quot;]
+            ↕
+input [id=&quot;search-input&quot;]
+```*図2-7　labelのfor属性とinputのid属性の関係*
+
+表示されているラベルをクリックした際、対応する入力欄へフォーカスを移せます。また、スクリーンリーダーなどのweb支援技術に、入力欄の名前を伝えることにも役立ちます。
+
+
+### 2.4.5 button要素の役割
+
+```html
+&lt;button class=&quot;search-button&quot; type=&quot;submit&quot;&gt;検索&lt;/button&gt;</code></pre>
+<p><code>button</code>は、利用者が操作するためのボタンを表す要素です。<code>type=&quot;submit&quot;</code>は、所属するフォームを送信するためのボタンであることを示します。</p>
+<p>一方、タブに使用されるボタンは次のようになっています。</p>
+<pre class="code-block"><code class="language-html">&lt;button type=&quot;button&quot;&gt;ニュース&lt;/button&gt;</code></pre>
+<p><code>type=&quot;button&quot;</code>では、フォームの送信は行いません。また、クリックした際に特定の画面を表示するような動作が自動的に追加されるわけでもありません。そのような独自の処理は、後章で実装します。</p>
+<h2 id="25-タブとパネルの対応を理解する">2.5 タブとパネルの対応を理解する</h2>
+<p>New Tabアプリには、検索とニュースを切り替えるための2つのタブが用意されています。しかし、本章のHTMLだけでは、タブをクリックしても表示内容は切り替わりません。それでもタブとパネルを用意するのは、<strong>操作する部分と、操作によって表示する部分を、あらかじめ対応付けておくため</strong>です。</p>
+<h3 id="251-タブのHTMLを確認する">2.5.1 タブのHTMLを確認する</h3>
+<pre class="code-block"><code class="language-html">&lt;nav class=&quot;tabs&quot; role=&quot;tablist&quot; aria-label=&quot;新しいタブのメニュー&quot;&gt;
+  &lt;button id=&quot;tab-search&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+          role=&quot;tab&quot; aria-selected=&quot;true&quot;
+          aria-controls=&quot;panel-search&quot; tabindex=&quot;0&quot;&gt;1 検索&lt;/button&gt;
+  &lt;button id=&quot;tab-news&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+          role=&quot;tab&quot; aria-selected=&quot;false&quot;
+          aria-controls=&quot;panel-news&quot; tabindex=&quot;-1&quot;&gt;2 ニュース&lt;/button&gt;
+&lt;/nav&gt;</code></pre>
+<p><code>role</code>は、要素がアクセシビリティ上どのような役割を持つのかを示す属性です。<code>role=&quot;tablist&quot;</code>は複数のタブのまとまり、<code>role=&quot;tab&quot;</code>は個々のタブを示します。</p>
+<p><code>aria-selected</code>は選択状態を示す属性で、検索側には<code>true</code>、ニュース側には<code>false</code>が指定されています。ただし、<code>aria-selected</code>を書いただけで、画面の色が変わったり、パネルが切り替わったりするわけではありません。 ARIA属性は主に、要素の役割や状態、関係を支援技術へ伝えるためのものです。</p>
+<h3 id="253-aria-controlsで対応するパネルを示す">2.5.3 aria-controlsで対応するパネルを示す</h3>
+<p>検索タブには次の属性があります。</p>
+<pre class="code-block"><code class="language-html">aria-controls=&quot;panel-search&quot;</code></pre>
+<p>対応するパネルには同じ値のidがあります。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-search&quot; role=&quot;tabpanel&quot;
+         aria-labelledby=&quot;tab-search&quot;&gt;&lt;/section&gt;</code></pre>
+<p>ニュース側も同じ規則です。</p>
+<pre class="code-block"><code class="language-text">tab-search                       tab-news
+aria-controls=&quot;panel-search&quot;     aria-controls=&quot;panel-news&quot;
+       │                                │
+       ▼                                ▼
+panel-search                      panel-news
+id=&quot;panel-search&quot;                id=&quot;panel-news&quot;</code></pre>
+<p><em>図2-9　タブのaria-controlsとパネルのidによる対応関係</em></p>
+<p><code>aria-controls</code>は、要素間の関係を表す属性であり、JavaScriptの処理を自動的に実行するものではありません。<code>aria-controls=&quot;panel-news&quot;</code>と書いただけでは、ニュースタブをクリックしてもニュースパネルは表示されません。</p>
+<p>第4章では、JavaScriptでタブの操作を受け取り、対応するパネルの表示状態を変更します。その際、<code>aria-controls</code>の値を利用してパネルを探す実装も可能ですが、実際にどの属性を参照するかは実装次第です。</p>
+<h3 id="254-aria-labelledbyと要素の名前">2.5.4 aria-labelledbyと要素の名前</h3>
+<p>パネル側には、次の属性も指定されています。</p>
+<pre class="code-block"><code class="language-html">aria-labelledby=&quot;tab-search&quot;</code></pre>
+<p>これは、そのパネルのアクセシブルな名前を、<code>tab-search</code>というidを持つ要素から取得することを示します。今回の場合、検索パネルは「1 検索」というボタンによって名前付けされています。</p>
+<h3 id="255-tabindexとキーボード操作">2.5.5 tabindexとキーボード操作</h3>
+<pre class="code-block"><code class="language-html">tabindex=&quot;0&quot;
+tabindex=&quot;-1&quot;</code></pre>
+<p><code>tabindex</code>は、キーボードによるフォーカスの扱いに関係する属性です。通常、<code>tabindex=&quot;0&quot;</code>の要素はTabキーによる順次フォーカス移動の対象になります。一方、<code>tabindex=&quot;-1&quot;</code>の要素は通常のTabキー移動の対象から外れますが、JavaScriptなどによってフォーカスを移すことはできます。</p>
+<p>本章のHTMLでは検索タブに<code>0</code>、ニュースタブに<code>-1</code>が指定されています。ただし、現時点ではJavaScriptによる矢印キー操作や選択状態の更新は実装されていません。<strong>タブの構造と初期状態を用意した段階</strong>と考えてください。</p>
+<h2 id="26-ニュース領域の構造を理解する">2.6 ニュース領域の構造を理解する</h2>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;
+         aria-labelledby=&quot;tab-news&quot; hidden&gt;
+  &lt;div class=&quot;news-card&quot;&gt;
+    &lt;div class=&quot;news-heading&quot;&gt;
+      &lt;h2 id=&quot;news-title&quot;&gt;ニュース&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;p id=&quot;news-genre&quot; class=&quot;news-genre&quot;&gt;
+      第4章以降でタブを動かします。
+    &lt;/p&gt;
+    &lt;div id=&quot;news&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<p><code>section</code>はニュースパネル全体、<code>h2</code>はニュース領域の見出し、<code>p</code>は説明文です。また、<code>news-card</code>というclassが付いた<code>div</code>はニュースの内容をまとめるために用意されています。</p>
+<h3 id="261-hidden属性による非表示">2.6.1 hidden属性による非表示</h3>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-news&quot; hidden&gt;</code></pre>
+<p><code>hidden</code>は要素を非表示にするHTML属性です。検索パネルにはなく、ニュースパネルにあるため、初期表示は検索画面です。</p>
+<h3 id="262-ニュース表示用の空のdiv">2.6.2 ニュース表示用の空のdiv</h3>
+<pre class="code-block"><code class="language-html">&lt;div id=&quot;news&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;</code></pre>
+<p><code>aria-live=&quot;polite&quot;</code>は、内容が更新された際に、支援技術が適切なタイミングで変更を通知できるようにするための属性です。ただし、実際の通知方法はブラウザや支援技術の組み合わせなどによって異なります。</p>
+<h3 id="263-将来の機能を意識した構造">2.6.3 将来の機能を意識した構造</h3>
+<p>ニュースパネルには、パネルそのもの、ニュースの見出し、補助情報、本文などを追加する領域が用意されています。まだ動作していない機能であっても、その機能が必要とする画面構造を先に設計しているわけです。</p>
+<p>最初からすべての機能を完成させようとすると、HTML、CSS、JavaScriptを同時に考える必要があります。一方、必要な領域をHTMLで用意しておけば、後から各機能を段階的に追加できます。</p>
+<h2 id="27-ブラウザで動作を確認する">2.7 ブラウザで動作を確認する</h2>
+<p>コードを理解する上で重要なのは、説明を読むことだけではありません。実際に動かしてみて、予想した結果と一致するかを確認することも必要です。</p>
+<h3 id="271-HTMLをブラウザで開く">2.7.1 HTMLをブラウザで開く</h3>
+<p><code>02-html/index.html</code>を開きましょう。CSSがないため標準の見た目で、ニュースタブを押しても切り替わりません。まだJavaScriptによる表示変更がないためです。</p>
+<h2 id="28-開発者ツールを使って構造を調べる">2.8 開発者ツールを使って構造を調べる</h2>
+<p>開発者ツールは、WebページのHTMLやCSSを確認し、動作を調査する機能です。Chromeでは右クリックして「検証」を選ぶか、<code>Ctrl+Shift+I</code>を押して開きます。ここでの変更は元のHTMLファイルには保存されず、ページを再読み込みすると元に戻ります。</p>
+<h3 id="281-ElementsでHTMLを確認する">2.8.1 ElementsでHTMLを確認する</h3>
+<p>開発者ツールで「Elements」またはそれに相当する画面を探してください。そこには<code>html</code>、<code>head</code>、<code>body</code>などが階層構造で表示されます。</p>
+<p>これはブラウザが現在扱っているDOMと呼ばれる文書構造です。DOMはHTMLをもとに構築されますが、ソースコードと完全に同じ表現になるとは限りません。</p>
+<p>まず<code>div.shell</code>を探してください。その内側に<code>nav.tabs</code>と<code>main.container</code>があり、さらに見出しや検索パネル、ニュースパネルが存在することを確認します。</p>
+<h3 id="282-タブとパネルのidを照合する">2.8.2 タブとパネルのidを照合する</h3>
+<p>検索タブの<code>aria-controls=&quot;panel-search&quot;</code>と、検索パネルの<code>id=&quot;panel-search&quot;</code>を照合します。ニュースタブとニュースパネルについても、同じ手順で確認してください。</p>
+<p>属性がどの要素を参照しているのかを追いかけることが大切です。</p>
+<h2 id="29-AIと参考資料を使って理解を深める">2.9 AIと参考資料を使って理解を深める</h2>
+<p>コードの意味が分からなかったり、どのように調べればよいのか迷ったりした場合、生成AIに質問して説明を得ることもできます。</p>
+<blockquote><p>HTMLの<code>aria-controls</code>はどのような役割を持っていますか。<code>id</code>との関係を、初学者にも分かるように説明してください。</p></blockquote>
+<p>このような質問は、分からない用語を理解するための手掛かりになります。ただし、AIによる説明が常に正しいとは限りません。</p>
+<h3 id="291-仕様と実装を区別する">2.9.1 仕様と実装を区別する</h3>
+<p>例えば、</p>
+<blockquote><p>「タブを作るには<code>aria-controls</code>が必要ですか」と質問したとします。</p></blockquote>
+<p>この問いに答える際には、何を根拠に「必要」と判断するのかを区別することが重要です。</p>
+<p>HTMLの標準的な<code>button</code>要素を単独で使用する場合と、WAI-ARIAのタブパターンに沿ったUIを自作する場合とでは、求められる構造が異なります。</p>
+<p>W3CのWAI-ARIA Authoring Practices Guideでは、タブとパネルの対応付けとして<code>aria-controls</code>を使用するパターンが示されています。一方、単に2つのボタンを並べただけであれば、それらが必ずタブとして機能するわけではありません。</p>
+<h3 id="292-参考資料を確認する">2.9.2 参考資料を確認する</h3>
+<p>HTMLの要素や属性について調べる際には、MDN Web Docsが参考になります。タブのアクセシビリティ設計については、W3CのWAI-ARIA Authoring Practices Guideを確認するとよいでしょう。</p>
+<p>疑問が生じた場合には、まず何が分からないのかを整理し、AIの説明や参考資料を利用して理解を深めるべきです。</p>
+<h3 id="293-自分で確かめる習慣を身につける">2.9.3 自分で確かめる習慣を身につける</h3>
+<p>今回の学習では、<code>h1</code>の内容を変更すると見出しが変わり、<code>hidden</code>を削除するとニュース領域が表示され、<code>name=&quot;q&quot;</code>を変更するとフォーム送信時の項目名が変わることを確認しました。一方、<code>aria-controls</code>を変更しても、ページの見た目は通常変化しません。</p>
+<p>これらの結果から、HTMLには、画面に直接現れる情報と、画面上では分かりにくい意味や関係の情報が含まれていることが分かります。</p>
+<h2 id="210-章末演習">2.10 章末演習</h2>
+<p>次の問いについて、自分で考えてから解答例を確認してください。分からない場合には、<code>index.html</code>を読み直したり、ブラウザで動作を確かめたりしましょう。</p>
+<ol><li><code>head</code>と<code>body</code>の違いは何でしょうか。</li><li><code>id</code>と<code>class</code>にはどのような違いがありますか。</li><li>検索欄の<code>name=&quot;q&quot;</code>を変更すると、何が変わりますか。</li><li>ニュース領域が最初から表示されないのはなぜですか。</li><li><code>aria-controls</code>を指定しただけで、タブが切り替わらないのはなぜですか。</li></ol>
+<h3 id="発展課題3つ目のパネルを設計する">発展課題：3つ目のパネルを設計する</h3>
+<p>余裕がある方は、新しく「メモ」というタブとパネルを追加してみてください。最初から動作させる必要はありません。HTMLの構造だけを用意します。</p>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-memo&quot; type=&quot;button&quot; class=&quot;filetab&quot; role=&quot;tab&quot;
+        aria-selected=&quot;false&quot; aria-controls=&quot;panel-memo&quot;
+        tabindex=&quot;-1&quot;&gt;3 メモ&lt;/button&gt;</code></pre>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-memo&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;
+         aria-labelledby=&quot;tab-memo&quot; hidden&gt;
+  &lt;h2&gt;メモ&lt;/h2&gt;
+  &lt;p&gt;ここにメモを表示します。&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+<p>既存のタブ一覧とパネル一覧の適切な場所へ追加してください。追加した時点では、メモタブをクリックしてもパネルは切り替わりません。しかし、<code>hidden</code>を一時的に削除すれば、メモ領域が表示されます。</p>
+<p>ここで考えてほしいのは、タブを追加する際に、どのような要素や属性をそろえる必要があるかということです。演習後は、元の2つのタブの構成に戻しておきましょう。</p>
+<h2 id="211-本章のまとめ">2.11 本章のまとめ</h2>
+<p>本章では、HTMLの基本的な役割から始まり、New Tabアプリの<code>index.html</code>を題材として、画面の構造と要素同士の関係を確認しました。</p>
+<p>HTMLは、単に文字やボタンを表示するためのものではありません。文書の見出しや区画、入力フォーム、操作部品などに意味を与え、ブラウザや支援技術がそれらを適切に扱うための土台となります。</p>
+<p>また、HTMLの親子関係を理解することで、複雑なコードも大きな構造から順番に読み解けるようになります。</p>
+<p>今回のアプリでは、最初に<code>div.shell</code>というまとまりがあり、その内側にタブの領域とメインコンテンツが配置されていました。さらにメインコンテンツの中には、検索パネルとニュースパネルが用意されていました。</p>
+<p>検索フォームでは、<code>form</code>、<code>input</code>、<code>button</code>の組み合わせによって、JavaScriptを使わずに検索語を送信できることを確認しました。</p>
+<p>タブとパネルについては、<code>id</code>やARIA属性を利用して対応関係を表す方法を学びました。ただし、対応関係を記述することと、実際に画面を切り替えることは別の作業です。</p>
+</section></article>
+</main></body></html>

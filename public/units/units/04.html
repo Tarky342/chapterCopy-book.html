@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>JavaScriptでタブを動かす | New Tab 教材</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<link rel="stylesheet" href="../styles/page.css">
+<link rel="stylesheet" href="../styles/layout.css">
+<link rel="stylesheet" href="../styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-04" data-unit="04">
+<header class="book-unit-header"><p class="book-unit-kicker">第4章</p><h1 class="book-unit-title">JavaScriptでタブを動かす</h1></header>
+<section class="book-body">
+<h1 id="第4章-JavaScriptでタブを動かす">第4章　JavaScriptでタブを動かす</h1>
+<h2 id="41-知る見た目を整えたタブに動作を加える">4.1 知る：見た目を整えたタブに動作を加える</h2>
+<p>前章では、HTMLにCSSを適用し、タブや検索フォームの見た目を整えました。しかし、CSSは「どのタブが選ばれたか」をクリックから判断してくれるわけではありません。</p>
+<p>本章では、JavaScriptを使って、利用者がタブを選ぶと対応する内容だけが表示されるようにします。完成した「New Tab」のうち、扱うのは「1 検索」と「2 ニュース」の切り替えです。すでにあるHTMLとCSSに、操作に応じた状態の変更を結び付けることが目標です。</p>
+<h2 id="42-知るJavaScriptDOMイベントの役割">4.2 知る：JavaScript、DOM、イベントの役割</h2>
+<p>HTMLは<strong>構造</strong>を記述するものでした。またCSSは<strong>見た目</strong>を指定するものでした。 これに対してJavaScriptは、利用者の操作などに応じて、ページの<strong>状態や動作</strong>を変えるために使います。</p>
+<p>ブラウザは読み込んだHTMLを、JavaScriptから参照・変更できる要素の集まりとして扱います。この仕組みを<strong>DOM（Document Object Model）</strong>と呼びます。たとえば、HTMLに書かれた<code>&lt;button&gt;</code>は、JavaScriptから取得して属性を読み取ったり、値を変更したりできます。DOMは、HTMLを単なる文字列として探すのではなく、「このボタン」「このパネル」という単位で扱うための仕組みです。</p>
+<p>また、クリックやキー入力のような出来事を<strong>イベント</strong>と呼びます。イベントが起きたときに呼び出す処理を登録する仕組みが<strong>イベントリスナー</strong>です。今回の基本的な流れは、次のとおりです。</p>
+<ol><li>JavaScriptがHTML内のタブとパネルを見つけます。</li><li>タブがクリックされたときに実行する処理を登録します。</li><li>クリックが発生すると、JavaScriptが選択状態と表示状態を更新します。</li><li>ブラウザは更新されたHTMLの状態とCSSに従って画面を表示します。</li></ol>
+<p>ここで重要なのは、<strong>JavaScriptがタブの色を直接塗り替えているわけではない</strong>という点です。JavaScriptは選択状態を表す属性を書き換え、CSSがその属性を条件に見た目を変えています。</p>
+<h2 id="43-読み解くHTMLに用意されたタブとパネル">4.3 読み解く：HTMLに用意されたタブとパネル</h2>
+<p>まず、JavaScriptを読む前に、操作の対象となるHTMLを確認します。<code>index.html</code>からタブとパネルの開始部分を抜き出すと、次のようになっています。</p>
+<pre class="code-block"><code class="language-html">&lt;nav class=&quot;tabs&quot; role=&quot;tablist&quot; aria-label=&quot;新しいタブのメニュー&quot;&gt;
+  &lt;button id=&quot;tab-search&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+    role=&quot;tab&quot; aria-selected=&quot;true&quot; aria-controls=&quot;panel-search&quot; tabindex=&quot;0&quot;&gt;1 検索&lt;/button&gt;
+  &lt;button id=&quot;tab-news&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+    role=&quot;tab&quot; aria-selected=&quot;false&quot; aria-controls=&quot;panel-news&quot; tabindex=&quot;-1&quot;&gt;2 ニュース&lt;/button&gt;
+&lt;/nav&gt;
+
+&lt;section id=&quot;panel-search&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-search&quot;&gt;...&lt;/section&gt;
+&lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;
+  aria-labelledby=&quot;tab-news&quot; hidden&gt;...&lt;/section&gt;</code></pre>
+<p>ここでは、二つのタブを<code>role=&quot;tablist&quot;</code>というまとまりに入れ、各ボタンに<code>role=&quot;tab&quot;</code>、対応する表示領域に<code>role=&quot;tabpanel&quot;</code>を指定しています。<code>role</code>は、要素がインターフェースの中でどのような役割を持つかを、支援技術に伝えるための属性です。また、<code>aria-</code>で始まる属性は、要素の関係や状態を伝えるために用いられます。</p>
+<table><thead><tr><th>画面上の部分</th><th>タブの<code>id</code></th><th>タブの<code>aria-controls</code></th><th>対応するパネルの<code>id</code></th></tr></thead><tbody><tr><td>1 検索</td><td><code>tab-search</code></td><td><code>panel-search</code></td><td><code>panel-search</code></td></tr><tr><td>2 ニュース</td><td><code>tab-news</code></td><td><code>panel-news</code></td><td><code>panel-news</code></td></tr></tbody></table>
+<p><code>aria-controls=&quot;panel-news&quot;</code>はニュースタブから対象パネルを指します。<code>aria-labelledby=&quot;tab-news&quot;</code>はパネルの名前付けにタブを使う指定です。JavaScriptもこの対応を参照します。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/04-tabs/assets/V-04-001.svg" alt="検索タブとニュースタブの対応関係を示し、ニュースタブのクリック前後で表示中のパネルが入れ替わる図。破線は実際には非表示のパネルを説明用に示している。"></figure>
+<p><em>図 V-04-001：タブ選択前後の表示。破線は非表示のパネルを示す。</em></p>
+<p>最初のHTMLでは、検索タブに<code>aria-selected=&quot;true&quot;</code>、ニュースタブに<code>aria-selected=&quot;false&quot;</code>が付いています。ニュースパネルには<code>hidden</code>があるため、ページを開いた直後は検索パネルが表示される構成です。まず、この状態を覚えておいてください。</p>
+<h2 id="44-読み解くtabsjs全体で行っていること">4.4 読み解く：<code>tabs.js</code>全体で行っていること</h2>
+<p>今回のJavaScriptは、<code>tabs.js</code>というファイルにまとまっています。HTMLの<code>&lt;head&gt;</code>には次の指定をしてください</p>
+<pre class="code-block"><code class="language-html">&lt;script src=&quot;tabs.js&quot; defer&gt;&lt;/script&gt;</code></pre>
+<p><code>src</code>は読み込むファイルを指定します。<code>defer</code>は、HTMLの解析が終わってからこのスクリプトを実行するようブラウザーへ伝えるための要素になります。これはすべてのタブの要素が読み込まれる前に動作を行わないようにするためです。</p>
+<p><code>tabs.js</code>全体の処理は、大きく四つに分けられます。</p>
+<ol><li><strong>要素の取得</strong>：タブを集め、それぞれに対応するパネルを取得する。</li><li><strong>切り替え処理の定義</strong>：<code>activateTab</code>という関数に、選択状態と表示状態の更新をまとめる。</li><li><strong>操作の登録</strong>：クリックとAltキーを使った操作から<code>activateTab</code>を呼び出す。</li><li><strong>初期化</strong>：最後に<code>activateTab(0)</code>を実行し、検索タブを選択状態にする。</li></ol>
+<p>ここでいう<strong>関数</strong>は、名前を付けてひとまとまりにした処理です。関数を呼び出すことで、同じ変更を複数の操作から実行できます。「要素を見つける→操作を待つ→状態を変える」というJavaScriptの流れを意識してください。</p>
+<p>ここで<code>const</code>、<code>let</code>、<code>function</code>を確認します。 <code>const</code>は再代入できない変数、<code>let</code>は再代入できる変数、<code>function</code>は処理をまとめる関数です。</p>
+<h2 id="45-読み解くタブとパネルを取得する">4.5 読み解く：タブとパネルを取得する</h2>
+<p>最初に、<code>tabs.js</code>冒頭の2行を見ます。</p>
+<pre class="code-block"><code class="language-javascript">const tabs = [...document.querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;)];
+const panels = tabs.map(tab =&gt; document.getElementById(tab.getAttribute(&#39;aria-controls&#39;)));</code></pre>
+<p><code>document</code>は、現在のHTML文書をDOMとして扱うための入口です。<code>querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;)</code>は、CSSのセレクターと同じ書き方を使って、<code>role=&quot;tab&quot;</code>を持つ要素をすべて取得します。今回は「1 検索」と「2 ニュース」の二つです。</p>
+<p><code>querySelectorAll</code>は要素の集まりである<strong>NodeList</strong>を返します。<code>[...]</code>で配列に変えると、<code>map</code>などの処理を使えます。</p>
+<p><code>map</code>で各タブに対応するパネルを探します。<code>getAttribute(&#39;aria-controls&#39;)</code>で<code>&quot;panel-news&quot;</code>を読み、<code>getElementById</code>へ渡します。</p>
+<p>配列の対応は次のようになります。</p>
+<table><thead><tr><th>配列の番号</th><th><code>tabs</code>に入る要素</th><th><code>panels</code>に入る要素</th></tr></thead><tbody><tr><td><code>0</code></td><td>検索タブ（<code>tab-search</code>）</td><td>検索パネル（<code>panel-search</code>）</td></tr><tr><td><code>1</code></td><td>ニュースタブ（<code>tab-news</code>）</td><td>ニュースパネル（<code>panel-news</code>）</td></tr></tbody></table>
+<p><code>tabs[1]</code>と<code>panels[1]</code>のように、<strong>同じ番号で対応するものを扱える</strong>ことが、この後の処理の基礎になります。なお、指定した<code>id</code>を持つ要素が見つからない場合、<code>getElementById</code>は<code>null</code>（該当する要素がないことを示す値）を返します。HTMLの名前が一致しているかどうかは、単なる見た目の問題ではなく、JavaScriptの動作に関わります。</p>
+<p>ここでJavaScriptにおいて混同しやすい<code>Null</code>と<code>Undefined</code> について軽くさらっておきます。 • undefined：値が「未定義」でまだ何も割り当てられていない • null：値が「空」であり意図的に空っぽにしているといった違いがあります。</p>
+<h2 id="46-読み解くactivateTabが三つの状態を更新する">4.6 読み解く：<code>activateTab</code>が三つの状態を更新する</h2>
+<p>次は、タブ切り替えを担当する関数です。</p>
+<pre class="code-block"><code class="language-javascript">function activateTab(index, moveFocus = false) {
+  if (index &lt; 0 || index &gt;= tabs.length || !panels[index]) return;
+  tabs.forEach((tab, i) =&gt; {
+    const selected = i === index;
+    tab.setAttribute(&#39;aria-selected&#39;, String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    panels[i].hidden = !selected;
+  });
+  if (moveFocus) tabs[index].focus();
+}</code></pre>
+<p><code>activateTab(0)</code>は検索、<code>activateTab(1)</code>はニュースを選びます。冒頭の<code>if</code>は不正な番号やパネル欠落時に<code>return</code>で処理を止めます。</p>
+<p><code>forEach</code>で各タブを調べ、<code>i === index</code>が一致するときの<code>true</code>を<code>selected</code>に入れて状態を更新します。</p>
+<table><thead><tr><th>コード</th><th>何を変えるか</th><th>画面や操作への影響</th></tr></thead><tbody><tr><td><code>tab.setAttribute(&#39;aria-selected&#39;, String(selected))</code></td><td>タブの選択状態を表す属性</td><td>支援技術に選択状態を伝え、CSSの選択条件にも使われる</td></tr><tr><td><code>tab.tabIndex = selected ? 0 : -1</code></td><td>Tabキーで順番に移動するときの対象</td><td>選択中のタブだけを通常のTabキー移動の対象にする</td></tr><tr><td><code>panels[i].hidden = !selected</code></td><td>対応するパネルの非表示状態</td><td>選択されていないパネルを隠す</td></tr></tbody></table>
+<p><code>setAttribute</code>で属性を変更し、<code>String(selected)</code>で真偽値を<code>&quot;true&quot;</code>／<code>&quot;false&quot;</code>の文字列にします。<code>aria-selected</code>はCSSの選択中表示に使われます。</p>
+<pre class="code-block"><code class="language-css">.filetab[aria-selected=&quot;true&quot;] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}</code></pre>
+<p><code>tabIndex</code>の<code>0</code>は通常のTab移動の対象、<code>-1</code>は対象外です。<code>-1</code>でもJavaScriptからフォーカスできます。</p>
+<p><code>!selected</code>は真偽値を反転します。選択中は<code>hidden = false</code>で表示、それ以外は<code>true</code>で非表示にします。</p>
+<p>たとえば<code>activateTab(1)</code>を呼び出した直後の状態を整理すると、次のようになります。</p>
+<table><thead><tr><th>要素</th><th><code>aria-selected</code></th><th><code>tabIndex</code></th><th>パネルの<code>hidden</code></th></tr></thead><tbody><tr><td>検索タブ／検索パネル</td><td><code>false</code></td><td><code>-1</code></td><td><code>true</code>（非表示）</td></tr><tr><td>ニュースタブ／ニュースパネル</td><td><code>true</code></td><td><code>0</code></td><td><code>false</code>（表示）</td></tr></tbody></table>
+<p>タブの選択状態・Tab移動・表示を同じ関数で更新します。<code>moveFocus</code>は既定で<code>false</code>のため、現状の呼び出しでは<code>focus()</code>による移動は起きません。</p>
+<h2 id="47-読み解くクリックとAltキーを同じ関数につなぐ">4.7 読み解く：クリックとAltキーを同じ関数につなぐ</h2>
+<p>切り替える規則ができたので、次は利用者の操作と結び付けます。クリックを受け取る部分は次のとおりです。</p>
+<pre class="code-block"><code class="language-javascript">tabs.forEach((tab, index) =&gt; {
+  tab.addEventListener(&#39;click&#39;, () =&gt; activateTab(index));
+});</code></pre>
+<p><code>addEventListener(&#39;click&#39;, ...)</code>でクリック時の処理を登録し、<code>() =&gt; activateTab(index)</code>で選んだタブの番号を渡します。</p>
+<pre class="code-block"><code class="language-javascript">window.addEventListener(&#39;keydown&#39;, event =&gt; {
+  if (!event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) return;
+  if (event.key === &#39;1&#39; || event.key === &#39;2&#39;) {
+    const index = Number(event.key) - 1;
+    if (index &lt; tabs.length) {
+      event.preventDefault();
+      activateTab(index);
+    }
+  }
+});</code></pre>
+<p><code>keydown</code>はキーを押したときのイベントです。<code>event</code>から修飾キーと<code>1</code>／<code>2</code>を確認し、対象の操作だけを受け付けます。</p>
+<p><code>Number(event.key) - 1</code>は、キーの文字<code>&quot;1&quot;</code>または<code>&quot;2&quot;</code>を数値に変え、配列の番号<code>0</code>または<code>1</code>に合わせる処理です。<code>event.preventDefault()</code>は、ブラウザ側で行われる既定の動作を、そのイベントが取り消し可能な場合に抑えるための呼び出しです。</p>
+<p>クリックでもAltキーでも、最後に呼び出すのは同じ<code>activateTab</code>です。「クリック用の切り替え」「キー操作用の切り替え」を別々に作らないことで、選択状態の更新が食い違う可能性を減らせます。なお、このイベントは<code>window</code>に登録されているため、ページ内の別の場所でキーを押しても条件が合えば処理されます。</p>
+<h2 id="48-考える初期表示と実装されている範囲">4.8 考える：初期表示と、実装されている範囲</h2>
+<p><code>tabs.js</code>の最後には、次の一行があります。</p>
+<pre class="code-block"><code class="language-javascript">activateTab(0);</code></pre>
+<p>HTMLだけを読み込んだ時点でも、検索タブには<code>aria-selected=&quot;true&quot;</code>、ニュースパネルには<code>hidden</code>が指定されています。JavaScriptが実行されると、<code>activateTab(0)</code>があらためて検索タブを選び、タブとパネルの状態をそろえます。初期表示を明示しておくと、クリックを待つ前に、どちらが選択中かをコードから読み取れます。</p>
+<p>JavaScriptを無効にするとタブは切り替わりませんが、検索フォームのGET送信はHTMLの<code>action</code>と<code>method</code>で動きます。</p>
+<h2 id="49-試すブラウザと開発者ツールで状態を確かめる">4.9 試す：ブラウザと開発者ツールで状態を確かめる</h2>
+<p><code>index.html</code>、<code>style.css</code>、<code>tabs.js</code>を同じフォルダーに置き、<code>index.html</code>をブラウザで開きます。検索タブと検索欄が見えることを確認したら「2 ニュース」をクリックし、ニュースパネルの「第6章でニュースを自動取得します。」と検索フォームが隠れる状態を確認します。「1 検索」をクリックすると元に戻ります。</p>
+<p><strong>コンソール（Console）</strong>では、JavaScriptの式を直接入力して値を確認できます。</p>
+<pre class="code-block"><code class="language-javascript">document.getElementById(&#39;tab-news&#39;).getAttribute(&#39;aria-selected&#39;)
+// 期待する結果: &quot;true&quot;
+
+document.getElementById(&#39;panel-news&#39;).hidden
+// 期待する結果: false</code></pre>
+<p><code>&quot;true&quot;</code>は属性から取得した<strong>文字列</strong>で、<code>false</code>はプロパティの<strong>真偽値</strong>です。同じ状態を調べていても、取り出した値の種類が違うことに注目してください。</p>
+<h2 id="410-試す一か所だけ変更して結果を予測する">4.10 試す：一か所だけ変更して結果を予測する</h2>
+<p>ここからは、小さな変更を加えて検証します。</p>
+<h3 id="実験1最初に表示するタブを変える">実験1：最初に表示するタブを変える</h3>
+<ol><li>変更前にページを開き、検索パネルが最初に表示されることを確認します。</li><li><code>activateTab(0)</code>を<code>activateTab(1)</code>にすると、何が表示されるか予測して記録します。</li><li><code>tabs.js</code>の<strong>最後の一行だけ</strong>を次のように変更します。</li></ol>
+<pre class="code-block"><code class="language-javascript">   activateTab(1);</code></pre>
+<ol><li>保存してページを再読み込みし、最初からニュースパネルが表示されること、タブの選択状態もニュースに変わることを確認します。</li><li>HTMLでは検索タブが選択された状態で書かれているのに、なぜニュースが表示されるのか説明します。手掛かりは、<code>defer</code>による実行の順序と<code>activateTab</code>の働きです。</li><li>最後に<code>activateTab(0)</code>へ戻し、検索パネルから始まることを再確認します。</li></ol>
+<p>この実験から、HTMLの初期値とJavaScriptによって更新された状態を区別できます。どちらが実際の画面を決めているかを、再読み込み後に確かめるのがポイントです。</p>
+<h3 id="実験2HTMLの対応関係を一時的に崩す">実験2：HTMLの対応関係を一時的に崩す</h3>
+<ol><li>変更前にニュースタブで切り替えられることを確認します。</li><li><code>aria-controls</code>に存在しない<code>id</code>を書いた場合、どこで問題が起きるか予測します。</li><li><code>index.html</code>のニュースタブの属性<strong>一か所だけ</strong>を、<code>aria-controls=&quot;panel-news-test&quot;</code>に変更します。ニュースパネル側の<code>id</code>は変えません。</li><li>保存して再読み込みし、画面の状態と開発者ツールのConsoleを確認します。今回のコードでは、<code>panels[1]</code>が<code>null</code>になり、初期化の途中で存在しないパネルの<code>hidden</code>を操作しようとしてエラーが起きることがあります。実際のエラーメッセージも記録しましょう。</li><li>なぜタブとパネルの名前の不一致がJavaScriptのエラーにつながるのか、<code>getElementById</code>、<code>map</code>、<code>panels[i].hidden</code>を手掛かりに説明します。</li><li>属性を必ず<code>aria-controls=&quot;panel-news&quot;</code>に戻し、再読み込みしてクリック操作が復旧したことを確認します。</li></ol>
+<p>対応するパネルを一つ欠けさせると、<code>activateTab</code>のループ中にエラーが起こり得ます。現在の存在確認には改善の余地があります。</p>
+<h2 id="411-考えるフォーカスと操作方法をどう設計するか">4.11 考える：フォーカスと操作方法をどう設計するか</h2>
+<p><code>moveFocus = false</code>は引数省略時の既定値です。現状のクリック・Altキー操作では、表示は切り替わりますがフォーカスは移動しません。</p>
+<p>発展的な確認として、Altキーの処理にある<code>activateTab(index);</code>だけを一時的に<code>activateTab(index, true);</code>へ変えると、切り替え先のタブへ<code>focus()</code>が呼び出されます。変更前後でConsoleに<code>document.activeElement.id</code>と入力し、現在のフォーカス先を比べてみましょう。変更する前に結果を予測し、確認後は元に戻してください。</p>
+<p><code>aria-selected</code>は選択状態、<code>tabIndex</code>はTab移動の対象、<code>focus()</code>はフォーカス移動を扱います。三つの役割を区別しましょう。</p>
+<h2 id="413-ふりかえり構造状態見た目をつなげる">4.13 ふりかえり：構造・状態・見た目をつなげる</h2>
+<p>本章では、DOMを通じてタブとパネルを取得し、イベントリスナーから<code>activateTab</code>を呼び出して表示を切り替える仕組みを読み解きました。<code>aria-controls</code>と<code>id</code>はHTML上の対応関係を示し、JavaScriptは<code>aria-selected</code>、<code>tabIndex</code>、<code>hidden</code>を更新します。そして、CSSが選択されたタブの見た目を決めます。</p>
+<p>大切なのは、<strong>画面上の動作を観察し、対応するHTML・CSS・JavaScriptを探して、変更の結果を予測し、実際の状態を確認する</strong>という学び方です。この方法を使えば、自分で書いたコードだけでなく、他人や生成AIが作ったコードについても、動作の根拠をもって制作に生かすことができます。</p>
+</section></article>
+</main></body></html>

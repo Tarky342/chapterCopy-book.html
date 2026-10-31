@@ -1,0 +1,161 @@
+/*
+ * 印刷品質の基盤ルール v1.2。数値は print/theme.css で調整します。
+ * W3C JLREQ に沿った和文横組の基本形。禁則・改ページはブラウザ依存です。
+ * 38字相当の行長は通常本文だけ。コード・図・表を狭くしません。
+ */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: var(--body-size); }
+body {
+  margin: 0;
+  color: var(--body-color);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-weight: 400;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.book { width: 100%; max-width: 100%; min-width: 0; }
+.book-unit { min-width: 0; max-width: 100%; }
+.book-unit + .book-unit { break-before: page; page-break-before: always; }
+/* 章見出しと本文の左端を揃える。長いコード・表・図は印刷幅を使用。 */
+.book-unit-header {
+  inline-size: min(100%, var(--prose-measure));
+  margin-inline: auto;
+  margin-bottom: 1.6em;
+  border-bottom: 0.5pt solid var(--rule-color);
+}
+.book-unit-kicker { font: 9pt var(--font-heading); color: var(--muted-color); margin: 0 0 .3em; }
+.book-unit-title { font: 700 var(--h1-size)/1.4 var(--font-heading); margin: 0 0 .8em; }
+.book-body { max-width: 100%; min-width: 0; }
+.book-body p, .book-body li, .book-body blockquote {
+  text-align: var(--body-align);
+  text-align-last: start; /* 段落最終行は無理に伸ばさない */
+  line-break: strict; /* 日本語の行頭・行末禁則: 実装はブラウザ依存 */
+  word-break: normal;
+  overflow-wrap: break-word;
+  hanging-punctuation: allow-end; /* 対応ブラウザで句読点をぶら下げ */
+  orphans: 3;
+  widows: 3;
+}
+/* 意味上の段落だけ先頭1字下げ。リスト・引用・図表内は下げない。 */
+.book-body p {
+  margin-block-start: 0;
+  margin-block-end: var(--paragraph-gap);
+  text-indent: var(--paragraph-indent);
+}
+.book-body :is(li, blockquote, figure, figcaption, td, th, .print-note) p,
+.book-body li > p { text-indent: 0; }
+/* ブラウザが text-justify: inter-character を未実装でも justify は維持される。
+   実験的な text-spacing-trim は印刷環境の固定後に検討。 */
+.book-body h1, .book-body h2, .book-body h3,
+.book-body h4, .book-body h5, .book-body h6 {
+  font-family: var(--font-heading);
+  line-height: 1.42;
+  text-align: left;
+  break-after: avoid-page;
+  page-break-after: avoid;
+  break-inside: avoid;
+  orphans: 3;
+  widows: 3;
+}
+.book-body h1 { font-size: var(--h1-size); margin: 1.6em 0 .6em; }
+.book-body h2 { font-size: var(--h2-size); margin: 1.45em 0 .55em; border-bottom: .4pt solid var(--rule-color); padding-bottom: .15em; }
+.book-body h3 { font-size: var(--h3-size); margin: 1.25em 0 .45em; }
+.book-body h4, .book-body h5, .book-body h6 { font-size: 1em; margin: 1em 0 .35em; }
+/* list-style-position: outside により、2行目以降は本文の開始位置に揃う */
+.book-body ul, .book-body ol {
+  list-style-position: outside;
+  padding-left: var(--list-indent); /* 論理プロパティ未対応エンジン用 */
+  padding-inline-start: var(--list-indent);
+  margin: .25em 0 .8em;
+  max-width: 100%;
+}
+.book-body li { padding-left: .1em; padding-inline-start: .1em; margin: .15em 0; }
+.book-body li > ul, .book-body li > ol { margin: .2em 0 .3em; }
+.book-body li > p { margin: 0; }
+.book-body blockquote {
+  margin: .8em 0 1em;
+  padding: .25em .8em;
+  border-left: 2pt solid var(--rule-color);
+  border-inline-start: 2pt solid var(--rule-color);
+  color: var(--muted-color);
+}
+.book-body img, .book-body svg, .book-body video, .book-body canvas {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  max-height: var(--figure-max-height);
+  max-inline-size: 100%;
+  inline-size: auto;
+  block-size: auto;
+  max-block-size: var(--figure-max-height);
+  object-fit: contain;
+}
+.book-body figure, .book-body .book-figure { margin: 1em 0; max-width: 100%; break-inside: avoid-page; page-break-inside: avoid; }
+.book-body figcaption { font: var(--caption-size)/1.55 var(--font-heading); text-align: left; color: var(--muted-color); margin-top: .4em; }
+.book-body pre, .book-body code { font-family: var(--font-code); }
+/* 初学者が記号を読み違えないよう、本文中のコードは極端に小さくしない。 */
+.book-body code { font-size: 1em; overflow-wrap: anywhere; font-variant-ligatures: none; }
+.book-body pre {
+  font-size: var(--code-size);
+  line-height: var(--code-leading);
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  padding: .65em .75em;
+  border: .5pt solid var(--rule-color);
+  background: #f6f6f6;
+  overflow: visible;
+  tab-size: 2;
+  /* 38字制限の対象外。長いコードブロックは改ページ可能にする。 */
+  break-inside: auto;
+}
+.book-body pre code { font-size: inherit; white-space: inherit; }
+.book-body table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  max-width: 100%;
+  margin: .8em 0 1em;
+  font-size: .92em;
+}
+.book-body th, .book-body td {
+  border: .5pt solid var(--rule-color);
+  padding: .3em .45em;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.book-body thead { display: table-header-group; }
+.book-body tr { break-inside: avoid-page; page-break-inside: avoid; }
+.book-body a { color: inherit; text-decoration: underline; text-underline-offset: .12em; overflow-wrap: anywhere; }
+.book-body hr { border: 0; border-top: .5pt solid var(--rule-color); margin: var(--section-gap) 0; }
+.book-body .print-note { font-size: var(--caption-size); color: var(--muted-color); }
+/* 先行する見出し・リストの margin 一括指定より後に置き、中央揃えを維持する。 */
+.book-body > :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote, hr) {
+  inline-size: min(100%, var(--prose-measure));
+  max-inline-size: 100%;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+}
+/* 標準Markdownでは単独画像が <p><img ...></p> になる。
+   画像を38字幅へ縮めないよう、画像入り段落は図版扱いにする。 */
+.book-body > p:has(> img, > svg, > video, > canvas) {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  text-indent: 0;
+}
+@media screen {
+  body { background: #e7e9eb; }
+  .book { width: 210mm; max-width: calc(100vw - 32px); margin: 18px auto; padding: 18mm 17mm 19mm 19mm; background: white; box-shadow: 0 3px 22px #0002; }
+  .book-unit + .book-unit { border-top: 1px dashed #aaa; padding-top: 1em; margin-top: 2em; }
+}
+@media print {
+  html, body, .book { width: auto; max-width: none; min-width: 0; margin: 0; padding: 0; box-shadow: none; overflow: visible; }
+  a[href^="http"]::after { content: none; }
+}

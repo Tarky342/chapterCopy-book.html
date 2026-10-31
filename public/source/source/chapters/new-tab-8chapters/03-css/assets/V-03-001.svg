@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="340" viewBox="0 0 640 340" role="img" aria-labelledby="v03001-title v03001-desc">
+  <title id="v03001-title">CSSの指定が画面へ届くまで</title>
+  <desc id="v03001-desc">HTMLのsubtitle要素とCSSセレクター、プロパティ、値の対応および複数指定の優先関係を示す図。</desc>
+  <defs>
+    <style>
+      .ui { font-family: 'Noto Sans CJK JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif; fill: #252d28; }
+      .mono { font-family: 'Noto Sans Mono CJK JP', 'SFMono-Regular', Consolas, monospace; fill: #252d28; }
+      .small { font-size: 11px; }
+      .section { font-size: 14px; font-weight: 700; }
+      .card { fill: #f7f8f6; stroke: #9fac9f; stroke-width: 1.2; }
+      .codebox { fill: #fff; stroke: #c1cac1; stroke-width: 1; }
+      .tag { fill: #e1efe6; stroke: #9eb7a5; stroke-width: .8; }
+      .em { fill: #dcefe1; }
+      .guide { fill: none; stroke: #406c53; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+      .rel { fill: none; stroke: #617a6b; stroke-width: 1.55; stroke-linejoin: round; stroke-linecap: round; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#406c53"/>
+    </marker>
+    <marker id="fine-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#617a6b"/>
+    </marker>
+  </defs>
+
+  <rect width="640" height="340" fill="#fff"/>
+  <text class="ui" x="18" y="35" font-size="20" font-weight="700">CSSの指定が画面へ届くまで</text>
+  <path d="M18 49 H622" stroke="#d2d9d2" stroke-width="1"/>
+
+  <!-- 左：HTML -->
+  <rect class="card" x="16" y="66" width="216" height="205" rx="12"/>
+  <rect class="tag" x="29" y="80" width="67" height="27" rx="13.5"/>
+  <text class="ui section" x="62.5" y="98" text-anchor="middle">HTML</text>
+  <rect class="codebox" x="28" y="121" width="192" height="70" rx="8"/>
+  <rect class="em" x="51" y="137" width="105" height="21" rx="4"/>
+  <text class="mono" x="36" y="152" font-size="10.5" xml:space="preserve"><tspan>&lt;p </tspan><tspan font-weight="700" fill="#245e40">class="subtitle"</tspan><tspan>&gt;説明文&lt;/p&gt;</tspan></text>
+  <path d="M101 163 V203" stroke="#658b70" stroke-width="1.25" stroke-dasharray="3 3"/>
+  <text class="ui" x="124" y="221" text-anchor="middle" font-size="11.5" font-weight="600">class名：subtitle</text>
+  <text class="ui" x="124" y="244" text-anchor="middle" font-size="10.5" fill="#56645b">HTMLで要素に名前を付ける</text>
+
+  <!-- 中央：CSS（教材の例と一致） -->
+  <rect class="card" x="246" y="66" width="209" height="205" rx="12"/>
+  <rect class="tag" x="259" y="80" width="58" height="27" rx="13.5"/>
+  <text class="ui section" x="288" y="98" text-anchor="middle">CSS</text>
+  <rect class="codebox" x="258" y="121" width="185" height="139" rx="8"/>
+  <rect class="em" x="266" y="132" width="68" height="22" rx="4"/>
+  <text class="mono" x="266" y="148" font-size="12"><tspan font-weight="700" fill="#245e40">.subtitle</tspan><tspan> {</tspan></text>
+  <text class="mono" x="266" y="184" font-size="10.6" xml:space="preserve"><tspan>  </tspan><tspan font-weight="700">color</tspan><tspan>: var(--text-muted);</tspan></text>
+  <text class="mono" x="266" y="220" font-size="11" xml:space="preserve"><tspan>  </tspan><tspan font-weight="700">font-size</tspan><tspan>: 13px;</tspan></text>
+  <text class="mono" x="266" y="248" font-size="12">}</text>
+
+  <!-- HTMLのclassとCSSのセレクターを直接つなぐ主線 -->
+  <path class="guide" d="M156 134 H230 Q238 134 238 143 H263" marker-end="url(#arrow)"/>
+
+  <!-- 右：各行の働き。文字と線の両方で対応を示す -->
+  <rect x="469" y="68" width="155" height="61" rx="9" fill="#fff" stroke="#8aa394" stroke-width="1.25"/>
+  <path d="M479 76 V121" stroke="#426e54" stroke-width="3" stroke-linecap="round"/>
+  <text class="ui" x="489" y="88" font-size="12.5" font-weight="700">対象を選ぶ</text>
+  <text class="mono" x="489" y="106" font-size="10.2">.subtitle</text>
+  <text class="mono" x="489" y="120" font-size="10">class="subtitle"</text>
+
+  <rect x="469" y="137" width="155" height="61" rx="9" fill="#fff" stroke="#8aa394" stroke-width="1.25"/>
+  <path d="M479 145 V190" stroke="#426e54" stroke-width="3" stroke-linecap="round"/>
+  <text class="ui" x="489" y="157" font-size="12.5" font-weight="700">色を指定</text>
+  <text class="mono" x="489" y="175" font-size="10.3">color</text>
+  <text class="mono" x="489" y="189" font-size="10.1">var(--text-muted)</text>
+
+  <rect x="469" y="206" width="155" height="65" rx="9" fill="#fff" stroke="#8aa394" stroke-width="1.25"/>
+  <path d="M479 214 V263" stroke="#426e54" stroke-width="3" stroke-linecap="round"/>
+  <text class="ui" x="489" y="227" font-size="12.5" font-weight="700">文字サイズを指定</text>
+  <text class="mono" x="489" y="245" font-size="10.3">font-size</text>
+  <text class="mono" x="489" y="260" font-size="10.7">13px</text>
+
+  <path class="rel" d="M443 143 H459 Q463 143 463 135 V111 H469" marker-end="url(#fine-arrow)"/>
+  <path class="rel" d="M443 181 H469" marker-end="url(#fine-arrow)"/>
+  <path class="rel" d="M443 216 H460 V239 H469" marker-end="url(#fine-arrow)"/>
+
+  <!-- 下段：カスケードの要点のみ。優先順位表は示さない -->
+  <rect x="16" y="282" width="608" height="43" rx="10" fill="#f2f5f2" stroke="#9fac9f" stroke-width="1.15"/>
+  <rect x="25" y="290" width="157" height="27" rx="6" fill="#dcefe1"/>
+  <text class="ui" x="103.5" y="307.5" text-anchor="middle" font-size="12.3" font-weight="700">複数指定の優先関係</text>
+  <path d="M193 290 V317" stroke="#aeb9af" stroke-width="1"/>
+  <text class="ui" x="203" y="307" font-size="11.5">複数の指定が重なる場合は、カスケードで適用結果が決まる。</text>
+</svg>

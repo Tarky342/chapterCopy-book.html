@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="diagram-title diagram-desc">
+  <title id="diagram-title">APIキーをブラウザに出さないニュース取得の経路</title>
+  <desc id="diagram-desc">ブラウザからNode.jsサーバーを経由してGNews APIへニュースを取りに行き、APIキーはサーバー内だけで使われる経路を示す図。</desc>
+  <defs>
+    <marker id="arrow-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 1 1 L 9 5 L 1 9 Z" fill="#263746"/>
+    </marker>
+    <style>
+      text { font-family: 'Noto Sans CJK JP', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif; fill: #172b38; }
+      .heading { font-size: 18px; font-weight: 700; }
+      .region { font-size: 16px; font-weight: 700; }
+      .minor { font-size: 12px; }
+      .tiny { font-size: 10px; }
+      .route { fill: none; stroke: #263746; stroke-width: 2; marker-end: url(#arrow-right); }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="640" height="360" fill="#fff"/>
+  <text x="320" y="30" text-anchor="middle" class="heading">ニュース取得の経路とAPIキーの境界</text>
+  <rect x="18" y="71" width="158" height="220" rx="9" fill="#f4f7f8" stroke="#526777" stroke-width="1.6"/>
+  <rect x="229" y="54" width="190" height="254" rx="9" fill="#edf4f8" stroke="#1f4f6c" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <rect x="483" y="71" width="139" height="220" rx="9" fill="#f4f7f8" stroke="#526777" stroke-width="1.6"/>
+  <text x="97" y="111" class="region" text-anchor="middle">ブラウザ</text>
+  <text x="97" y="134" class="minor" text-anchor="middle">app.js</text>
+  <text x="97" y="185" class="minor" text-anchor="middle" font-weight="700">APIキーを持たない</text>
+  <text x="324" y="94" class="region" text-anchor="middle">Node.jsサーバー</text>
+  <text x="324" y="115" class="minor" text-anchor="middle">server.mjs</text>
+  <text x="552.5" y="111" class="region" text-anchor="middle">GNews API</text>
+  <text x="552.5" y="134" class="minor" text-anchor="middle">外部サービス</text>
+  <!-- リクエストは左から右へ。ブラウザとGNewsを直接結ばない。 -->
+  <path class="route" d="M 177 160 H 226"/>
+  <text x="202" y="142" class="tiny" text-anchor="middle">送信</text>
+  <text x="97" y="214" class="tiny" text-anchor="middle">fetch の送信先</text>
+  <text x="97" y="230" class="tiny" text-anchor="middle" font-weight="700">GET /api/news?keyword=...</text>
+  <path class="route" d="M 420 160 H 480"/>
+  <text x="451" y="124" class="tiny" text-anchor="middle">ニュース取得</text>
+  <text x="451" y="140" class="tiny" text-anchor="middle" font-weight="700">X-Api-Key</text>
+  <!-- 応答は逆向き。キーではなく記事データのみを返す。 -->
+  <path class="route" d="M 482 240 H 422"/>
+  <text x="451" y="258" class="minor" text-anchor="middle">記事データ</text>
+  <path class="route" d="M 227 240 H 179"/>
+  <text x="202" y="258" class="minor" text-anchor="middle" font-weight="700">articles</text>
+  <!-- キーは中央の点線で囲んだサーバー領域の内側。 -->
+  <rect x="248" y="184" width="151" height="92" rx="7" fill="#fff" stroke="#1f4f6c" stroke-width="1.5"/>
+  <g transform="translate(274 203)" fill="none" stroke="#172b38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="11" cy="10" r="8"/>
+    <path d="M 19 10 H 43 M 34 10 V 18 M 41 10 V 15"/>
+  </g>
+  <text x="324" y="248" class="minor" text-anchor="middle" font-weight="700">GNEWS_API_KEY</text>
+  <text x="324" y="264" class="tiny" text-anchor="middle">APIキー（サーバー内）</text>
+  <text x="320" y="325" text-anchor="middle" class="tiny">模式図：実装に基づく通信経路。GNewsの実データではありません。</text>
+  <text x="320" y="344" text-anchor="middle" class="tiny">ブラウザは /api/news のみを呼び、サーバーがAPIキーを使ってGNews APIへ接続する。</text>
+</svg>
