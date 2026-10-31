@@ -1,7 +1,7 @@
 {
   "name": "chaptercopy-book",
   "main": "src/index.js",
-  "compatibility_date": "2026-10-31",
+  "compatibility_date": "2025-01-01",
   "assets": {
     "binding": "ASSETS",
     "directory": "./public"
