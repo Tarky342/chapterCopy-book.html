@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>New Tab 教材 | 印刷確認</title>
+<link rel="stylesheet" href="./styles/theme.css">
+<link rel="stylesheet" href="./styles/page.css">
+<link rel="stylesheet" href="./styles/layout.css">
+<link rel="stylesheet" href="./styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-00" data-unit="00">
+<header class="book-unit-header"><p class="book-unit-kicker">導入</p><h1 class="book-unit-title">はじめに</h1></header>
+<section class="book-body">
+<h1 id="はじめに">はじめに</h1>
+<h2 id="読者の皆様へ">読者の皆様へ</h2>
+<p>本書は、情報デザインとプログラミングを学んできた筆者自身の経験をもとに、読者が自主的に学習・制作を進めるための知識と考え方を伝えることを目的としています。大学の授業だけでは、技術に関する知識が断片的になり、それぞれのつながりが見えにくくなることがあります。また、生成AIを利用すれば容易にプログラムを作成できますが、<strong>その仕組みや設計の根拠を理解しないまま制作が進む</strong>こともあります。</p>
+<p>本書では、ブラウザの「新しいタブページ」を題材に、Webページの設計から実装・検証までを学びます。解説は段階的に進めますが、実際の開発は必ずしも順序どおりではありません。試行錯誤を繰り返すこともあれば、生成AIに実装を任せることもあります。重要なのは、<strong>すべてを自分で書くことではなく、なぜその技術や設計を選んだのか、自分の言葉で説明できることです。</strong>また、情報の根拠を明確にするため、公式資料や大同大学図書館で利用できる書籍などを参照し作成しました。仕組みの解説には、できる限り図やイラストを用いています。</p>
+<p>プログラミングは目的ではなく、<strong>望むものを実現するための手段にすぎません。学ぶだけで満足せず、自ら考え、試し、作り上げてください。</strong>やがて本書の内容すら超えていくことを期待しています。</p>
+</section></article>
+<article class="book-unit" id="unit-01" data-unit="01">
+<header class="book-unit-header"><p class="book-unit-kicker">第1章</p><h1 class="book-unit-title">ページを設計する</h1></header>
+<section class="book-body">
+<h1 id="第1章-作りたいページを設計する">第1章　作りたいページを設計する</h1>
+<h2 id="11-New-Tabコードを書く前に考えること">1.1 New Tab：コードを書く前に考えること</h2>
+<p>本書では、検索とニュースの確認を一つの画面にまとめた「New Tab」というWebアプリを教材にします。New Tabとは、ブラウザで新しいタブを開いたとき、最初に使うことを想定したページです。調べたいことが浮かんだらすぐ検索し、少し時間があるときにはニュースを確認できる、そんな開始画面を目指します。</p>
+<p>画面の目的が曖昧なままコードを書き始めると、何を優先して作るべきか、できあがったものが使いやすいかを判断しにくくなります。デザインの制作でラフスケッチを描くように、Web制作でも先に画面の骨格を考えることができます。この段階ではコードを一行も書けなくて構いません。</p>
+<p>本章の目標は、「利用場面から必要な情報を選び、複数の設計案を比較して、その選択理由を説明できるようになること」です。</p>
+<h2 id="12-利用場面から操作を考える">1.2 利用場面から操作を考える</h2>
+<p>New Tabは繰り返し開くことを想定した画面です。本書では、次の二つの利用場面を出発点にします。</p>
+<p><strong>場面A：すぐに検索したい。</strong> レポート中に知らない言葉を検索するため、新しいタブで検索語を入力して実行します。検索欄が見つけやすく、入力までの操作が少ないことが重要です。</p>
+<p><strong>場面B：ニュースを確認したい。</strong> 作業の合間に記事を探し、必要ならリンクを開きます。見出しに加えて説明や配信元があると、記事を選びやすくなります。</p>
+<p>ここで、機能を数える前に「最初に何をしたいか」に注目します。本書では<strong>検索を主な入口とし、ニュースは必要なときに表示する</strong>方針を採用します。これはWebの仕様で決まっていることではなく、想定した利用場面に合わせた筆者の設計判断です。</p>
+<h2 id="13-情報の優先順位を決める">1.3 情報の優先順位を決める</h2>
+<p>画面に置く情報や操作を整理するため、まず「利用者がすること」と「そのために必要なもの」を対応させます。</p>
+<table><thead><tr><th>画面</th><th>主な操作</th><th>必要な情報・部品</th></tr></thead><tbody><tr><td>検索</td><td>語句を入力して送信する</td><td>入力欄、検索ボタン</td></tr><tr><td>ニュース</td><td>見出しを見て記事を選ぶ</td><td>見出し、説明、画像、配信元、記事へのリンク</td></tr></tbody></table>
+<p>この表は、完成した機能の一覧というより、設計時の確認表です。たとえば検索欄は、装飾が少なくても「文字を入力する場所」と分かる必要があります。ニュースでは、画像だけでなく見出しが読めること、記事を選ぶための手がかりがあることが重要です。</p>
+<p><strong>情報の優先順位</strong>とは、画面を使う目的に対して、何を先に見せ、何を後から見せるかという考え方です。</p>
+<h2 id="14-画面の設計二つの案を比べる">1.4 画面の設計：二つの案を比べる</h2>
+<p>構成を決めるときには、最初に思いついた案だけで進まず、比べてみます。今回は、検索とニュースを<strong>上下に並べる案</strong>と、<strong>タブで切り替える案</strong>を考えます。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/01-design/assets/V-01-001.svg" alt="検索フォームとニュースを上下に並べる案Aと、検索・ニュースのタブで表示を切り替える案Bのワイヤーフレーム。案Bは検索タブが選択中の状態を描き、ニュースパネルは別状態として示す。"></figure>
+<p><em>図 V-01-001：検索とニュースを配置する二つの案。いずれも設計用のワイヤーフレームであり、実際に動く画面ではありません。</em></p>
+<p>このような、部品の配置や大きさの関係を簡単な線や箱で描いた図を<strong>ワイヤーフレーム</strong>と呼びます。色やフォントを細かく決める前に、どこに何を置くかを確認するための図です。紙とペンでも、図形を描けるアプリでも作れます。</p>
+<table><thead><tr><th>比較する観点</th><th>案A：上下に並べる</th><th>案B：タブで切り替える</th></tr></thead><tbody><tr><td>検索を始める</td><td>ページ上部の検索欄を使える</td><td>初期表示を検索にすれば検索欄を使える</td></tr><tr><td>ニュースを見つける</td><td>同じページ内に見えている</td><td>ニュースタブを選ぶ必要がある</td></tr><tr><td>一度に見える情報</td><td>検索とニュースの両方</td><td>選択した側の情報だけ</td></tr><tr><td>画面の縦の長さ</td><td>記事数によって長くなりやすい</td><td>検索を表示している間は短くできる</td></tr><tr><td>設計・実装で注意すること</td><td>情報の区切りと見やすさ</td><td>切り替え操作、選択状態、操作しやすさ</td></tr></tbody></table>
+<p>この比較から、本教材では<strong>案B：タブで切り替える構成</strong>を採用します。検索を主な入口とする利用場面を重視したためです。ただし、ニュースを常に確認したい場合は案Aが適しており、適切な構成は利用目的によって変わります。</p>
+<h2 id="15-画面がどう変わるかも設計する">1.5 「画面がどう変わるか」も設計する</h2>
+<p>画面設計では、最初に見える静止画だけでなく、操作の前後も考えます。本教材のタブ構成には、少なくとも次の状態があります。</p>
+<table><thead><tr><th>状態</th><th>画面に表示する内容</th><th>利用者が次にできること</th></tr></thead><tbody><tr><td>最初に開いたとき</td><td>検索欄と検索ボタン</td><td>語句を入力し、検索する</td></tr><tr><td>ニュースタブを選んだとき</td><td>ニュースの表示領域</td><td>記事を確認する</td></tr><tr><td>ニュースの取得中</td><td>「取得しています…」などの案内</td><td>処理中であると理解する</td></tr><tr><td>記事が表示できないとき</td><td>記事がない、または通信失敗を知らせる案内</td><td>状況を把握し、必要なら別の操作を試す</td></tr></tbody></table>
+<p>ニュースは外部から取得する予定なので、要求した直後に必ず記事が表示されるとは限りません。通信に時間がかかったり、記事が返らなかったり、接続に失敗したりする場合があります。設計の段階からこうした状態を想定しておくと、後の章で取得中やエラーの表示を作る際に、何を伝えるべきか考えやすくなります。</p>
+<h2 id="16-画面の骨格を部品に分ける">1.6 画面の骨格を部品に分ける</h2>
+<p>案Bを採用したら、次は画面を部品に分けてみます。たとえば「検索／ニュースのタブ」「アプリの見出し」「検索の入力欄とボタン」「ニュースを表示する領域」というまとまりです。これらを整理すると、後からHTMLで内容の構造を作りやすくなります。</p>
+<p>第2章以降で使うHTMLの考え方を、ここで少しだけ先取りしてみましょう。後の章で実際に登場するニュースタブには、次の記述があります。</p>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-news&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+  role=&quot;tab&quot; aria-selected=&quot;false&quot; aria-controls=&quot;panel-news&quot; tabindex=&quot;-1&quot;&gt;2 ニュース&lt;/button&gt;</code></pre>
+<p>これは後続章で使うHTMLの抜粋です。「2 ニュース」タブと<code>panel-news</code>が対応している点だけ確認しましょう。</p>
+<h2 id="17-HTMLCSSJavaScriptは何を担当するか">1.7 HTML・CSS・JavaScriptは何を担当するか</h2>
+<p>本書では、役割を分けながらNew Tabを作っていきます。設計段階で分担を見通しておくと、完成後に調べる場所を考えやすくなります。</p>
+<table><thead><tr><th>技術</th><th>主な役割</th><th>New Tabで担当する例</th></tr></thead><tbody><tr><td>HTML</td><td>内容と構造を表す</td><td>タブ、見出し、検索フォーム、ニュース領域</td></tr><tr><td>CSS</td><td>見た目と配置を整える</td><td>配色、余白、タブの外観、画面幅に応じた配置</td></tr><tr><td>ブラウザ側のJavaScript</td><td>操作や状態の変化を扱う</td><td>タブ切り替え、検索欄へのフォーカス、ニュースの受信と表示</td></tr><tr><td>Node.js側のJavaScript</td><td>サーバーで動く処理を担当する</td><td>外部ニュースAPIへの問い合わせ、APIキーの管理</td></tr></tbody></table>
+<p><strong>Node.js</strong>はブラウザ外でJavaScriptを動かす環境、<strong>API</strong>は外部サービスの窓口です。ニュース取得に使う<strong>APIキー</strong>はブラウザ側へ埋め込まず、サーバー側で管理します。</p>
+<p>これはすべてのWebページにNode.jsが必要という意味ではありません。今回のニュース取得という目的に合わせた構成です。第1章では技術の詳細よりも、<strong>画面に見えるものと、その裏で動く処理は分けて考えられる</strong>ことを押さえましょう。</p>
+<h2 id="18-思いつかない場合既存の画面から学ぶ">1.8 思いつかない場合：既存の画面から学ぶ</h2>
+<p>どんな画面にすればよいか思いつかないときは、普段使っているWebサイトやアプリを観察してみましょう。 「ネットサーフィンをする」という方法も、観察する目的を持つと制作に結び付きます。</p>
+<p>たとえば、検索サイトやニュースサイト、普段使っている学内システムを開き、次の点を注視してみましょう。</p>
+<ul><li>最初に目が向かうものは何か。入力欄、見出し、ボタンのどれが目立つか。</li><li>操作する前と後で、画面のどこが変わるか。</li><li>情報が取得できないとき、どのような案内が表示されるか。</li><li>キーボードだけで目的の操作を進められるか。</li></ul>
+<p>一つのサイトをそのまま模写するのではなく、<strong>何を参考にし、なぜ自分の画面に取り入れたいのか</strong>を言葉にします。たとえば「検索欄を大きくする」「ニュースは必要なときだけ見せる」のように、見た目ではなく役割として記録するとよいでしょう。参考にしたサイトの名前やURL、確認した日付も残しておけば、後から自分の判断の根拠がぶれることを防げます。</p>
+<p>AIは画面案の比較に使えますが、利用者を実際に調査した結果ではありません。採用理由は利用場面と観察をもとに説明しましょう。</p>
+<h2 id="19-試す二つのワイヤーフレームを作る">1.9 試す：二つのワイヤーフレームを作る</h2>
+<p>ここでは、紙とペン、または図形ツールを使って設計を実験します。図 V-01-001を参考に、次の順番で進めてください。</p>
+<ol><li><strong>変更前を確認する。</strong> 何も配置していない紙に、「新しいタブを開いて検索したい」「ニュースの見出しを読みたい」という二つの目的を書きます。</li><li><strong>結果を予測する。</strong> 検索とニュースを上下に並べた場合、どちらの作業がしやすそうか、自分の予想を一文で書きます。</li><li><strong>案Aを描く。</strong> 上に検索欄、下にニュースの見出しを数件置くワイヤーフレームを描きます。文字や箱は簡略化して構いません。</li><li><strong>案Bを描く。</strong> 上に「検索」「ニュース」のタブを置き、最初は検索欄が見える案を描きます。ニュースタブを選んだ後の状態も、もう一枚描きます。</li><li><strong>操作を確認する。</strong> 指やペン先を使って、「新しいタブを開いて検索語を入力する」「ニュースの見出しを読む」という流れをそれぞれたどります。どの操作で迷うか、何回タブを切り替える必要があるかを記録します。</li><li><strong>理由を説明し、比較を終える。</strong> 最初の予想と比べて、どちらを選ぶかを記録します。案A・案Bの元の図も残しておきましょう。後から変更した理由を振り返る材料になります。</li></ol>
+<p>操作数だけで優劣を決めないことも大切です。案Aではニュースが目に入りやすく、案Bでは検索だけに集中しやすいかもしれません。どちらの利点を優先するかは、最初に想定した利用場面で判断します。</p>
+<h2 id="110-考える設計の根拠と技術の仕様を分ける">1.10 考える：設計の根拠と技術の仕様を分ける</h2>
+<p>検索を最初に見せるのはHTMLの決まりではなく、本書の利用場面に基づく設計です。タブの操作方法には別途、参照できる指針があります。</p>
+<p>W3Cの<strong>WAI-ARIA Authoring Practices Guide</strong>には、タブと対応するパネルをどのように表し、キーボードで操作できるようにするかを説明した「Tabs Pattern」があります。第1章でその属性名を覚える必要はありませんが、後から自分の設計が技術的に適切か確かめるための資料があることを知っておきましょう。この資料は、筆者が検索を優先した理由を証明するものではなく、<strong>タブという仕組みを実装するときの参考資料</strong>です。</p>
+<p>MDN Web Docsの「ウェブサイトをどんな外見にするか」でも、コードを書く前に目的や内容を整理し、簡単なスケッチを描く方法が紹介されています。こちらは設計作業を進めるための学習資料です。資料に書かれていることと、自分が実際に確認したこと、まだ検証していない予想を分けておくと、AIや他人の提案を採用するときにも判断しやすくなります。</p>
+<h2 id="111-章末課題自分の設計案を説明する">1.11 章末課題：自分の設計案を説明する</h2>
+<p>実験で作った二つの案のうち、一つを選んで短い設計メモにまとめてください。次の四点を含めます。</p>
+<ul><li><strong>利用場面</strong>：誰が、いつ、何のために使う画面か。</li><li><strong>情報の優先順位</strong>：最初に見せるものと、後から見せるものは何か。</li><li><strong>採用理由</strong>：別の案と比べて、なぜその構成を選んだか。</li><li><strong>未確認のこと</strong>：実際の利用者に試してもらうまで分からない点は何か。</li></ul>
+<p>余裕があれば、学友にワイヤーフレームを見せ、検索を始める場所とニュースへ進む場所を指してもらいましょう。説明せずに伝わったかを観察し、分かりにくかった部分を一か所だけ直します。変更後、同じ操作をもう一度確かめます。</p>
+<p>この課題は、デザインの正解を当てるためではありません。「こう使ってほしい」という予想を、他者の反応や自分の操作で確かめ、小さく改善する練習です。この方法は、第7章のデバッグや第8章の改善サイクルにもつながります。</p>
+<h2 id="112-ふりかえり設計をHTMLへつなぐ">1.12 ふりかえり：設計をHTMLへつなぐ</h2>
+<p>本章では、New Tabで何をしたいかを整理し、検索とニュースを上下に並べる案とタブで切り替える案を比較しました。検索を最初に見せるという方針は、今回の利用場面から選んだ設計判断です。また、取得中や失敗時のように、通常の画面以外の状態も考えておく必要があることを学びました。</p>
+<p>最初の段階で大切なのは、<strong>作る目的を言葉にし、画面の部品と操作の関係を描き、採用した理由を説明できること</strong>です。設計は一度決めたら変えてはいけないものではなく、作りながら、使いながら見直していくものです。</p>
+</section></article>
+<article class="book-unit" id="unit-02" data-unit="02">
+<header class="book-unit-header"><p class="book-unit-kicker">第2章</p><h1 class="book-unit-title">HTMLでページの骨格を作る</h1></header>
+<section class="book-body">
+<h1 id="第2章-HTMLでページの骨格を作る">第2章　HTMLでページの骨格を作る</h1>
+<p><em>画面の構造を理解し、要素同士の関係を読み解く</em></p>
+<h2 id="この章で学ぶこと">この章で学ぶこと</h2>
+<p>Webページには、見出しや文章、画像、入力欄、ボタンなどの要素が配置されています。本章では、HTMLの役割を学び、実際のコードと画面上の対応を読み解きます。</p>
+<p>本章で扱う<code>index.html</code>には、検索機能とニュース表示領域が用意されています。ただし、現時点ではCSSやJavaScriptを読み込んでいません。そのため、見た目の調整やタブの切り替えはまだ行わず、画面の構造とHTMLが持つ基本的な機能に注目します。</p>
+<h2 id="21-HTMLとは何か">2.1 HTMLとは何か</h2>
+<h3 id="211-Webページを構成する3つの技術">2.1.1 Webページを構成する3つの技術</h3>
+<p>本書におけるWebページの制作では、主にHTML、CSS、JavaScriptという3つの技術を使用します。それぞれは別の役割を持っています。</p>
+<h4 id="Webページを構成する主な技術とその役割">Webページを構成する主な技術とその役割</h4>
+<p>HTMLは、見出しや文章、入力欄などの構造と意味を定義します。CSSは、それらの大きさや色、余白、配置などを調整します。JavaScriptは、ボタンの操作に応じて画面を切り替えたり、データを取得したりする処理を担当します。</p>
+<p>検索フォームでは、HTMLで検索欄とボタンを用意し、CSSで幅や色を整え、JavaScriptで入力に応じた検索候補などを追加できます。</p>
+<p>ただし、JavaScriptがなければすべての操作ができないわけではありません。HTML自体にも、リンク先への移動やフォームの送信など、ブラウザが標準で処理できる機能が用意されています。本章の検索フォームは、その一例です。</p>
+<p>3つの技術を一度に理解しようとすると、コードのどの部分が画面のどの働きを担当しているのか、分からなくなりやすいものです。そこで本書では、最初にHTMLで画面の構造を理解し、その上にCSSによるデザインとJavaScriptによる動作を段階的に追加していきます。</p>
+<h3 id="212-タグと要素">2.1.2 タグと要素</h3>
+<p>HTML(.html　等）は、文章やコンテンツに意味を与えブラウザーなどに解釈をさせるためのマークアップ言語です。その基本となるのが、タグと呼ばれる記述です。</p>
+<pre class="code-block"><code class="language-html">&lt;h1&gt;New Tab&lt;/h1&gt;
+&lt;p&gt;Googleで検索できます。&lt;/p&gt;
+&lt;button&gt;検索&lt;/button&gt;</code></pre>
+<p>ブラウザでは、<code>New Tab</code>が見出しとして扱われ、その下に文章とボタンが表示されます。このとき、<code>&lt;h1&gt;</code>や<code>&lt;p&gt;</code>、<code>&lt;button&gt;</code>がタグです。一般的に、開始タグと終了タグ、それらに囲まれた内容を合わせて「要素」と呼びます。 開始タグは要素の始まりを、終了タグは終わりを示します。なお、<code>input</code>や<code>meta</code>など、終了タグを持たない要素も存在します。</p>
+<p>HTMLの要素には、それぞれ定められた意味があります。例えば、<code>h1</code>は見出し、<code>p</code>は段落、<code>button</code>はボタンを表します。ここで重要なのは、<strong>要素は単に見た目を変えるための記述ではない</strong>ということです。</p>
+<p><code>h1</code>は見出し、<code>button</code>は操作できる部品を表します。HTMLは見た目だけでなく、要素の意味をブラウザや支援技術へ伝えます。</p>
+<p>HTMLで使用できる標準的な要素や属性は、WHATWGが管理するHTML Living Standardなどで定義されています。制作する人が自由に名前を付けられるものと、仕様で意味が決められているものを区別することが大切です。</p>
+<h3 id="213-属性によって要素に情報を追加する">2.1.3 属性によって要素に情報を追加する</h3>
+<p>要素には、属性と呼ばれる追加情報を記述できます。</p>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-search&quot; class=&quot;filetab&quot; type=&quot;button&quot;&gt;
+  検索
+&lt;/button&gt;</code></pre>
+<p><code>button</code>という要素に対して、<code>id</code>、<code>class</code>、<code>type</code>という3つの属性が指定されています。属性は通常、開始タグの中に記述します。<code>id=&quot;tab-search&quot;</code>のように、属性名と値を組み合わせて指定する形式が一般的です。</p>
+<table><thead><tr><th>属性</th><th>役割</th></tr></thead><tbody><tr><td><code>id</code></td><td>要素を識別するための名前を付ける</td></tr><tr><td><code>class</code></td><td>複数の要素を分類し、CSSなどから参照できるようにする</td></tr></tbody></table>
+<p><code>id</code>と<code>class</code>は似ていますが、使い方には違いがあります。<code>id</code>は、同じ文書の中で一意になるように指定する識別子です。一方、<code>class</code>は同じ値を複数の要素に付けられます。 要素の役割に応じて、ほかの属性を追加することもあります。</p>
+<p>本章のHTMLでは、<code>filetab</code>というclassが検索タブとニュースタブの両方に使用されています。それに対して、<code>tab-search</code>と<code>tab-news</code>というidは、それぞれのボタンを区別するために使用されています。この違いは、後ほどタブとパネルの関係を読み解く際にも重要になります。</p>
+<h2 id="22-HTML文書の基本構造">2.2 HTML文書の基本構造</h2>
+<h3 id="221-VS-CodeでHTMLを作成する">2.2.1 VS CodeでHTMLを作成する</h3>
+<p>ここでは、Visual Studio Code（以下、VS Code）を使用してHTML文書の基本形を確認します。新しいファイルを作成し、<code>emmet.html</code>という名前で保存してください。</p>
+<p>ファイル名の末尾にある<code>.html</code>は、HTML文書であることを示す拡張子です。VS Codeはこの拡張子からファイルの種類を判断し、HTMLの入力補助や色分け表示などを行います。</p>
+<p>ファイルを開いて半角の<code>!</code>を入力すると、Emmetの補完候補が表示されます。候補を選んでEnterキーを押すと、HTML文書の基本構造が挿入されます。Emmetは、短い省略記法からHTMLやCSSのコードを展開する仕組みで、VS Codeに標準で組み込まれています。展開内容は設定によって異なるため、言語設定やタイトルは制作するページに合わせて確認・変更します。</p>
+<pre class="code-block"><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p><em>図2-2-1　HTML文書の基本的な構造</em></p>
+<h3 id="222-headとbodyの違い">2.2.2 headとbodyの違い</h3>
+<p>生成されたコード図2-2-1を見てみましょう。大きく分けると<code>head</code>と<code>body</code>の2つの領域に別れることがわかります。</p>
+<p><code>head</code>には、文字コードやページタイトルなど、文書を扱うための情報を記述します。<code>charset</code>は文字コードをUTF-8に指定し、<code>viewport</code>は端末の表示領域を指定します。一方、<code>body</code>には、利用者が読む文章や操作するボタンなど、ページの内容を記述します。</p>
+<h3 id="223-Emmet記法を利用して構造を読む">2.2.3 Emmet記法を利用して構造を読む</h3>
+<p>Emmetはコードの入力を補助するだけでなく、HTMLの親子関係を簡潔に表現することにも使えます。</p>
+<pre class="code-block"><code class="language-text">div.shell&gt;main.container&gt;h1</code></pre>
+<p>これは、次のHTMLへ展開できます。</p>
+<pre class="code-block"><code class="language-html">&lt;div class=&quot;shell&quot;&gt;
+  &lt;main class=&quot;container&quot;&gt;
+    &lt;h1&gt;&lt;/h1&gt;
+  &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+<p>Emmetでは、<code>.</code>はclass、<code>#</code>はidの指定に使用します。また、<code>&gt;</code>は子要素、<code>+</code>は同じ階層に並ぶ要素を表します。</p>
+<pre class="code-block"><code class="language-text">section.panel#panel-search</code></pre>
+<pre class="code-block"><code class="language-html">&lt;section class=&quot;panel&quot; id=&quot;panel-search&quot;&gt;&lt;/section&gt;</code></pre>
+<p>本書では、HTMLの構造を短く示すためにEmmet形式の表現を使用する場合があります。ただし、Emmetで使う記号と、実際のHTMLで使うタグや属性は別のものです。コードを読む際には混同しないようにしてください。</p>
+<h2 id="23-HTMLの構造を読み解く">2.3 HTMLの構造を読み解く</h2>
+<p>ここからは、実際にNew Tabアプリの<code>index.html</code>を読み解いていきます。本章では、コードを上から一行ずつ説明するのではなく、最初にページ全体の構造を確認し、その後で各領域の役割を調べていきます。これは、デザイン制作で画面全体のレイアウトを考えてから細部の作業を行うのと同様です。</p>
+<h3 id="231-親要素と子要素">2.3.1 親要素と子要素</h3>
+<p>HTMLでは、ある要素の内側に別の要素を配置できます。このような関係を、親要素と子要素と呼びます。</p>
+<p><code>div</code>の内側に<code>main</code>があり、さらにその内側に<code>h1</code>が配置されています。<code>div</code>から見れば<code>main</code>は子要素、<code>main</code>から見れば<code>h1</code>が子要素です。複数の要素が内側に重なる構造を「入れ子」や「ネスト」と呼びます。</p>
+<pre class="code-block"><code class="language-html">&lt;div class=&quot;shell&quot;&gt;
+  &lt;main class=&quot;container&quot;&gt;
+    &lt;h1&gt;New Tab&lt;/h1&gt;
+  &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+<p>HTMLの構造が複雑になると、どこからコードを書き始めればよいのか迷う場合があります。そのようなときには、親要素から順番に考えると整理しやすくなります。</p>
+<p>まず、ページ全体をまとめる領域を用意します。次に、その中にメニューやメインコンテンツなどの大きな領域を配置します。最後に、それぞれの領域の中に見出しやボタンを追加するといった順序を考えて見てください。</p>
+<p>なお、親子関係は単にコードを見やすくするためだけのものではありません。例えばCSSでは、親要素を基準として子要素の配置を指定したり、一部の親に対するスタイルの指定が子孫要素へと影響を与えることがあります。</p>
+<h3 id="232-ページ全体の構造を確認する">2.3.2 ページ全体の構造を確認する</h3>
+<p>以下は、添付された<code>index.html</code>から、ページの主要な構造を抜き出したものです。</p>
+<pre class="code-block"><code class="language-html">&lt;div class=&quot;shell&quot;&gt;
+  &lt;nav class=&quot;tabs&quot; role=&quot;tablist&quot;&gt;
+    &lt;button id=&quot;tab-search&quot; class=&quot;filetab&quot; role=&quot;tab&quot;&gt;検索&lt;/button&gt;
+    &lt;button id=&quot;tab-news&quot; class=&quot;filetab&quot; role=&quot;tab&quot;&gt;ニュース&lt;/button&gt;
+  &lt;/nav&gt;
+
+  &lt;main class=&quot;container&quot;&gt;
+    &lt;section id=&quot;panel-search&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;&gt;
+      &lt;!-- 検索フォーム --&gt;
+    &lt;/section&gt;
+    &lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; hidden&gt;
+      &lt;!-- ニュース表示領域 --&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+&lt;/div&gt;</code></pre>
+<p>最も外側にあるのが<code>div.shell</code>です。その中に、<code>nav.tabs</code>と<code>main.container</code>という2つの領域が配置されています。</p>
+<p><code>nav</code>は検索とニュースを選ぶタブのまとまり、<code>main</code>は検索・ニュース領域を含む主要部分です。</p>
+<p>これをテキストで表現するなら以下のようになるでしょう。</p>
+<pre class="code-block"><code class="language-text">shell（ページ全体）
+├── nav.tabs
+│   ├── button#tab-search（検索）
+│   └── button#tab-news（ニュース）
+└── main.container
+    ├── h1（New Tab）
+    ├── p.subtitle（説明文）
+    ├── section#panel-search（検索フォーム）
+    └── section#panel-news（ニュース領域・初期状態では非表示）</code></pre>
+<p>このように、コード全体の構造を見るだけでも、アプリケーションにどのような機能が用意されているかを読み取れる場合があります。逆に、アプリケーションを制作する際には、最初に構造を考えることが重要です。</p>
+<h3 id="233-divnavmainsectionを使い分ける">2.3.3 div、nav、main、sectionを使い分ける</h3>
+<p><code>div</code>は、それ自体には特別な意味を持たない汎用な要素です。 主に、CSSによるレイアウトやプログラムからの操作を目的として、複数の要素をまとめる際に使われます。 他の要素で代替可能な場合は極力使用しないようにしましょう。</p>
+<p>これに対して、<code>nav</code>はナビゲーション、<code>main</code>は主要コンテンツ、<code>section</code>は内容を主題ごとにまとめた区画を表します。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-search&quot;&gt;
+  &lt;!-- 検索に関する内容 --&gt;
+&lt;/section&gt;</code></pre>
+<h3 id="234-classやidから構造を予測する">2.3.4 classやidから構造を予測する</h3>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-search&quot; class=&quot;filetab&quot;&gt;検索&lt;/button&gt;
+&lt;section id=&quot;panel-search&quot; class=&quot;panel&quot;&gt;&lt;/section&gt;</code></pre>
+<p>この2つには、<code>search</code>という共通した名前が含まれています。名前の付け方から、両者が関連していると予想できるでしょう。</p>
+<p>idやclassの名前は、制作者が決めることができます。<code>panel-search</code>という名前はHTMLの仕様で特別な意味が決められているわけではありません。 それでも、名前から役割を推測できるようにすると、コードを読みやすくなります。<code>panel-search</code>のように役割を示す名前を付けるルールを<strong>命名規則</strong>と呼びます。</p>
+<p><strong>考えてみよう：</strong> <code>tab-search</code>というidを<code>button1</code>に変更した場合、ブラウザの処理は同じでも、人間にとっての読みやすさは変わるでしょうか。</p>
+<h2 id="24-検索フォームの仕組みを理解する">2.4 検索フォームの仕組みを理解する</h2>
+<p>次は、<code>main.container</code>の内側を詳しく見ていきます。New Tabアプリには、Googleで検索を行うための入力欄と検索ボタンがあります。これらは、HTMLの<code>form</code>要素によってまとめられています。</p>
+<h3 id="241-見出しと検索領域">2.4.1 見出しと検索領域</h3>
+<pre class="code-block"><code class="language-html">&lt;main class=&quot;container&quot;&gt;
+  &lt;h1&gt;New Tab&lt;/h1&gt;
+  &lt;p class=&quot;subtitle&quot;&gt;「検索」はGoogleに送信されます。&lt;/p&gt;
+
+  &lt;section id=&quot;panel-search&quot; class=&quot;panel&quot;
+           role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-search&quot;&gt;
+    &lt;!-- 検索フォーム --&gt;
+  &lt;/section&gt;
+&lt;/main&gt;</code></pre>
+<p><code>h1</code>はページの見出し、<code>p</code>はその下に表示する説明文です。これらは検索パネルの外側に配置されています。 そのため、検索画面からニュース画面に切り替える仕組みを追加した場合でも、見出しと説明文は共通の領域として扱うことができます。</p>
+<p>一方、<code>section</code>は検索パネルとして独立しています。このような構造を採用すると、共通して表示したい要素と、切り替えて表示したい要素を区別できます。</p>
+<p>制作をする際にこのような拡張可能な構造になっているかは視点として持っておくべきです。</p>
+<h3 id="242-form要素の役割">2.4.2 form要素の役割</h3>
+<pre class="code-block"><code class="language-html">&lt;form class=&quot;search-form&quot; action=&quot;https://www.google.com/search&quot;
+      method=&quot;get&quot; role=&quot;search&quot;&gt;
+  &lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;
+  &lt;input class=&quot;search-input&quot; id=&quot;search-input&quot; name=&quot;q&quot; type=&quot;search&quot;
+         placeholder=&quot;Googleで検索&quot; autocomplete=&quot;off&quot;
+         enterkeyhint=&quot;search&quot; required&gt;
+  &lt;button class=&quot;search-button&quot; type=&quot;submit&quot;&gt;検索&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+<p>大きく分けると、入力内容を送信するための<code>form</code>、文字を入力するための<code>input</code>、送信を実行する<code>button</code>が含まれています。 これらをHTMLの標準的な機能として組み合わせることで、JavaScriptを使わずに検索フォームを動かすことができます。</p>
+<pre class="code-block"><code class="language-html">action=&quot;https://www.google.com/search&quot;
+method=&quot;get&quot;</code></pre>
+<p><code>action</code>はフォームの送信先、<code>method</code>は送信方法です。GET方式では、フォームのデータを送信します。 例えば、検索欄に<code>HTML</code>と入力して検索ボタンを押すと、次のようなURLへの移動が行われます。</p>
+<pre class="code-block"><code class="language-text">https://www.google.com/search?q=HTML</code></pre>
+<p><code>?</code>以降がクエリ文字列です。ここで重要なのが、入力欄に指定されている<code>name=&quot;q&quot;</code>です。</p>
+<pre class="code-block"><code class="language-html">&lt;input name=&quot;q&quot; type=&quot;search&quot;&gt;</code></pre>
+<p><code>name</code>は、フォームの送信時に使用されるデータの項目名です。Googleの検索用URLでは、検索語を<code>q</code>という名前のパラメータで受け取ります。そのため、入力欄に<code>name=&quot;q&quot;</code>を指定しています。</p>
+<pre class="code-block"><code class="language-text">入力欄に「HTML」と入力
+        ↓
+input の name=&quot;q&quot;
+        ↓
+form の GET 送信
+        ↓
+https://www.google.com/search?q=HTML
+```*図2-6　HTMLの検索フォームがデータを送る流れ*
+
+### 2.4.3 input要素と属性
+
+```html
+&lt;input class=&quot;search-input&quot;
+       id=&quot;search-input&quot;
+       name=&quot;q&quot;
+       type=&quot;search&quot;
+       placeholder=&quot;Googleで検索&quot;
+       autocomplete=&quot;off&quot;
+       enterkeyhint=&quot;search&quot;
+       required&gt;</code></pre>
+<table><thead><tr><th>属性</th><th>役割</th></tr></thead><tbody><tr><td><code>type=&quot;search&quot;</code></td><td>検索語の入力欄であることを示す</td></tr><tr><td><code>name=&quot;q&quot;</code></td><td>送信する値の項目名を指定する</td></tr><tr><td><code>id=&quot;search-input&quot;</code></td><td>要素を識別する</td></tr><tr><td><code>placeholder</code></td><td>入力欄が空のときに補助的な文字を表示する</td></tr><tr><td><code>autocomplete=&quot;off&quot;</code></td><td>ブラウザによる入力補完を抑制するよう指定する</td></tr><tr><td><code>enterkeyhint=&quot;search&quot;</code></td><td>対応する端末で、入力用キーの表示を検索向けにするヒントを与える</td></tr><tr><td><code>required</code></td><td>入力を必須とする</td></tr></tbody></table>
+<p>ここで注目したいのは、<code>required</code>です。この属性が指定された入力欄では、値が空の場合、通常のフォーム送信時にブラウザが入力を求めます。</p>
+<p>実際に検索欄を空のまま検索ボタンを押してみてください。入力を求めるメッセージなどが表示されるはずです。</p>
+<p>この動作も、HTMLとブラウザに用意された標準的な機能です。ただし、<code>required</code>は単にブラウザ側の検証であることは留意が必要です。</p>
+<h3 id="244-labelと入力欄の関係">2.4.4 labelと入力欄の関係</h3>
+<pre class="code-block"><code class="language-html">&lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;
+&lt;input id=&quot;search-input&quot; name=&quot;q&quot; type=&quot;search&quot;&gt;</code></pre>
+<p><code>label</code>は、入力欄などのフォーム部品に説明を付けるための要素です。<code>for</code>には対応する入力要素のidを指定します。<code>for=&quot;search-input&quot;</code>と<code>id=&quot;search-input&quot;</code>が一致することで、ラベルと入力欄が関連付けられます。</p>
+<pre class="code-block"><code class="language-text">label [for=&quot;search-input&quot;]
+            ↕
+input [id=&quot;search-input&quot;]
+```*図2-7　labelのfor属性とinputのid属性の関係*
+
+表示されているラベルをクリックした際、対応する入力欄へフォーカスを移せます。また、スクリーンリーダーなどのweb支援技術に、入力欄の名前を伝えることにも役立ちます。
+
+
+### 2.4.5 button要素の役割
+
+```html
+&lt;button class=&quot;search-button&quot; type=&quot;submit&quot;&gt;検索&lt;/button&gt;</code></pre>
+<p><code>button</code>は、利用者が操作するためのボタンを表す要素です。<code>type=&quot;submit&quot;</code>は、所属するフォームを送信するためのボタンであることを示します。</p>
+<p>一方、タブに使用されるボタンは次のようになっています。</p>
+<pre class="code-block"><code class="language-html">&lt;button type=&quot;button&quot;&gt;ニュース&lt;/button&gt;</code></pre>
+<p><code>type=&quot;button&quot;</code>では、フォームの送信は行いません。また、クリックした際に特定の画面を表示するような動作が自動的に追加されるわけでもありません。そのような独自の処理は、後章で実装します。</p>
+<h2 id="25-タブとパネルの対応を理解する">2.5 タブとパネルの対応を理解する</h2>
+<p>New Tabアプリには、検索とニュースを切り替えるための2つのタブが用意されています。しかし、本章のHTMLだけでは、タブをクリックしても表示内容は切り替わりません。それでもタブとパネルを用意するのは、<strong>操作する部分と、操作によって表示する部分を、あらかじめ対応付けておくため</strong>です。</p>
+<h3 id="251-タブのHTMLを確認する">2.5.1 タブのHTMLを確認する</h3>
+<pre class="code-block"><code class="language-html">&lt;nav class=&quot;tabs&quot; role=&quot;tablist&quot; aria-label=&quot;新しいタブのメニュー&quot;&gt;
+  &lt;button id=&quot;tab-search&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+          role=&quot;tab&quot; aria-selected=&quot;true&quot;
+          aria-controls=&quot;panel-search&quot; tabindex=&quot;0&quot;&gt;1 検索&lt;/button&gt;
+  &lt;button id=&quot;tab-news&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+          role=&quot;tab&quot; aria-selected=&quot;false&quot;
+          aria-controls=&quot;panel-news&quot; tabindex=&quot;-1&quot;&gt;2 ニュース&lt;/button&gt;
+&lt;/nav&gt;</code></pre>
+<p><code>role</code>は、要素がアクセシビリティ上どのような役割を持つのかを示す属性です。<code>role=&quot;tablist&quot;</code>は複数のタブのまとまり、<code>role=&quot;tab&quot;</code>は個々のタブを示します。</p>
+<p><code>aria-selected</code>は選択状態を示す属性で、検索側には<code>true</code>、ニュース側には<code>false</code>が指定されています。ただし、<code>aria-selected</code>を書いただけで、画面の色が変わったり、パネルが切り替わったりするわけではありません。 ARIA属性は主に、要素の役割や状態、関係を支援技術へ伝えるためのものです。</p>
+<h3 id="253-aria-controlsで対応するパネルを示す">2.5.3 aria-controlsで対応するパネルを示す</h3>
+<p>検索タブには次の属性があります。</p>
+<pre class="code-block"><code class="language-html">aria-controls=&quot;panel-search&quot;</code></pre>
+<p>対応するパネルには同じ値のidがあります。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-search&quot; role=&quot;tabpanel&quot;
+         aria-labelledby=&quot;tab-search&quot;&gt;&lt;/section&gt;</code></pre>
+<p>ニュース側も同じ規則です。</p>
+<pre class="code-block"><code class="language-text">tab-search                       tab-news
+aria-controls=&quot;panel-search&quot;     aria-controls=&quot;panel-news&quot;
+       │                                │
+       ▼                                ▼
+panel-search                      panel-news
+id=&quot;panel-search&quot;                id=&quot;panel-news&quot;</code></pre>
+<p><em>図2-9　タブのaria-controlsとパネルのidによる対応関係</em></p>
+<p><code>aria-controls</code>は、要素間の関係を表す属性であり、JavaScriptの処理を自動的に実行するものではありません。<code>aria-controls=&quot;panel-news&quot;</code>と書いただけでは、ニュースタブをクリックしてもニュースパネルは表示されません。</p>
+<p>第4章では、JavaScriptでタブの操作を受け取り、対応するパネルの表示状態を変更します。その際、<code>aria-controls</code>の値を利用してパネルを探す実装も可能ですが、実際にどの属性を参照するかは実装次第です。</p>
+<h3 id="254-aria-labelledbyと要素の名前">2.5.4 aria-labelledbyと要素の名前</h3>
+<p>パネル側には、次の属性も指定されています。</p>
+<pre class="code-block"><code class="language-html">aria-labelledby=&quot;tab-search&quot;</code></pre>
+<p>これは、そのパネルのアクセシブルな名前を、<code>tab-search</code>というidを持つ要素から取得することを示します。今回の場合、検索パネルは「1 検索」というボタンによって名前付けされています。</p>
+<h3 id="255-tabindexとキーボード操作">2.5.5 tabindexとキーボード操作</h3>
+<pre class="code-block"><code class="language-html">tabindex=&quot;0&quot;
+tabindex=&quot;-1&quot;</code></pre>
+<p><code>tabindex</code>は、キーボードによるフォーカスの扱いに関係する属性です。通常、<code>tabindex=&quot;0&quot;</code>の要素はTabキーによる順次フォーカス移動の対象になります。一方、<code>tabindex=&quot;-1&quot;</code>の要素は通常のTabキー移動の対象から外れますが、JavaScriptなどによってフォーカスを移すことはできます。</p>
+<p>本章のHTMLでは検索タブに<code>0</code>、ニュースタブに<code>-1</code>が指定されています。ただし、現時点ではJavaScriptによる矢印キー操作や選択状態の更新は実装されていません。<strong>タブの構造と初期状態を用意した段階</strong>と考えてください。</p>
+<h2 id="26-ニュース領域の構造を理解する">2.6 ニュース領域の構造を理解する</h2>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;
+         aria-labelledby=&quot;tab-news&quot; hidden&gt;
+  &lt;div class=&quot;news-card&quot;&gt;
+    &lt;div class=&quot;news-heading&quot;&gt;
+      &lt;h2 id=&quot;news-title&quot;&gt;ニュース&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;p id=&quot;news-genre&quot; class=&quot;news-genre&quot;&gt;
+      第4章以降でタブを動かします。
+    &lt;/p&gt;
+    &lt;div id=&quot;news&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<p><code>section</code>はニュースパネル全体、<code>h2</code>はニュース領域の見出し、<code>p</code>は説明文です。また、<code>news-card</code>というclassが付いた<code>div</code>はニュースの内容をまとめるために用意されています。</p>
+<h3 id="261-hidden属性による非表示">2.6.1 hidden属性による非表示</h3>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-news&quot; hidden&gt;</code></pre>
+<p><code>hidden</code>は要素を非表示にするHTML属性です。検索パネルにはなく、ニュースパネルにあるため、初期表示は検索画面です。</p>
+<h3 id="262-ニュース表示用の空のdiv">2.6.2 ニュース表示用の空のdiv</h3>
+<pre class="code-block"><code class="language-html">&lt;div id=&quot;news&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;</code></pre>
+<p><code>aria-live=&quot;polite&quot;</code>は、内容が更新された際に、支援技術が適切なタイミングで変更を通知できるようにするための属性です。ただし、実際の通知方法はブラウザや支援技術の組み合わせなどによって異なります。</p>
+<h3 id="263-将来の機能を意識した構造">2.6.3 将来の機能を意識した構造</h3>
+<p>ニュースパネルには、パネルそのもの、ニュースの見出し、補助情報、本文などを追加する領域が用意されています。まだ動作していない機能であっても、その機能が必要とする画面構造を先に設計しているわけです。</p>
+<p>最初からすべての機能を完成させようとすると、HTML、CSS、JavaScriptを同時に考える必要があります。一方、必要な領域をHTMLで用意しておけば、後から各機能を段階的に追加できます。</p>
+<h2 id="27-ブラウザで動作を確認する">2.7 ブラウザで動作を確認する</h2>
+<p>コードを理解する上で重要なのは、説明を読むことだけではありません。実際に動かしてみて、予想した結果と一致するかを確認することも必要です。</p>
+<h3 id="271-HTMLをブラウザで開く">2.7.1 HTMLをブラウザで開く</h3>
+<p><code>02-html/index.html</code>を開きましょう。CSSがないため標準の見た目で、ニュースタブを押しても切り替わりません。まだJavaScriptによる表示変更がないためです。</p>
+<h2 id="28-開発者ツールを使って構造を調べる">2.8 開発者ツールを使って構造を調べる</h2>
+<p>開発者ツールは、WebページのHTMLやCSSを確認し、動作を調査する機能です。Chromeでは右クリックして「検証」を選ぶか、<code>Ctrl+Shift+I</code>を押して開きます。ここでの変更は元のHTMLファイルには保存されず、ページを再読み込みすると元に戻ります。</p>
+<h3 id="281-ElementsでHTMLを確認する">2.8.1 ElementsでHTMLを確認する</h3>
+<p>開発者ツールで「Elements」またはそれに相当する画面を探してください。そこには<code>html</code>、<code>head</code>、<code>body</code>などが階層構造で表示されます。</p>
+<p>これはブラウザが現在扱っているDOMと呼ばれる文書構造です。DOMはHTMLをもとに構築されますが、ソースコードと完全に同じ表現になるとは限りません。</p>
+<p>まず<code>div.shell</code>を探してください。その内側に<code>nav.tabs</code>と<code>main.container</code>があり、さらに見出しや検索パネル、ニュースパネルが存在することを確認します。</p>
+<h3 id="282-タブとパネルのidを照合する">2.8.2 タブとパネルのidを照合する</h3>
+<p>検索タブの<code>aria-controls=&quot;panel-search&quot;</code>と、検索パネルの<code>id=&quot;panel-search&quot;</code>を照合します。ニュースタブとニュースパネルについても、同じ手順で確認してください。</p>
+<p>属性がどの要素を参照しているのかを追いかけることが大切です。</p>
+<h2 id="29-AIと参考資料を使って理解を深める">2.9 AIと参考資料を使って理解を深める</h2>
+<p>コードの意味が分からなかったり、どのように調べればよいのか迷ったりした場合、生成AIに質問して説明を得ることもできます。</p>
+<blockquote><p>HTMLの<code>aria-controls</code>はどのような役割を持っていますか。<code>id</code>との関係を、初学者にも分かるように説明してください。</p></blockquote>
+<p>このような質問は、分からない用語を理解するための手掛かりになります。ただし、AIによる説明が常に正しいとは限りません。</p>
+<h3 id="291-仕様と実装を区別する">2.9.1 仕様と実装を区別する</h3>
+<p>例えば、</p>
+<blockquote><p>「タブを作るには<code>aria-controls</code>が必要ですか」と質問したとします。</p></blockquote>
+<p>この問いに答える際には、何を根拠に「必要」と判断するのかを区別することが重要です。</p>
+<p>HTMLの標準的な<code>button</code>要素を単独で使用する場合と、WAI-ARIAのタブパターンに沿ったUIを自作する場合とでは、求められる構造が異なります。</p>
+<p>W3CのWAI-ARIA Authoring Practices Guideでは、タブとパネルの対応付けとして<code>aria-controls</code>を使用するパターンが示されています。一方、単に2つのボタンを並べただけであれば、それらが必ずタブとして機能するわけではありません。</p>
+<h3 id="292-参考資料を確認する">2.9.2 参考資料を確認する</h3>
+<p>HTMLの要素や属性について調べる際には、MDN Web Docsが参考になります。タブのアクセシビリティ設計については、W3CのWAI-ARIA Authoring Practices Guideを確認するとよいでしょう。</p>
+<p>疑問が生じた場合には、まず何が分からないのかを整理し、AIの説明や参考資料を利用して理解を深めるべきです。</p>
+<h3 id="293-自分で確かめる習慣を身につける">2.9.3 自分で確かめる習慣を身につける</h3>
+<p>今回の学習では、<code>h1</code>の内容を変更すると見出しが変わり、<code>hidden</code>を削除するとニュース領域が表示され、<code>name=&quot;q&quot;</code>を変更するとフォーム送信時の項目名が変わることを確認しました。一方、<code>aria-controls</code>を変更しても、ページの見た目は通常変化しません。</p>
+<p>これらの結果から、HTMLには、画面に直接現れる情報と、画面上では分かりにくい意味や関係の情報が含まれていることが分かります。</p>
+<h2 id="210-章末演習">2.10 章末演習</h2>
+<p>次の問いについて、自分で考えてから解答例を確認してください。分からない場合には、<code>index.html</code>を読み直したり、ブラウザで動作を確かめたりしましょう。</p>
+<ol><li><code>head</code>と<code>body</code>の違いは何でしょうか。</li><li><code>id</code>と<code>class</code>にはどのような違いがありますか。</li><li>検索欄の<code>name=&quot;q&quot;</code>を変更すると、何が変わりますか。</li><li>ニュース領域が最初から表示されないのはなぜですか。</li><li><code>aria-controls</code>を指定しただけで、タブが切り替わらないのはなぜですか。</li></ol>
+<h3 id="発展課題3つ目のパネルを設計する">発展課題：3つ目のパネルを設計する</h3>
+<p>余裕がある方は、新しく「メモ」というタブとパネルを追加してみてください。最初から動作させる必要はありません。HTMLの構造だけを用意します。</p>
+<pre class="code-block"><code class="language-html">&lt;button id=&quot;tab-memo&quot; type=&quot;button&quot; class=&quot;filetab&quot; role=&quot;tab&quot;
+        aria-selected=&quot;false&quot; aria-controls=&quot;panel-memo&quot;
+        tabindex=&quot;-1&quot;&gt;3 メモ&lt;/button&gt;</code></pre>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-memo&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;
+         aria-labelledby=&quot;tab-memo&quot; hidden&gt;
+  &lt;h2&gt;メモ&lt;/h2&gt;
+  &lt;p&gt;ここにメモを表示します。&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+<p>既存のタブ一覧とパネル一覧の適切な場所へ追加してください。追加した時点では、メモタブをクリックしてもパネルは切り替わりません。しかし、<code>hidden</code>を一時的に削除すれば、メモ領域が表示されます。</p>
+<p>ここで考えてほしいのは、タブを追加する際に、どのような要素や属性をそろえる必要があるかということです。演習後は、元の2つのタブの構成に戻しておきましょう。</p>
+<h2 id="211-本章のまとめ">2.11 本章のまとめ</h2>
+<p>本章では、HTMLの基本的な役割から始まり、New Tabアプリの<code>index.html</code>を題材として、画面の構造と要素同士の関係を確認しました。</p>
+<p>HTMLは、単に文字やボタンを表示するためのものではありません。文書の見出しや区画、入力フォーム、操作部品などに意味を与え、ブラウザや支援技術がそれらを適切に扱うための土台となります。</p>
+<p>また、HTMLの親子関係を理解することで、複雑なコードも大きな構造から順番に読み解けるようになります。</p>
+<p>今回のアプリでは、最初に<code>div.shell</code>というまとまりがあり、その内側にタブの領域とメインコンテンツが配置されていました。さらにメインコンテンツの中には、検索パネルとニュースパネルが用意されていました。</p>
+<p>検索フォームでは、<code>form</code>、<code>input</code>、<code>button</code>の組み合わせによって、JavaScriptを使わずに検索語を送信できることを確認しました。</p>
+<p>タブとパネルについては、<code>id</code>やARIA属性を利用して対応関係を表す方法を学びました。ただし、対応関係を記述することと、実際に画面を切り替えることは別の作業です。</p>
+</section></article>
+<article class="book-unit" id="unit-03" data-unit="03">
+<header class="book-unit-header"><p class="book-unit-kicker">第3章</p><h1 class="book-unit-title">CSSでデザインを整える</h1></header>
+<section class="book-body">
+<h1 id="第3章-CSSでデザインを整える">第3章　CSSでデザインを整える</h1>
+<p><em>HTMLの構造と画面の見た目を結び付け、変更の結果を自分で確かめる</em></p>
+<h2 id="31-知るHTMLの骨格にデザインを加える">3.1 知る：HTMLの骨格にデザインを加える</h2>
+<p>CSSはHTMLの要素の<strong>見た目</strong>を指定します。本章では色・余白・配置の指定が画面にどう反映されるかを見て、一か所変更します。</p>
+<h2 id="32-知るCSSの基本的な書き方と読み込み方">3.2 知る：CSSの基本的な書き方と読み込み方</h2>
+<h3 id="321-セレクターと宣言">3.2.1 セレクターと宣言</h3>
+<p>CSSは、基本的に「どの要素に対して」指定するのかを決め、その要素の「どの見た目を」「どの値にするか」を記述します。</p>
+<pre class="code-block"><code class="language-txt">セレクター {
+  プロパティ:プロパティ値;
+}</code></pre>
+<p>という記述の仕方となります。実例を見てみましょう。</p>
+<pre class="code-block"><code class="language-css">.subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+}</code></pre>
+<p><code>.subtitle</code>は<strong>セレクター</strong>と呼ばれ、<code>class=&quot;subtitle&quot;</code>の要素を選びます。波括弧内の<code>color</code>や<code>font-size</code>は<strong>プロパティ</strong>、右側の値は<strong>プロパティ値</strong>です。<code>color: var(--text-muted);</code>のような組を<strong>宣言</strong>と呼びます。次のHTMLは説明文に<code>subtitle</code>を指定しています。</p>
+<pre class="code-block"><code class="language-html">&lt;p class=&quot;subtitle&quot;&gt;「検索」はGoogleに送信されます。&lt;/p&gt;</code></pre>
+<p>HTMLの<code>class</code>とCSSのセレクターが対応し、プロパティと値が見た目を指定します。複数の指定が重なる場合の優先関係は<strong>カスケード</strong>と呼びます。この対応を図V-03-001で確認してください。</p>
+<h3 id="322-CSSファイルをHTMLから読み込む">3.2.2 CSSファイルをHTMLから読み込む</h3>
+<p>教材の<code>index.html</code>には、<code>head</code>内に次の記述があります。</p>
+<pre class="code-block"><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;</code></pre>
+<p><code>link</code>要素は、HTML文書と外部の資料を関連付けます。ここでは<code>rel=&quot;stylesheet&quot;</code>でスタイルシートであることを示し、<code>href=&quot;style.css&quot;</code>で読み込むファイルを指定しています。<code>style.css</code>は次のように<strong>同じフォルダー</strong>へ配置すると読み込めます。</p>
+<pre class="code-block"><code class="language-text">03-css/
+├── index.html
+└── style.css</code></pre>
+<p>CSSが読み込まれていなくても、HTMLの見出しや検索欄は通常表示されます。ただし、その見た目にはブラウザの標準スタイルが用いられます。この違いは、後の演習で実際に確認します。</p>
+<h2 id="33-読み解く画面全体とCSSの対応をつかむ">3.3 読み解く：画面全体とCSSの対応をつかむ</h2>
+<p>対象のHTMLは<code>div.shell</code>の中に<code>nav.tabs</code>と<code>main.container</code>があり、後者に見出し・説明文・検索・ニュースの領域が入っています。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/03-css/assets/%E5%9B%B33-1_HTML%E3%81%A8CSS%E3%81%AE%E5%AF%BE%E5%BF%9C.svg" alt="HTMLの要素とCSSセレクターの対応図"></figure>
+<p><em>図3-1　HTMLの構造とCSSセレクターの対応。左側のHTML要素に付いたclassが、右側のレイアウト指定の対象になります。</em></p>
+<p>この関係を整理すると、教材のCSSは次のように分担されうることが想像できます。</p>
+<table><thead><tr><th>CSSの対象</th><th>対応する画面の部分</th><th>主に指定していること</th></tr></thead><tbody><tr><td><code>body</code>, <code>.shell</code>, <code>.container</code></td><td>ページ全体と中央の内容領域</td><td>背景、最大幅、余白</td></tr><tr><td><code>.tabs</code>, <code>.filetab</code></td><td>「1 検索」「2 ニュース」のタブ</td><td>横並び、形、選択中の外観</td></tr><tr><td><code>h1</code>, <code>.subtitle</code></td><td>見出しと説明文</td><td>文字の大きさ、色、中央揃え</td></tr><tr><td><code>.search-form</code>, <code>.search-input</code>, <code>.search-button</code></td><td>検索欄と検索ボタン</td><td>横並び、幅、背景、境界線</td></tr><tr><td><code>.news-card</code>, <code>.news-item</code>など</td><td>ニュース表示領域</td><td>カードや記事の外観（現段階では非表示）</td></tr></tbody></table>
+<p>重要なのは、<strong>画面に存在する部分と、今見えている部分は同じではない</strong>という点です。ニュースパネルにはHTMLで<code>hidden</code>属性が指定され、初期状態では表示されません。<code>hidden</code>が解除された際のスタイルを先行して書いていることに留意しましょう。</p>
+<h2 id="34-読み解く色に名前を付けて再利用する">3.4 読み解く：色に名前を付けて再利用する</h2>
+<h3 id="341-カスタムプロパティでデザインの基準をまとめる">3.4.1 カスタムプロパティでデザインの基準をまとめる</h3>
+<p>共通の色をまとめて管理するため、<strong>CSSカスタムプロパティ</strong>を使います。<code>--page</code>や<code>--surface</code>はCSSの値に付けた名前です。</p>
+<pre class="code-block"><code class="language-css">:root {
+  color-scheme: light;
+  --page: #f1eee7;
+  --surface: #fffdf8;
+  --surface-muted: #e9e5dc;
+  --text: #252522;
+  --text-muted: #77746c;
+  --border: rgba(40, 38, 32, .15);
+  --focus: #487b61;
+  --error: #b3261e;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #202124;
+    --surface: #292a2d;
+    --surface-muted: #3c4043;
+    --text: #e8eaed;
+    --text-muted: #bdc1c6;
+    --border: rgba(255, 255, 255, .18);
+    --focus: #a4d9bb;
+    --error: #ffb4ab;
+  }
+}</code></pre>
+<p><code>:root</code>は通常のHTML文書で<code>html</code>要素を選びます。ここに<code>--page</code>（背景）や<code>--text</code>（文字色）などを定義し、各所から使います。<code>--radius</code>は角の丸みです。</p>
+<p>カスタムプロパティを使うときは、次のように<code>var()</code>で参照します。</p>
+<pre class="code-block"><code class="language-css">body {
+  background: var(--page);
+  color: var(--text);
+}
+.search-input {
+  background: var(--surface);
+  border-radius: var(--radius);
+}</code></pre>
+<h3 id="342-ダークモードでは何が切り替わるのか">3.4.2 ダークモードでは何が切り替わるのか</h3>
+<p>先ほどのコードにある<code>@media (prefers-color-scheme: dark)</code>は、<strong>メディアクエリ</strong>です。閲覧環境などの条件に応じてCSSの一部を適用する仕組みです。ここでは、OSやブラウザがダーク配色を希望している場合に、その中の指定が適用されます。</p>
+<p>ライト時の<code>--page</code>は<code>#f1eee7</code>、ダーク時は<code>#202124</code>です。同じ<code>background: var(--page)</code>でも、参照する値に応じて背景が変わります。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/03-css/assets/%E5%9B%B33-2_%E6%98%8E%E6%9A%97%E3%81%AE%E8%A1%A8%E7%A4%BA%E6%AF%94%E8%BC%83.png" alt="同じHTMLのライト配色とダーク配色を比較した画面"></figure>
+<p><em>図3-2　同じHTMLをライト設定とダーク設定で表示した比較。教材HTMLとCSSをブラウザで描画した例。</em></p>
+<p><code>color-scheme</code>は入力欄などブラウザが描く部品の配色を知らせます。ページ独自の色を変える<code>--page</code>とは役割が違います。</p>
+<h2 id="35-読み解く大きさと余白からレイアウトを理解する">3.5 読み解く：大きさと余白からレイアウトを理解する</h2>
+<h3 id="351-ページの幅を制限して中央に配置する">3.5.1 ページの幅を制限して中央に配置する</h3>
+<p>ページ全体の配置を担当するコードを見ます。以下は教材の一部を抜粋したものです。</p>
+<pre class="code-block"><code class="language-css">*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px 32px;
+  background: var(--page);
+  color: var(--text);
+  font-family: &#39;Noto Sans JP&#39;, Inter, system-ui, sans-serif;
+}
+.shell { width: min(700px, 100%); margin: 0 auto; }
+.container { padding: 24px; }</code></pre>
+<p><strong>ボックスモデル</strong>は内容・余白・境界線からなる大きさの考え方です。<code>box-sizing: border-box</code>では、指定した幅や高さに<code>padding</code>と<code>border</code>を含めます。</p>
+<h3 id="352-タブを横に並べ選択状態を見せる">3.5.2 タブを横に並べ、選択状態を見せる</h3>
+<p>タブ部分では、次の指定が重要です。必要な部分だけを抜粋しています。</p>
+<pre class="code-block"><code class="language-css">.tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 0 12px;
+  background: rgba(161, 215, 181, .68);
+  border-radius: 10px 10px 0 0;
+}
+.filetab {
+  min-width: 64px;
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.filetab[aria-selected=&quot;true&quot;] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}</code></pre>
+<p><code>.tabs</code>の<code>display: inline-flex</code>は、子要素を並べる<strong>Flexbox（フレックスボックス）</strong>というレイアウトの仕組みを使い、タブ全体を内容に応じた幅のまとまりとして扱います。</p>
+<p><code>.filetab[aria-selected=&quot;true&quot;]</code>は、<code>aria-selected=&quot;true&quot;</code>のタブを選ぶ<strong>属性セレクター</strong>です。選択中のタブの色を変えるために使います。</p>
+<p>ただし、<strong>CSSが属性を読んで色を変えることと、クリックで属性を書き換えることは別です</strong>。CSSによる状態の「表現」と、JavaScriptによる状態の「変更」は異なるものであることを留意しましょう。</p>
+<h3 id="353-検索フォームは入力欄の幅を柔軟にする">3.5.3 検索フォームは入力欄の幅を柔軟にする</h3>
+<p>検索フォームのHTMLは、<code>form.search-form</code>の中に入力欄と検索ボタンを配置しています。CSSでは次のように指定しています。</p>
+<pre class="code-block"><code class="language-css">.search-form {
+  display: flex;
+  gap: 8px;
+  margin: 24px auto;
+  max-width: 560px;
+}
+.search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}</code></pre>
+<p><code>display: flex</code>で検索欄とボタンを横並びにし、<code>gap: 8px</code>で間隔を空けます。<code>max-width: 560px</code>で全体幅を制限し、<code>flex: 1</code>と<code>min-width: 0</code>で入力欄を伸縮させます。</p>
+<pre class="code-block"><code class="language-text">form.search-form（横並び・最大560px）
+┌────────────────────────────────┐ 8px ┌──────────┐
+│ input.search-input（flex: 1）   │←gap→│ 検索ボタン│
+└────────────────────────────────┘     └──────────┘</code></pre>
+<p><em>図3-3　検索フォームの横並び構造を表した模式図。実際の寸法を正確な縮尺で示したものではありません。</em></p>
+<p><code>flex: 1</code>を外した場合、入力欄は残りの横幅を同じようには埋めなくなります。このように、一つの宣言を変更した影響を具体的に予想できることが、CSSを理解する第一歩です。</p>
+<h2 id="36-読み解く見えるデザインと操作しやすさ">3.6 読み解く：見えるデザインと操作しやすさ</h2>
+<p>デザインは見た目だけで完結するものではありません。キーボード操作や支援技術からの利用を考える必要もあります。教材には、次のような指定があります。</p>
+<pre class="code-block"><code class="language-css">.search-input:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.filetab:focus-visible, .search-button:focus-visible,
+.refresh-button:focus-visible, .news-item a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  margin: -1px; overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}</code></pre>
+<p><code>:focus</code>はフォーカス中、<code>:focus-visible</code>はフォーカスの目印が必要と判断された状態を選びます。<code>outline</code>は輪郭線です。クリックとTabキーで違いを確認しましょう。</p>
+<p>一方、<code>.sr-only</code>は要素を画面上ではほとんど見えない状態にするためのclassです。検索欄のHTMLには<code>&lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;</code>があります。ラベルの説明は視覚的には隠しながら、支援技術に伝える情報として残す目的で用いられています。<strong>表示しないことと、情報そのものを削除することは異なる</strong>ことを把握しておきましょう。</p>
+<p>ニュース領域については、CSSに<code>.news-card</code>や<code>.news-item</code>のほか、<code>.refresh-button</code>、<code>.news-notice</code>、<code>.error</code>などの指定があります。しかし、今回のHTMLには対応する要素がないものもあります。さらに、<code>#panel-news</code>には<code>hidden</code>が指定されており、CSSでも次のルールを置いています。</p>
+<pre class="code-block"><code class="language-css">[hidden] { display: none !important; }</code></pre>
+<p>このルールは、<code>hidden</code>属性を持つ要素を表示しないようにするものです。ニュース用の見た目は、<strong>後の章に向けて準備されている部分</strong>と考えましょう。</p>
+<h2 id="37-読み解く画面幅や利用環境に合わせて調整する">3.7 読み解く：画面幅や利用環境に合わせて調整する</h2>
+<h3 id="371-600px以下で余白を小さくする">3.7.1 600px以下で余白を小さくする</h3>
+<p>教材の末尾には、画面幅に応じた調整が書かれています。</p>
+<pre class="code-block"><code class="language-css">@media (max-width: 600px) {
+  body { padding: 12px; }
+  .container { padding: 16px 4px; }
+  .filetab { min-width: 56px; padding: 0 14px; }
+  .news-image { width: 90px; height: 60px; flex-basis: 90px; }
+  .search-button { padding: 9px 12px; }
+}</code></pre>
+<p><code>@media (max-width: 600px)</code>は、<strong>表示領域の幅が600 ピクセル以下</strong>のときに内側の指定を適用します。このように表示環境に応じて配置やサイズを調整する考え方を<strong>レスポンシブデザイン</strong>と呼びます。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/03-css/assets/%E5%9B%B33-4_%E5%B9%85390px.png" alt="画面幅390pxで描画した検索画面"></figure>
+<p><em>図3-4　390px幅での表示例。入力欄とボタンが横並びのまま収まるかを観察できます。実際の端末での見え方は別途確認が必要です。</em></p>
+<h3 id="372-動きを抑える設定にも配慮する">3.7.2 動きを抑える設定にも配慮する</h3>
+<p>同じく末尾には、次の指定があります。</p>
+<pre class="code-block"><code class="language-css">@media (prefers-reduced-motion: no-preference) {
+  .filetab, .search-button, .refresh-button {
+    transition: background .18s ease, color .18s ease;
+  }
+}</code></pre>
+<p><code>transition</code>は色の変化を滑らかにします。<code>prefers-reduced-motion</code>を使い、動きを減らしたい利用者への配慮も加えています。</p>
+<h2 id="38-考えるCSSを外すと何が残るか">3.8 考える：CSSを外すと何が残るか</h2>
+<p>CSSを外すと見た目は変わりますが、HTMLの見出しやフォームの意味、GET送信の仕組みは残ります。</p>
+<p>ただし、CSSが「見た目だけ」だから重要でないという意味ではありません。文字の読みやすさ、操作対象の見分けやすさ、狭い画面での操作性などもCSSの影響を受けます。<strong>構造・見た目・動作を分けて理解し、それらが利用者の体験として結び付くこと</strong>を意識してください。</p>
+<h2 id="39-試す一か所ずつ変更して確かめる">3.9 試す：一か所ずつ変更して確かめる</h2>
+<p>ここでは毎回、作業用コピーを編集し、結果を記録してください。複数の箇所を同時に変えると、どの変更が結果を生んだのか分かりにくくなります。</p>
+<h3 id="391-実験Aページの背景だけを変更する">3.9.1 実験A：ページの背景だけを変更する</h3>
+<p>最初にライト設定で画面を表示し、ページの背景と検索欄の背景が別の色であることを確認します。次に、背景がどう変わるか予測してから、<code>style.css</code>の最初の<code>:root</code>にある次の一行だけを変更してください。</p>
+<pre class="code-block"><code class="language-css">--page: #dceaf5; /* 実験用：元は #f1eee7 */</code></pre>
+<p>再読み込みして、ページの背景と検索欄の背景を比べます。ページの背景が変わり、入力欄の表面が別の色のままであれば、<code>--page</code>と<code>--surface</code>が異なる用途で使われていると説明できます。<strong>ダーク設定では</strong>、後に書かれたダーク用の<code>--page</code>が適用されるため、この変更が画面に現れない場合があります。</p>
+<h3 id="392-実験B検索欄とボタンの間隔を変える">3.9.2 実験B：検索欄とボタンの間隔を変える</h3>
+<p>ライト設定の検索フォームで、入力欄とボタンの間隔を観察します。<code>gap</code>を広げるとどうなるか予測し、<code>.search-form</code>にある一行だけを次のように変更します。</p>
+<pre class="code-block"><code class="language-css">gap: 24px; /* 実験用：元は 8px */</code></pre>
+<p>再読み込みして、入力欄とボタンの間隔が広がることを確認します。フォーム全体の幅が変わらない条件では、間隔が広がった分だけ入力欄に使える幅は減るはずです。<code>display: flex</code>と<code>flex: 1</code>の関係を意識して説明してください。</p>
+<h3 id="393-実験C境界の前後で表示を比較する">3.9.3 実験C：境界の前後で表示を比較する</h3>
+<p>開発者ツールで幅を<strong>601px→600px→390px</strong>に変え、余白を比べます。600px以下では<code>body</code>の<code>padding</code>が<code>12px</code>になります。はみ出しも確認しましょう。</p>
+<h2 id="310-根拠を確かめる開発者ツールと公式資料">3.10 根拠を確かめる：開発者ツールと公式資料</h2>
+<p>開発者ツールは、ブラウザが現在どのHTMLやCSSを使用して表示しているかを調べる機能です。Chromeなどでは画面上で右クリックして「検証」を選び、<strong>Elements</strong>と<strong>Styles</strong>（またはそれに相当する画面）を使います。</p>
+<p>開発者ツールで<code>.search-input</code>を選び、Stylesの<code>background: var(--surface)</code>とComputedの色を確認します。変更を保存する場合は元のCSSファイルを編集しましょう。</p>
+<p>ダークモードは、OSの設定を変更するほか、Chrome DevToolsの<strong>Rendering</strong>にある<code>prefers-color-scheme</code>のエミュレーションでも試せます。表示を切り替えたとき、<code>--page</code>や<code>--text</code>の計算結果がどう変化するか確認してください。ただし、エミュレーションでの確認を、そのまま実機での検証と同一視してはいけません。</p>
+<p>分からないことを生成AIに質問する場合は、</p>
+<blockquote><p>このCSSの<code>.filetab[aria-selected=&quot;true&quot;]</code>はどのHTMLを選びますか。属性の値を変更せずにクリックした場合の挙動も説明してください</p></blockquote>
+<p>のように<strong>実際のコードを示して質問</strong>します。回答のうちCSSの仕様はMDNなどの公式資料で、教材固有の挙動は開発者ツールで検証しましょう。</p>
+<h2 id="311-章末演習と発展課題">3.11 章末演習と発展課題</h2>
+<p>次の問いに、CSSとHTMLを見ながら答えてください。可能な場合は予測を立てましょう。</p>
+<ol><li><code>.subtitle</code>の先頭に<code>.</code>が付く理由は何でしょうか。HTMLのどの要素に対応していますか。</li><li><code>--surface</code>の値を変えたとき、検索欄の背景はどうなるでしょうか。ページの背景が必ず同じ色に変わるでしょうか。</li><li><code>.filetab[aria-selected=&quot;true&quot;]</code>が選ぶ要素は、初期状態ではどちらのタブでしょうか。ニュースタブをクリックすると自動的に変わりますか。</li><li><code>max-width: 600px</code>という条件は、600pxちょうどの表示領域にも当てはまるでしょうか。</li><li>CSSを読み込まない状態でも、検索フォームが送信できる理由をHTMLの記述から説明してください。</li></ol>
+<p><strong>発展課題：</strong> <code>--radius</code>だけを<code>12px</code>から<code>4px</code>へ変更し、検索欄と検索ボタンの角がどう変わるか観察してください。次に、<code>.filetab</code>の角は同じように変わるか予想してから確認します。結果が異なる場合は、<code>.filetab</code>が<code>var(--radius)</code>ではなく、独自の<code>border-radius</code>を使っていることをコードから説明できます。</p>
+<p>答えを確かめる際は、単に「変わった・変わらなかった」と書くのではなく、<strong>変更した宣言→選ばれた要素→画面上の結果</strong>を一続きで説明してください。これが、生成AIが提示したCSSを自分で評価するときにも役立ちます。</p>
+<h2 id="312-ふりかえり見た目と動作を分けて理解する">3.12 ふりかえり：見た目と動作を分けて理解する</h2>
+<p>本章では、第2章で作ったHTMLにCSSを読み込み、タブや検索フォームの外観がどのように決まるかを調べました。<code>.shell</code>は内容の幅を整え、Flexboxはタブや検索フォームを横並びにし、カスタムプロパティは色や角の丸みを再利用する役割を持っていました。メディアクエリによって、配色の希望や画面幅、動きの軽減設定に応じた指定も用意されていました。</p>
+<p>ここで身につけてほしいのは、CSSのプロパティ名を数多く暗記することではありません。<strong>画面上の一部分を選び、対応するHTMLとCSSを探し、変更の影響を予測して検証する方法</strong>です。今後、他人が書いたコードや生成AIが提案したコードを使うときにも、この手順が判断の根拠になります。</p>
+<p>次の第4章ではJavaScriptを使い、タブの操作に応じて表示するパネルを切り替えていきます。本章で学んだ<code>.filetab[aria-selected=&quot;true&quot;]</code>のような指定は、JavaScriptによって状態が更新されると、その結果を見た目に反映する役割を担います。<strong>HTMLの構造、CSSの表現、JavaScriptの処理</strong>がどのように結び付くかを意識しながら進んでください。</p>
+</section></article>
+<article class="book-unit" id="unit-04" data-unit="04">
+<header class="book-unit-header"><p class="book-unit-kicker">第4章</p><h1 class="book-unit-title">JavaScriptでタブを動かす</h1></header>
+<section class="book-body">
+<h1 id="第4章-JavaScriptでタブを動かす">第4章　JavaScriptでタブを動かす</h1>
+<h2 id="41-知る見た目を整えたタブに動作を加える">4.1 知る：見た目を整えたタブに動作を加える</h2>
+<p>前章では、HTMLにCSSを適用し、タブや検索フォームの見た目を整えました。しかし、CSSは「どのタブが選ばれたか」をクリックから判断してくれるわけではありません。</p>
+<p>本章では、JavaScriptを使って、利用者がタブを選ぶと対応する内容だけが表示されるようにします。完成した「New Tab」のうち、扱うのは「1 検索」と「2 ニュース」の切り替えです。すでにあるHTMLとCSSに、操作に応じた状態の変更を結び付けることが目標です。</p>
+<h2 id="42-知るJavaScriptDOMイベントの役割">4.2 知る：JavaScript、DOM、イベントの役割</h2>
+<p>HTMLは<strong>構造</strong>を記述するものでした。またCSSは<strong>見た目</strong>を指定するものでした。 これに対してJavaScriptは、利用者の操作などに応じて、ページの<strong>状態や動作</strong>を変えるために使います。</p>
+<p>ブラウザは読み込んだHTMLを、JavaScriptから参照・変更できる要素の集まりとして扱います。この仕組みを<strong>DOM（Document Object Model）</strong>と呼びます。たとえば、HTMLに書かれた<code>&lt;button&gt;</code>は、JavaScriptから取得して属性を読み取ったり、値を変更したりできます。DOMは、HTMLを単なる文字列として探すのではなく、「このボタン」「このパネル」という単位で扱うための仕組みです。</p>
+<p>また、クリックやキー入力のような出来事を<strong>イベント</strong>と呼びます。イベントが起きたときに呼び出す処理を登録する仕組みが<strong>イベントリスナー</strong>です。今回の基本的な流れは、次のとおりです。</p>
+<ol><li>JavaScriptがHTML内のタブとパネルを見つけます。</li><li>タブがクリックされたときに実行する処理を登録します。</li><li>クリックが発生すると、JavaScriptが選択状態と表示状態を更新します。</li><li>ブラウザは更新されたHTMLの状態とCSSに従って画面を表示します。</li></ol>
+<p>ここで重要なのは、<strong>JavaScriptがタブの色を直接塗り替えているわけではない</strong>という点です。JavaScriptは選択状態を表す属性を書き換え、CSSがその属性を条件に見た目を変えています。</p>
+<h2 id="43-読み解くHTMLに用意されたタブとパネル">4.3 読み解く：HTMLに用意されたタブとパネル</h2>
+<p>まず、JavaScriptを読む前に、操作の対象となるHTMLを確認します。<code>index.html</code>からタブとパネルの開始部分を抜き出すと、次のようになっています。</p>
+<pre class="code-block"><code class="language-html">&lt;nav class=&quot;tabs&quot; role=&quot;tablist&quot; aria-label=&quot;新しいタブのメニュー&quot;&gt;
+  &lt;button id=&quot;tab-search&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+    role=&quot;tab&quot; aria-selected=&quot;true&quot; aria-controls=&quot;panel-search&quot; tabindex=&quot;0&quot;&gt;1 検索&lt;/button&gt;
+  &lt;button id=&quot;tab-news&quot; type=&quot;button&quot; class=&quot;filetab&quot;
+    role=&quot;tab&quot; aria-selected=&quot;false&quot; aria-controls=&quot;panel-news&quot; tabindex=&quot;-1&quot;&gt;2 ニュース&lt;/button&gt;
+&lt;/nav&gt;
+
+&lt;section id=&quot;panel-search&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-search&quot;&gt;...&lt;/section&gt;
+&lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot;
+  aria-labelledby=&quot;tab-news&quot; hidden&gt;...&lt;/section&gt;</code></pre>
+<p>ここでは、二つのタブを<code>role=&quot;tablist&quot;</code>というまとまりに入れ、各ボタンに<code>role=&quot;tab&quot;</code>、対応する表示領域に<code>role=&quot;tabpanel&quot;</code>を指定しています。<code>role</code>は、要素がインターフェースの中でどのような役割を持つかを、支援技術に伝えるための属性です。また、<code>aria-</code>で始まる属性は、要素の関係や状態を伝えるために用いられます。</p>
+<table><thead><tr><th>画面上の部分</th><th>タブの<code>id</code></th><th>タブの<code>aria-controls</code></th><th>対応するパネルの<code>id</code></th></tr></thead><tbody><tr><td>1 検索</td><td><code>tab-search</code></td><td><code>panel-search</code></td><td><code>panel-search</code></td></tr><tr><td>2 ニュース</td><td><code>tab-news</code></td><td><code>panel-news</code></td><td><code>panel-news</code></td></tr></tbody></table>
+<p><code>aria-controls=&quot;panel-news&quot;</code>はニュースタブから対象パネルを指します。<code>aria-labelledby=&quot;tab-news&quot;</code>はパネルの名前付けにタブを使う指定です。JavaScriptもこの対応を参照します。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/04-tabs/assets/V-04-001.svg" alt="検索タブとニュースタブの対応関係を示し、ニュースタブのクリック前後で表示中のパネルが入れ替わる図。破線は実際には非表示のパネルを説明用に示している。"></figure>
+<p><em>図 V-04-001：タブ選択前後の表示。破線は非表示のパネルを示す。</em></p>
+<p>最初のHTMLでは、検索タブに<code>aria-selected=&quot;true&quot;</code>、ニュースタブに<code>aria-selected=&quot;false&quot;</code>が付いています。ニュースパネルには<code>hidden</code>があるため、ページを開いた直後は検索パネルが表示される構成です。まず、この状態を覚えておいてください。</p>
+<h2 id="44-読み解くtabsjs全体で行っていること">4.4 読み解く：<code>tabs.js</code>全体で行っていること</h2>
+<p>今回のJavaScriptは、<code>tabs.js</code>というファイルにまとまっています。HTMLの<code>&lt;head&gt;</code>には次の指定をしてください</p>
+<pre class="code-block"><code class="language-html">&lt;script src=&quot;tabs.js&quot; defer&gt;&lt;/script&gt;</code></pre>
+<p><code>src</code>は読み込むファイルを指定します。<code>defer</code>は、HTMLの解析が終わってからこのスクリプトを実行するようブラウザーへ伝えるための要素になります。これはすべてのタブの要素が読み込まれる前に動作を行わないようにするためです。</p>
+<p><code>tabs.js</code>全体の処理は、大きく四つに分けられます。</p>
+<ol><li><strong>要素の取得</strong>：タブを集め、それぞれに対応するパネルを取得する。</li><li><strong>切り替え処理の定義</strong>：<code>activateTab</code>という関数に、選択状態と表示状態の更新をまとめる。</li><li><strong>操作の登録</strong>：クリックとAltキーを使った操作から<code>activateTab</code>を呼び出す。</li><li><strong>初期化</strong>：最後に<code>activateTab(0)</code>を実行し、検索タブを選択状態にする。</li></ol>
+<p>ここでいう<strong>関数</strong>は、名前を付けてひとまとまりにした処理です。関数を呼び出すことで、同じ変更を複数の操作から実行できます。「要素を見つける→操作を待つ→状態を変える」というJavaScriptの流れを意識してください。</p>
+<p>ここで<code>const</code>、<code>let</code>、<code>function</code>を確認します。 <code>const</code>は再代入できない変数、<code>let</code>は再代入できる変数、<code>function</code>は処理をまとめる関数です。</p>
+<h2 id="45-読み解くタブとパネルを取得する">4.5 読み解く：タブとパネルを取得する</h2>
+<p>最初に、<code>tabs.js</code>冒頭の2行を見ます。</p>
+<pre class="code-block"><code class="language-javascript">const tabs = [...document.querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;)];
+const panels = tabs.map(tab =&gt; document.getElementById(tab.getAttribute(&#39;aria-controls&#39;)));</code></pre>
+<p><code>document</code>は、現在のHTML文書をDOMとして扱うための入口です。<code>querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;)</code>は、CSSのセレクターと同じ書き方を使って、<code>role=&quot;tab&quot;</code>を持つ要素をすべて取得します。今回は「1 検索」と「2 ニュース」の二つです。</p>
+<p><code>querySelectorAll</code>は要素の集まりである<strong>NodeList</strong>を返します。<code>[...]</code>で配列に変えると、<code>map</code>などの処理を使えます。</p>
+<p><code>map</code>で各タブに対応するパネルを探します。<code>getAttribute(&#39;aria-controls&#39;)</code>で<code>&quot;panel-news&quot;</code>を読み、<code>getElementById</code>へ渡します。</p>
+<p>配列の対応は次のようになります。</p>
+<table><thead><tr><th>配列の番号</th><th><code>tabs</code>に入る要素</th><th><code>panels</code>に入る要素</th></tr></thead><tbody><tr><td><code>0</code></td><td>検索タブ（<code>tab-search</code>）</td><td>検索パネル（<code>panel-search</code>）</td></tr><tr><td><code>1</code></td><td>ニュースタブ（<code>tab-news</code>）</td><td>ニュースパネル（<code>panel-news</code>）</td></tr></tbody></table>
+<p><code>tabs[1]</code>と<code>panels[1]</code>のように、<strong>同じ番号で対応するものを扱える</strong>ことが、この後の処理の基礎になります。なお、指定した<code>id</code>を持つ要素が見つからない場合、<code>getElementById</code>は<code>null</code>（該当する要素がないことを示す値）を返します。HTMLの名前が一致しているかどうかは、単なる見た目の問題ではなく、JavaScriptの動作に関わります。</p>
+<p>ここでJavaScriptにおいて混同しやすい<code>Null</code>と<code>Undefined</code> について軽くさらっておきます。 • undefined：値が「未定義」でまだ何も割り当てられていない • null：値が「空」であり意図的に空っぽにしているといった違いがあります。</p>
+<h2 id="46-読み解くactivateTabが三つの状態を更新する">4.6 読み解く：<code>activateTab</code>が三つの状態を更新する</h2>
+<p>次は、タブ切り替えを担当する関数です。</p>
+<pre class="code-block"><code class="language-javascript">function activateTab(index, moveFocus = false) {
+  if (index &lt; 0 || index &gt;= tabs.length || !panels[index]) return;
+  tabs.forEach((tab, i) =&gt; {
+    const selected = i === index;
+    tab.setAttribute(&#39;aria-selected&#39;, String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    panels[i].hidden = !selected;
+  });
+  if (moveFocus) tabs[index].focus();
+}</code></pre>
+<p><code>activateTab(0)</code>は検索、<code>activateTab(1)</code>はニュースを選びます。冒頭の<code>if</code>は不正な番号やパネル欠落時に<code>return</code>で処理を止めます。</p>
+<p><code>forEach</code>で各タブを調べ、<code>i === index</code>が一致するときの<code>true</code>を<code>selected</code>に入れて状態を更新します。</p>
+<table><thead><tr><th>コード</th><th>何を変えるか</th><th>画面や操作への影響</th></tr></thead><tbody><tr><td><code>tab.setAttribute(&#39;aria-selected&#39;, String(selected))</code></td><td>タブの選択状態を表す属性</td><td>支援技術に選択状態を伝え、CSSの選択条件にも使われる</td></tr><tr><td><code>tab.tabIndex = selected ? 0 : -1</code></td><td>Tabキーで順番に移動するときの対象</td><td>選択中のタブだけを通常のTabキー移動の対象にする</td></tr><tr><td><code>panels[i].hidden = !selected</code></td><td>対応するパネルの非表示状態</td><td>選択されていないパネルを隠す</td></tr></tbody></table>
+<p><code>setAttribute</code>で属性を変更し、<code>String(selected)</code>で真偽値を<code>&quot;true&quot;</code>／<code>&quot;false&quot;</code>の文字列にします。<code>aria-selected</code>はCSSの選択中表示に使われます。</p>
+<pre class="code-block"><code class="language-css">.filetab[aria-selected=&quot;true&quot;] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}</code></pre>
+<p><code>tabIndex</code>の<code>0</code>は通常のTab移動の対象、<code>-1</code>は対象外です。<code>-1</code>でもJavaScriptからフォーカスできます。</p>
+<p><code>!selected</code>は真偽値を反転します。選択中は<code>hidden = false</code>で表示、それ以外は<code>true</code>で非表示にします。</p>
+<p>たとえば<code>activateTab(1)</code>を呼び出した直後の状態を整理すると、次のようになります。</p>
+<table><thead><tr><th>要素</th><th><code>aria-selected</code></th><th><code>tabIndex</code></th><th>パネルの<code>hidden</code></th></tr></thead><tbody><tr><td>検索タブ／検索パネル</td><td><code>false</code></td><td><code>-1</code></td><td><code>true</code>（非表示）</td></tr><tr><td>ニュースタブ／ニュースパネル</td><td><code>true</code></td><td><code>0</code></td><td><code>false</code>（表示）</td></tr></tbody></table>
+<p>タブの選択状態・Tab移動・表示を同じ関数で更新します。<code>moveFocus</code>は既定で<code>false</code>のため、現状の呼び出しでは<code>focus()</code>による移動は起きません。</p>
+<h2 id="47-読み解くクリックとAltキーを同じ関数につなぐ">4.7 読み解く：クリックとAltキーを同じ関数につなぐ</h2>
+<p>切り替える規則ができたので、次は利用者の操作と結び付けます。クリックを受け取る部分は次のとおりです。</p>
+<pre class="code-block"><code class="language-javascript">tabs.forEach((tab, index) =&gt; {
+  tab.addEventListener(&#39;click&#39;, () =&gt; activateTab(index));
+});</code></pre>
+<p><code>addEventListener(&#39;click&#39;, ...)</code>でクリック時の処理を登録し、<code>() =&gt; activateTab(index)</code>で選んだタブの番号を渡します。</p>
+<pre class="code-block"><code class="language-javascript">window.addEventListener(&#39;keydown&#39;, event =&gt; {
+  if (!event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) return;
+  if (event.key === &#39;1&#39; || event.key === &#39;2&#39;) {
+    const index = Number(event.key) - 1;
+    if (index &lt; tabs.length) {
+      event.preventDefault();
+      activateTab(index);
+    }
+  }
+});</code></pre>
+<p><code>keydown</code>はキーを押したときのイベントです。<code>event</code>から修飾キーと<code>1</code>／<code>2</code>を確認し、対象の操作だけを受け付けます。</p>
+<p><code>Number(event.key) - 1</code>は、キーの文字<code>&quot;1&quot;</code>または<code>&quot;2&quot;</code>を数値に変え、配列の番号<code>0</code>または<code>1</code>に合わせる処理です。<code>event.preventDefault()</code>は、ブラウザ側で行われる既定の動作を、そのイベントが取り消し可能な場合に抑えるための呼び出しです。</p>
+<p>クリックでもAltキーでも、最後に呼び出すのは同じ<code>activateTab</code>です。「クリック用の切り替え」「キー操作用の切り替え」を別々に作らないことで、選択状態の更新が食い違う可能性を減らせます。なお、このイベントは<code>window</code>に登録されているため、ページ内の別の場所でキーを押しても条件が合えば処理されます。</p>
+<h2 id="48-考える初期表示と実装されている範囲">4.8 考える：初期表示と、実装されている範囲</h2>
+<p><code>tabs.js</code>の最後には、次の一行があります。</p>
+<pre class="code-block"><code class="language-javascript">activateTab(0);</code></pre>
+<p>HTMLだけを読み込んだ時点でも、検索タブには<code>aria-selected=&quot;true&quot;</code>、ニュースパネルには<code>hidden</code>が指定されています。JavaScriptが実行されると、<code>activateTab(0)</code>があらためて検索タブを選び、タブとパネルの状態をそろえます。初期表示を明示しておくと、クリックを待つ前に、どちらが選択中かをコードから読み取れます。</p>
+<p>JavaScriptを無効にするとタブは切り替わりませんが、検索フォームのGET送信はHTMLの<code>action</code>と<code>method</code>で動きます。</p>
+<h2 id="49-試すブラウザと開発者ツールで状態を確かめる">4.9 試す：ブラウザと開発者ツールで状態を確かめる</h2>
+<p><code>index.html</code>、<code>style.css</code>、<code>tabs.js</code>を同じフォルダーに置き、<code>index.html</code>をブラウザで開きます。検索タブと検索欄が見えることを確認したら「2 ニュース」をクリックし、ニュースパネルの「第6章でニュースを自動取得します。」と検索フォームが隠れる状態を確認します。「1 検索」をクリックすると元に戻ります。</p>
+<p><strong>コンソール（Console）</strong>では、JavaScriptの式を直接入力して値を確認できます。</p>
+<pre class="code-block"><code class="language-javascript">document.getElementById(&#39;tab-news&#39;).getAttribute(&#39;aria-selected&#39;)
+// 期待する結果: &quot;true&quot;
+
+document.getElementById(&#39;panel-news&#39;).hidden
+// 期待する結果: false</code></pre>
+<p><code>&quot;true&quot;</code>は属性から取得した<strong>文字列</strong>で、<code>false</code>はプロパティの<strong>真偽値</strong>です。同じ状態を調べていても、取り出した値の種類が違うことに注目してください。</p>
+<h2 id="410-試す一か所だけ変更して結果を予測する">4.10 試す：一か所だけ変更して結果を予測する</h2>
+<p>ここからは、小さな変更を加えて検証します。</p>
+<h3 id="実験1最初に表示するタブを変える">実験1：最初に表示するタブを変える</h3>
+<ol><li>変更前にページを開き、検索パネルが最初に表示されることを確認します。</li><li><code>activateTab(0)</code>を<code>activateTab(1)</code>にすると、何が表示されるか予測して記録します。</li><li><code>tabs.js</code>の<strong>最後の一行だけ</strong>を次のように変更します。</li></ol>
+<pre class="code-block"><code class="language-javascript">   activateTab(1);</code></pre>
+<ol><li>保存してページを再読み込みし、最初からニュースパネルが表示されること、タブの選択状態もニュースに変わることを確認します。</li><li>HTMLでは検索タブが選択された状態で書かれているのに、なぜニュースが表示されるのか説明します。手掛かりは、<code>defer</code>による実行の順序と<code>activateTab</code>の働きです。</li><li>最後に<code>activateTab(0)</code>へ戻し、検索パネルから始まることを再確認します。</li></ol>
+<p>この実験から、HTMLの初期値とJavaScriptによって更新された状態を区別できます。どちらが実際の画面を決めているかを、再読み込み後に確かめるのがポイントです。</p>
+<h3 id="実験2HTMLの対応関係を一時的に崩す">実験2：HTMLの対応関係を一時的に崩す</h3>
+<ol><li>変更前にニュースタブで切り替えられることを確認します。</li><li><code>aria-controls</code>に存在しない<code>id</code>を書いた場合、どこで問題が起きるか予測します。</li><li><code>index.html</code>のニュースタブの属性<strong>一か所だけ</strong>を、<code>aria-controls=&quot;panel-news-test&quot;</code>に変更します。ニュースパネル側の<code>id</code>は変えません。</li><li>保存して再読み込みし、画面の状態と開発者ツールのConsoleを確認します。今回のコードでは、<code>panels[1]</code>が<code>null</code>になり、初期化の途中で存在しないパネルの<code>hidden</code>を操作しようとしてエラーが起きることがあります。実際のエラーメッセージも記録しましょう。</li><li>なぜタブとパネルの名前の不一致がJavaScriptのエラーにつながるのか、<code>getElementById</code>、<code>map</code>、<code>panels[i].hidden</code>を手掛かりに説明します。</li><li>属性を必ず<code>aria-controls=&quot;panel-news&quot;</code>に戻し、再読み込みしてクリック操作が復旧したことを確認します。</li></ol>
+<p>対応するパネルを一つ欠けさせると、<code>activateTab</code>のループ中にエラーが起こり得ます。現在の存在確認には改善の余地があります。</p>
+<h2 id="411-考えるフォーカスと操作方法をどう設計するか">4.11 考える：フォーカスと操作方法をどう設計するか</h2>
+<p><code>moveFocus = false</code>は引数省略時の既定値です。現状のクリック・Altキー操作では、表示は切り替わりますがフォーカスは移動しません。</p>
+<p>発展的な確認として、Altキーの処理にある<code>activateTab(index);</code>だけを一時的に<code>activateTab(index, true);</code>へ変えると、切り替え先のタブへ<code>focus()</code>が呼び出されます。変更前後でConsoleに<code>document.activeElement.id</code>と入力し、現在のフォーカス先を比べてみましょう。変更する前に結果を予測し、確認後は元に戻してください。</p>
+<p><code>aria-selected</code>は選択状態、<code>tabIndex</code>はTab移動の対象、<code>focus()</code>はフォーカス移動を扱います。三つの役割を区別しましょう。</p>
+<h2 id="413-ふりかえり構造状態見た目をつなげる">4.13 ふりかえり：構造・状態・見た目をつなげる</h2>
+<p>本章では、DOMを通じてタブとパネルを取得し、イベントリスナーから<code>activateTab</code>を呼び出して表示を切り替える仕組みを読み解きました。<code>aria-controls</code>と<code>id</code>はHTML上の対応関係を示し、JavaScriptは<code>aria-selected</code>、<code>tabIndex</code>、<code>hidden</code>を更新します。そして、CSSが選択されたタブの見た目を決めます。</p>
+<p>大切なのは、<strong>画面上の動作を観察し、対応するHTML・CSS・JavaScriptを探して、変更の結果を予測し、実際の状態を確認する</strong>という学び方です。この方法を使えば、自分で書いたコードだけでなく、他人や生成AIが作ったコードについても、動作の根拠をもって制作に生かすことができます。</p>
+</section></article>
+<article class="book-unit" id="unit-05" data-unit="05">
+<header class="book-unit-header"><p class="book-unit-kicker">第5章</p><h1 class="book-unit-title">検索機能を実装する</h1></header>
+<section class="book-body">
+<h1 id="第5章-検索機能を実装する">第5章　検索機能を実装する</h1>
+<h2 id="51-知るタブで選べる画面を使える検索画面にする">5.1 知る：タブで選べる画面を、使える検索画面にする</h2>
+<p>本章では検索フォームを読み解きます。検索語の送信はHTML、検索タブへ戻って検索欄に移動する処理はJavaScript、入力欄の外観はCSSが担当します。この分担を実際のコードで確かめましょう。</p>
+<h2 id="52-知る検索クエリとフォーカスは別のもの">5.2 知る：検索クエリとフォーカスは別のもの</h2>
+<p><strong>検索クエリ</strong>とは検索条件として渡す文字列です。<code>HTML CSS</code>を入力して送信すると、その文字列が検索サービスに渡されます。</p>
+<p>一方、<strong>フォーカス</strong>は、現在どの要素がキーボード入力などを受け取る対象になっているかを表す状態です。入力欄にフォーカスがあれば、利用者は改めて欄をクリックしなくても文字を入力できます。「検索欄を表示すること」と「検索欄にフォーカスを移すこと」は、似ていますが同じではありません。</p>
+<p>これを踏まえて、検索に関わる処理を見てみます。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/05-search/assets/V-05-001.svg" alt="HTMLフォームによるGET送信と、JavaScriptによる検索欄へのフォーカス移動を別の経路として示した図"></figure>
+<p><em>図 V-05-001：検索語を送信するHTMLの経路（上）と、検索欄へ移動するJavaScriptの経路（下）。CSSはフォーカスされた入力欄の見た目を担当する。</em></p>
+<p>フォーム送信はHTMLとブラウザの機能です。<code>/</code>キーで検索欄へ移る動作だけはJavaScriptで追加しています。</p>
+<h2 id="53-読み解く三つのファイルと画面の対応を把握する">5.3 読み解く：三つのファイルと画面の対応を把握する</h2>
+<p>今回の教材は、<code>05-search/index.html</code>、<code>05-search/style.css</code>、<code>05-search/app.js</code>の三つを同じフォルダーに置く構成です。添付された実際のHTMLの<code>&lt;head&gt;</code>には、次の読み込み指定があります。</p>
+<pre class="code-block"><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+&lt;script src=&quot;app.js&quot; defer&gt;&lt;/script&gt;</code></pre>
+<p><code>app.js</code>は第4章のタブ切り替えを引き継ぎ、検索欄へフォーカスする処理を加えています。</p>
+<p>表示上の主な対応は次のとおりです。</p>
+<table><thead><tr><th>画面上の部分</th><th>HTMLの要素</th><th>CSSの主な指定</th><th>JavaScriptとの関係</th></tr></thead><tbody><tr><td>「1 検索」タブ</td><td><code>#tab-search</code></td><td><code>.filetab</code></td><td><code>activateTab(0)</code>で選択する</td></tr><tr><td>検索パネル</td><td><code>#panel-search</code></td><td><code>.panel</code>、<code>[hidden]</code></td><td>選択したときに表示する</td></tr><tr><td>検索語の入力欄</td><td><code>#search-input</code></td><td><code>.search-input</code>、<code>.search-input:focus</code></td><td><code>searchInput.focus()</code>でフォーカスする</td></tr><tr><td>「検索」ボタン</td><td><code>button[type=&quot;submit&quot;]</code></td><td><code>.search-button</code></td><td>HTMLフォームの送信を行う</td></tr></tbody></table>
+<p>次節からは、この全体像のうち、検索フォームそのもの、見た目、JavaScriptによる操作の順に調べていきます。</p>
+<h2 id="54-読み解く検索語を送信するHTMLフォーム">5.4 読み解く：検索語を送信するHTMLフォーム</h2>
+<p><code>index.html</code>の検索パネルからフォームの部分を抜粋します。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-search&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-search&quot;&gt;
+  &lt;!-- 検索はJavaScriptなしでもフォームのGET送信で動作します --&gt;
+  &lt;form class=&quot;search-form&quot; action=&quot;https://www.google.com/search&quot; method=&quot;get&quot; role=&quot;search&quot;&gt;
+    &lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;
+    &lt;input class=&quot;search-input&quot; id=&quot;search-input&quot; name=&quot;q&quot; type=&quot;search&quot;
+      placeholder=&quot;Googleで検索&quot; autocomplete=&quot;off&quot; enterkeyhint=&quot;search&quot; required&gt;
+    &lt;button class=&quot;search-button&quot; type=&quot;submit&quot;&gt;検索&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/section&gt;</code></pre>
+<p><strong><code>form</code></strong>は、入力された値をまとめて送信するためのHTMLの仕組みです。ここでは、入力欄と送信ボタンをひとつの<code>form</code>で囲んでいます。<code>role=&quot;search&quot;</code>は、これが検索に使う領域であることを支援技術に伝えるための指定です。</p>
+<p>フォームを理解するときに、最初に見るのは次の三つです。</p>
+<table><thead><tr><th>記述</th><th>この教材での値</th><th>担当すること</th></tr></thead><tbody><tr><td><code>action</code></td><td><code>https://www.google.com/search</code></td><td>フォームの送信先URLを指定する</td></tr><tr><td><code>method</code></td><td><code>get</code></td><td>入力値をURLのクエリ部分に付けて送信する</td></tr><tr><td>入力欄の<code>name</code></td><td><code>q</code></td><td>送信される項目名を決める</td></tr></tbody></table>
+<p>たとえば<code>HTML CSS</code>と入力して送信した場合、ブラウザは概ね次の形式のURLを使います。</p>
+<pre class="code-block"><code class="language-text">https://www.google.com/search?q=HTML+CSS</code></pre>
+<p>URLの<code>?</code>以降が<strong>クエリ文字列</strong>です。<code>q</code>が項目名、<code>HTML+CSS</code>が値で、<code>+</code>は空白を表します。<code>q</code>は検索先に合わせた名前で、HTMLの固定ルールではありません。</p>
+<p>HTMLのフォームはクリックやEnterキーで送信できます。検索語を送るための独自JavaScriptは不要です。秘密情報の送信には使わないでください。</p>
+<h2 id="55-読み解く入力欄ラベル送信ボタンが持つ意味">5.5 読み解く：入力欄・ラベル・送信ボタンが持つ意味</h2>
+<p><code>type=&quot;search&quot;</code>は検索入力欄、<code>placeholder</code>は未入力時のヒントです。<code>placeholder</code>は正式なラベルの代わりにはなりません。</p>
+<p>そこで、この教材には次のラベルがあります。</p>
+<pre class="code-block"><code class="language-html">&lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;</code></pre>
+<p><code>for=&quot;search-input&quot;</code>と<code>id=&quot;search-input&quot;</code>でラベルを入力欄に結び付けます。<code>.sr-only</code>はラベルを視覚的に隠しつつ、支援技術から使えるようにします。</p>
+<p><code>required</code>は入力必須、<code>autocomplete=&quot;off&quot;</code>は自動補完を控えるヒント、<code>enterkeyhint=&quot;search&quot;</code>は仮想キーボードの表示用ヒントです。</p>
+<p>最後の<code>&lt;button type=&quot;submit&quot;&gt;検索&lt;/button&gt;</code>は、フォームを送信するボタンです。<code>type=&quot;submit&quot;</code>はボタンの役割をHTMLで明示します。ここでもJavaScriptでクリックイベントを登録する必要はありません。第4章のタブボタンに付いていた<code>type=&quot;button&quot;</code>とは、目的の違う指定です。</p>
+<h2 id="57-読み解くappjsに加わった検索欄の取得とフォーカス">5.7 読み解く：<code>app.js</code>に加わった検索欄の取得とフォーカス</h2>
+<p>第4章ではJavaScriptを<code>tabs.js</code>から読み込んでいましたが、本章のHTMLが読み込むのは<code>app.js</code>です。<code>app.js</code>には前章のタブ切り替え処理が引き継がれ、検索欄の取得とショートカット処理が追加されています。</p>
+<p>冒頭の要素取得を確認します。実際のコードのうち、タブと検索欄を取得する部分です。</p>
+<pre class="code-block"><code class="language-javascript">const tabs = [...document.querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;)];
+const panels = tabs.map(tab =&gt; document.getElementById(tab.getAttribute(&#39;aria-controls&#39;)));
+const searchInput = document.getElementById(&#39;search-input&#39;);</code></pre>
+<p><code>searchInput</code>は<code>id=&quot;search-input&quot;</code>の要素です。<code>getElementById</code>で取得するため、HTML側の<code>id</code>を変えたらJavaScript側も合わせます。</p>
+<p>検索欄へ移る処理の中心は、次の二行です。これは後述のイベント処理から抜粋したものです。</p>
+<pre class="code-block"><code class="language-javascript">activateTab(0);
+searchInput.focus();</code></pre>
+<p><code>activateTab(0)</code>で検索パネルを表示してから、<code>searchInput.focus()</code>で入力欄へ移動します。<strong>表示してからフォーカスする順序</strong>が重要です。</p>
+<p>ここで新しい検索実行関数は定義されていません。<code>app.js</code>には<code>form.addEventListener(&#39;submit&#39;, ...)</code>や<code>fetch()</code>による検索送信もありません。フォームの送信がHTMLに任されていることを思い出してください。</p>
+<h2 id="58-読み解くAltDとをどのように受け取るか">5.8 読み解く：<code>Alt+D</code>と<code>/</code>をどのように受け取るか</h2>
+<p>次は、<code>app.js</code>のキー操作を受け取る部分の抜粋です。</p>
+<pre class="code-block"><code class="language-javascript">window.addEventListener(&#39;keydown&#39;, event =&gt; {
+  if (event.defaultPrevented || event.isComposing || event.ctrlKey
+    || event.metaKey || event.shiftKey) return;
+  if (event.altKey &amp;&amp; (event.key === &#39;1&#39; || event.key === &#39;2&#39;)) {
+    const index = Number(event.key) - 1;
+    if (index &lt; tabs.length) {
+      event.preventDefault();
+      activateTab(index);
+    }
+  } else if (event.altKey &amp;&amp; event.key.toLowerCase() === &#39;d&#39;) {
+    event.preventDefault();
+    activateTab(0);
+    searchInput.focus();
+  } else if (!event.altKey &amp;&amp; event.key === &#39;/&#39; &amp;&amp;
+    !event.target.closest(&#39;input, textarea, select, [contenteditable=&quot;true&quot;]&#39;)) {
+    event.preventDefault();
+    activateTab(0);
+    searchInput.focus();
+  }
+});</code></pre>
+<p><code>window.addEventListener(&#39;keydown&#39;, ...)</code>は、キーが押されたときに実行する処理を登録しています。<code>event</code>には押されたキーや、Altキーなどの同時押しの情報が入ります。処理を上から一行ずつ暗記するより、<strong>どの条件に当てはまると、どの処理が実行されるか</strong>を先に見ましょう。</p>
+<table><thead><tr><th>操作と条件</th><th>実行する処理</th><th>期待する結果</th></tr></thead><tbody><tr><td>Alt+1、Alt+2</td><td><code>activateTab(index)</code></td><td>検索・ニュースのタブを切り替える</td></tr><tr><td>Alt+D</td><td><code>activateTab(0)</code>、<code>searchInput.focus()</code></td><td>検索パネルを開いて検索欄へ移る</td></tr><tr><td>入力欄など以外で<code>/</code></td><td>同じ二つの処理</td><td>検索欄へ移る</td></tr><tr><td>入力欄などで<code>/</code></td><td>このショートカット処理を行わない</td><td><code>/</code>を通常の入力として使える</td></tr></tbody></table>
+<p>最初の<code>if</code>は、すでに別の処理が既定の動作を取り消したイベント（<code>defaultPrevented</code>）、日本語入力などの変換中を表すイベント（<code>isComposing</code>）、Ctrl・Meta・Shiftのいずれかを押している場合を除外します。ショートカットを無条件に発動させないための判定です。<code>Alt+D</code>の比較では、<code>event.key.toLowerCase()</code>で大文字と小文字の違いを吸収しています。</p>
+<p><code>/</code>の条件は、もう少し丁寧に読みます。</p>
+<pre class="code-block"><code class="language-javascript">!event.target.closest(&#39;input, textarea, select, [contenteditable=&quot;true&quot;]&#39;)</code></pre>
+<p><code>event.target</code>は、今回のキー入力イベントが発生した対象です。<code>closest(...)</code>は、対象の要素自身とその親要素を調べ、指定したCSSセレクターに一致するものを探します。ここでは、入力欄（<code>input</code>）、複数行の入力欄（<code>textarea</code>）、選択欄（<code>select</code>）、編集可能な領域（<code>[contenteditable=&quot;true&quot;]</code>）を対象にしています。</p>
+<p>入力中は<code>/</code>を文字として使えるよう、<code>closest(...)</code>で編集可能な要素を確認します。対象外なら検索欄へフォーカスします。</p>
+<p><code>event.preventDefault()</code>は、取り消し可能なキー入力イベントに対してブラウザの既定の動作を抑えるための処理です。</p>
+<h2 id="59-試すフォームの送信とフォーカスを別々に検証する">5.9 試す：フォームの送信とフォーカスを別々に検証する</h2>
+<p>以下の作業に入る前に、<code>index.html</code>、<code>style.css</code>、<code>app.js</code>が同じフォルダーにあり、HTMLから読み込めているかを確認してください。</p>
+<p><code>HTML CSS</code>を入力し、クリックとEnterの両方で送信します。URLの<code>q</code>を確認しましょう。検索結果が出なくても、フォームによるURL生成とは分けて考えます。</p>
+<p>外部のページへ移動せずにフォームの入力値だけを確かめたい場合は、検索語を入力した状態でConsoleに次のコードを入力します。以下は<strong>検証用</strong>であり、<code>app.js</code>に追加するコードではありません。</p>
+<pre class="code-block"><code class="language-javascript">new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;q&#39;)
+// &quot;HTML CSS&quot;（入力した値に応じて変わる）</code></pre>
+<p>続いて、検索欄を空にして次の式を試します。</p>
+<pre class="code-block"><code class="language-javascript">document.querySelector(&#39;.search-form&#39;).checkValidity()
+// false（requiredがあり、入力が空の場合）</code></pre>
+<p>これはHTMLの入力チェックを確認するための操作です。検索ボタンを押しても、入力が空ならブラウザが送信を止めることも確かめましょう。</p>
+<p>次に、ニュースタブをクリックしてから<code>/</code>を押します。検索パネルが表示され、検索欄へフォーカスが移るかを確認してください。Consoleでは、次のように現在のフォーカス先を確かめられます。</p>
+<pre class="code-block"><code class="language-javascript">document.activeElement.id
+// &quot;search-input&quot;（検索欄にフォーカスがある場合）</code></pre>
+<p><code>document.activeElement</code>でフォーカス先を確認します。検索欄では<code>/</code>が文字として入力されることも試しましょう。Alt+Dはブラウザが優先する場合があります。</p>
+<h2 id="510-試す一か所を変え予測して元に戻す">5.10 試す：一か所を変え、予測して、元に戻す</h2>
+<h3 id="実験1requiredを取り外す">実験1：<code>required</code>を取り外す</h3>
+<p>空欄で<code>checkValidity()</code>が<code>false</code>になることを確認し、<code>required</code>だけ外して再実行します。変化を記録し、最後に<code>required</code>を戻してください。</p>
+<p>この実験では、入力欄の見た目やJavaScriptのショートカットを変えなくても、HTMLの属性だけで入力チェックを変えられることがわかります。</p>
+<h3 id="実験2送信する項目名を変える">実験2：送信する項目名を変える</h3>
+<p>変更前に、検索欄へ<code>HTML CSS</code>と入力して<code>new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;q&#39;)</code>の結果を確認します。変更後の結果を予測してから、<code>index.html</code>の<code>name=&quot;q&quot;</code>を<strong><code>name=&quot;keyword&quot;</code>だけ</strong>に変更してください。再読み込みして同じ語を入力し、Consoleで次を試します。</p>
+<pre class="code-block"><code class="language-javascript">new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;keyword&#39;)
+// &quot;HTML CSS&quot;（入力した値に応じて変わる）
+
+new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;q&#39;)
+// null</code></pre>
+<p>この結果は、入力欄の<code>name</code>が送信項目の名前を決めることを示しています。この状態で送信すると、URLには<code>keyword=...</code>という項目が入るため、元の<code>q=...</code>とは異なる要求になります。Google側でどう解釈されるかまでは、HTMLの仕様だけでは保証されません。</p>
+<h3 id="実験3JavaScriptなしでも送信できるか">実験3：JavaScriptなしでも送信できるか</h3>
+<p>変更前に<code>/</code>で検索欄へ移動できることと、検索ボタンで送信できることを確かめます。次に<code>index.html</code>のscript要素の読み込み指定という一行だけ選択後<code>ctrl + /</code>で一時的にHTMLコメントにします。</p>
+<pre class="code-block"><code class="language-html">&lt;!-- &lt;script src=&quot;app.js&quot; defer&gt;&lt;/script&gt; --&gt;</code></pre>
+<p>再読み込みして、タブのクリックや<code>/</code>による切り替えができなくなることを確かめます。そのうえで、初めから表示されている検索欄へ文字を入力し、検索ボタンやEnterキーによる送信を試してください。<strong>送信はフォームの機能なので、JavaScriptを読み込まなくても基本的に動作します</strong>。</p>
+<h2 id="511-考える操作を便利にするときの設計判断">5.11 考える：操作を便利にするときの設計判断</h2>
+<p>Webアプリを作るとき、すべてをJavaScriptで実装する必要はありません。フォームには送信、入力欄には値の保持や入力チェック、ボタンには送信という基本的な仕組みが備わっています。その上に、検索欄へすぐ移動するショートカットを追加するのが本教材の考え方です。</p>
+<p><code>/</code>は入力中の文字と競合するため、<code>closest(...)</code>で判定します。Alt+Dはブラウザや日本語入力と競合することがあるので、代替操作も残しましょう。</p>
+<p>発展課題として、生成AIに</p>
+<blockquote><p>「フォームをすべてJavaScriptの<code>fetch()</code>で送信する案」と「HTMLフォームのままにする案」の違い</p></blockquote>
+<p>を尋ねてみてください。ただし、その提案をすぐに採用する必要はありません。 本章で使っている<code>action</code>、<code>method</code>、<code>name</code>、<code>required</code>がどこまで担当しているかを確認し、<strong>新しいコードを追加する理由が本当にあるか</strong>を考えることを課題とします。</p>
+<h2 id="512-ふりかえり">5.12 ふりかえり</h2>
+<p>本章では、検索フォームの送信と、検索欄へ移動する処理を分けて読み解きました。<code>index.html</code>は<code>form</code>のGET送信を担当し、<code>app.js</code>はタブを開いて検索欄にフォーカスする処理を加え、<code>style.css</code>はフォームの配置やフォーカス時の外観を決めていました。</p>
+<p>振り返りとして、次の内容を自分の言葉で説明してみてください。</p>
+<ol><li><code>HTML CSS</code>という入力値が、<code>name=&quot;q&quot;</code>と<code>method=&quot;get&quot;</code>によってURLのどこに表れるか。</li><li>なぜ<code>activateTab(0)</code>の後に<code>searchInput.focus()</code>を呼ぶのか。</li><li>なぜ検索欄で入力した<code>/</code>はショートカットとして扱わないのか。</li><li>JavaScriptを読み込まなくても、検索フォームの送信が残るのはなぜか。</li></ol>
+<p>答えが曖昧なときは、該当するHTML・CSS・JavaScriptの行を見つけ、ブラウザで再確認しましょう。コードの意味を知るだけでなく、動作を根拠付きで説明できることが、今後の制作で役立ちます。</p>
+</section></article>
+<article class="book-unit" id="unit-06" data-unit="06">
+<header class="book-unit-header"><p class="book-unit-kicker">第6章</p><h1 class="book-unit-title">ニュースを自動取得する</h1></header>
+<section class="book-body">
+<h1 id="第6章-ニュースを自動取得する">第6章　ニュースを自動取得する</h1>
+<h2 id="61-知る画面の中に外部の情報を取り込む">6.1 知る：画面の中に、外部の情報を取り込む</h2>
+<p>本章では「2 ニュース」タブに外部の記事を表示します。ブラウザのJavaScript、Node.jsのローカルサーバー、GNews APIの連携を学びます。</p>
+<p>本章の到達目標は、「何を送り、何を受け取り、画面のどの要素を書き換えているか」を説明し、成功時だけでなく失敗時も根拠を持って観察できるようになることです。 特に、<strong>APIキーをブラウザに渡さない理由</strong>と、<strong>外部通信の結果をそのまま信じない理由</strong>を考えます。</p>
+<h2 id="62-知るAPIと三つの担当者">6.2 知る：APIと三つの担当者</h2>
+<p><strong>API（Application Programming Interface）</strong>は、別のプログラムが提供する機能やデータを、決められた方法で利用するための窓口です。 GNews APIでは、検索語を指定してニュース記事のデータを取得できます。本教材では、GNewsに直接アクセスするのはブラウザではなく、自分のNode.jsサーバーです。</p>
+<table><thead><tr><th>担当</th><th>教材のファイル・相手</th><th>主な仕事</th></tr></thead><tbody><tr><td>ブラウザ</td><td><code>index.html</code>、<code>style.css</code>、<code>app.js</code></td><td>操作を受け付け、自分のサーバーに依頼し、受け取った記事を画面へ表示する</td></tr><tr><td>ローカルサーバー</td><td><code>server.mjs</code></td><td>ブラウザからの依頼を確認し、APIキーを使ってGNewsへ問い合わせる</td></tr><tr><td>外部サービス</td><td>GNews Search API</td><td>検索条件に対応する記事データを返す</td></tr></tbody></table>
+<p>ここでいう<strong>サーバー</strong>は、リクエスト（依頼）を受けてレスポンス（応答）を返すプログラムです。<strong>Node.js</strong>は、JavaScriptをブラウザの外でも実行できる環境です。同じJavaScriptでも、ブラウザで実行する<code>app.js</code>は画面を操作し、Node.jsで実行する<code>server.mjs</code>はHTTP通信とファイル配信を担当します。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/06-news/assets/V-06-001.svg" alt="ブラウザ、ローカルサーバー、GNews APIの三者間のリクエストと応答を示し、APIキーをサーバー側だけに置くことを明示した図。"></figure>
+<p><em>図 V-06-001：ニュース取得の通信経路。ブラウザは<code>/api/news</code>へ問い合わせ、ローカルサーバーが<code>X-Api-Key</code>ヘッダーを付けてGNews APIへ問い合わせます。記事データはサーバーを経由してブラウザに戻り、APIキーはブラウザへ返しません。</em></p>
+<p>この構造を採るのは、秘密にすべきAPIキーを、ブラウザから取得できるHTMLやJavaScriptに書き込まないためです。ブラウザ用のコードは利用者が開発者ツールで読むことができます。サーバー側でキーを管理すれば、本教材の通常の応答にキーを含めずに外部APIを利用できます。</p>
+<h2 id="63-知るなぜindexhtmlを直接開かないのか">6.3 知る：なぜ<code>index.html</code>を直接開かないのか</h2>
+<p>第4章と第5章は、HTMLファイルをブラウザで直接開いて動きを観察できました。しかし本章の<code>app.js</code>は、次のようなURLへアクセスします。</p>
+<pre class="code-block"><code class="language-javascript">fetch(&#39;/api/news?keyword=&#39; + encodeURIComponent(&#39;テクノロジー&#39;));</code></pre>
+<p>先頭が<code>/</code>のURLは、今開いているページと同じオリジン（通信先のスキーム・ホスト・ポートの組み合わせ）を基準にしたパスです。この教材を<code>http://127.0.0.1:3000/</code>から開いていれば、問い合わせ先は<code>http://127.0.0.1:3000/api/news?...</code>になります。一方、<code>file://</code>で<code>index.html</code>を直接開いても、<code>/api/news</code>に応答するNode.jsサーバーは起動しません。</p>
+<p>そこで本章では、Node.jsサーバーを先に起動し、ブラウザからそのサーバーへ接続します。画面の表示に使うHTML・CSS・JavaScriptも、同じサーバーから配信される構成です。今後、通信の不具合を調べるときは、まず「どのURLからページを開いたか」を確認してください。</p>
+<h2 id="64-読み解くHTMLとCSSはニュースの表示場所を用意する">6.4 読み解く：HTMLとCSSはニュースの表示場所を用意する</h2>
+<p><code>index.html</code>では、ニュースタブに対応するパネルが次のように定義されています。ここでは関係のある部分だけを抜粋しています。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-news&quot; hidden&gt;
+  &lt;div class=&quot;news-card&quot;&gt;
+    &lt;div class=&quot;news-heading&quot;&gt;
+      &lt;h2 id=&quot;news-title&quot;&gt;ニュース&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;p id=&quot;news-genre&quot; class=&quot;news-genre&quot;&gt;ニュースタブを開くと、ニュースを取得します。&lt;/p&gt;
+    &lt;div id=&quot;news&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<p><code>panel-news</code>は切り替え対象、<code>news-genre</code>は取得状況、<code>news</code>は記事一覧です。<code>aria-live=&quot;polite&quot;</code>は内容の変化を支援技術に知らせます。</p>
+<p>CSSは記事の配置と外観を担当します。たとえば、教材には次の指定があります。</p>
+<pre class="code-block"><code class="language-css">.news-item { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+.news-image { width: 120px; height: 80px; flex: 0 0 120px; object-fit: cover; border-radius: 8px; }
+.news-content { min-width: 0; }
+.error { color: var(--error); }</code></pre>
+<p><code>.news-item</code>が記事内の画像と文章を横並びにし、<code>.news-image</code>が画像の大きさをそろえます。<code>.error</code>は失敗時の文字色です。<strong>記事をどこに作るかはHTMLとJavaScript、作られた記事をどう見せるかはCSS</strong>という役割分担は、前章までと同じです。</p>
+<h2 id="65-読み解くニュースタブを初めて開いたときだけ取得する">6.5 読み解く：ニュースタブを初めて開いたときだけ取得する</h2>
+<p>まずブラウザ側の<code>app.js</code>を、大きな単位で読みます。第4・5章のタブ切り替えと検索欄へのフォーカス処理は残り、ニュース取得に必要な要素と状態が追加されました。</p>
+<pre class="code-block"><code class="language-javascript">const newsBox = document.getElementById(&#39;news&#39;);
+const genreBox = document.getElementById(&#39;news-genre&#39;);
+let newsStarted = false;</code></pre>
+<p><code>newsBox</code>と<code>genreBox</code>はHTML要素の参照、<code>newsStarted</code>は取得開始済みかを記録する値です。後で書き換えるため<code>let</code>を使います。</p>
+<p><code>activateTab</code>には、次の処理が追加されています。</p>
+<pre class="code-block"><code class="language-javascript">if (index === 1 &amp;&amp; !newsStarted) {
+  newsStarted = true;
+  loadNews();
+}</code></pre>
+<p>ニュースタブ（<code>index === 1</code>）を初めて開いたときだけ<code>newsStarted</code>を<code>true</code>にし、<code>loadNews()</code>を呼びます。</p>
+<p>このように、画面を開いたときではなく必要になったときに処理を始める方法は、初期表示で不要な通信を避けるための一つの設計です。</p>
+<h2 id="66-読み解くfetchとasyncawaitで応答を待つ">6.6 読み解く：<code>fetch</code>と<code>async/await</code>で応答を待つ</h2>
+<p>ニュースを取得する中心は<code>loadNews</code>です。次は教材の実際のコードです。</p>
+<pre class="code-block"><code class="language-javascript">async function loadNews() {
+  newsBox.textContent = &#39;ニュースを取得しています…&#39;;
+  genreBox.textContent = &#39;取得中&#39;;
+  try {
+    const response = await fetch(&#39;/api/news?keyword=&#39; + encodeURIComponent(&#39;テクノロジー&#39;));
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+    genreBox.textContent = `ジャンル：${data.genre}`;
+    displayNews(data.articles);
+  } catch (error) {
+    genreBox.textContent = &#39;ニュースを取得できません&#39;;
+    newsBox.textContent = error.message;
+    newsBox.classList.add(&#39;error&#39;);
+  }
+}</code></pre>
+<p><code>fetch</code>はHTTPで通信し、応答を非同期に受け取ります。<code>async</code>関数内の<code>await</code>で結果を待てます。</p>
+<p>最初の2行で「取得しています…」「取得中」と表示するのは、利用者に通信中であることを知らせるためです。その後、<code>await fetch(...)</code>でサーバーへ依頼し、<code>await response.json()</code>で応答本文をJavaScriptのデータとして読み取ります。<strong>JSON</strong>は、文字列・数値・配列などを組み合わせてデータを表す形式で、サーバーとブラウザ間などプログラム同士のデータの受け渡しによく利用されます。</p>
+<p><code>encodeURIComponent</code>は文字列をURL用に変換します。<code>fetch</code>は404などでも自動的には例外を投げないため、<code>response.ok</code>を確認し、失敗時は<code>throw</code>と<code>catch</code>で表示を切り替えます。</p>
+<p>成功した場合は<code>data.genre</code>を表示し、<code>data.articles</code>を<code>displayNews</code>に渡します。ここで大切なのは、<strong>通信してデータを受け取る処理</strong>と、<strong>画面の要素を組み立てる処理</strong>を別の関数にしていることです。表示方法を変えたいとき、まず<code>displayNews</code>を探せます。</p>
+<h2 id="67-読み解くサーバーがAPIキーを読み込み問い合わせを制限する">6.7 読み解く：サーバーがAPIキーを読み込み、問い合わせを制限する</h2>
+<p>サーバー側の<code>server.mjs</code>は、ブラウザとは別のNode.jsプロセスで実行します。まず、通信先の設定とAPIキーの管理を見ます。</p>
+<pre class="code-block"><code class="language-javascript">// 第6章：APIキーはサーバー側の環境変数から読み込み、ブラウザへ返さない。
+// 起動: node --env-file=.env server.mjs （Node.js 20.6以上）
+import { createServer } from &#39;node:http&#39;;
+import { readFile } from &#39;node:fs/promises&#39;;
+import { fileURLToPath } from &#39;node:url&#39;;
+import { dirname, join } from &#39;node:path&#39;;
+
+const folder = dirname(fileURLToPath(import.meta.url));
+const port = Number(process.env.PORT ?? &#39;3000&#39;);
+const apiKey = process.env.GNEWS_API_KEY?.trim();
+const keywords = new Set([&#39;テクノロジー&#39;, &#39;AI&#39;, &#39;経済&#39;, &#39;政治&#39;, &#39;科学&#39;]);
+const ttlMs = 5 * 60 * 1000;
+const cache = new Map();</code></pre>
+<p><code>process.env</code>は、Node.jsで環境変数を参照する仕組みです。環境変数を使うと、APIキーなどの設定値をソースコードに直接書かず、実行時に渡せます。本教材では<code>.env</code>を<code>--env-file</code>で読み込み、<code>GNEWS_API_KEY</code>を取得します。<code>.env.example</code>は書式の見本であり、秘密のキーを書き込んで共有してはいけません。 <code>keywords</code>は受け付ける検索語の集合です。<code>Set</code>の<code>has</code>で登録済みかを調べ、外部APIに送る入力を限定しています。</p>
+<h2 id="68-読み解くブラウザの依頼からGNewsへのリクエストまで">6.8 読み解く：ブラウザの依頼からGNewsへのリクエストまで</h2>
+<p><code>server.mjs</code>の<code>news</code>関数は、まず依頼された検索語を読み、値を確認します。以下は実コードの抜粋です。</p>
+<pre class="code-block"><code class="language-javascript">const keyword = reqUrl.searchParams.get(&#39;keyword&#39;) || &#39;テクノロジー&#39;;
+if (!keywords.has(keyword)) return json(res, 400, { error: &#39;未対応のジャンルです。&#39; });
+if (!apiKey) return json(res, 503, { error: &#39;GNEWS_API_KEY が未設定です。.env を確認してください。&#39; });</code></pre>
+<p>許可外の<code>keyword</code>には<strong>400</strong>、APIキー未設定には<strong>503</strong>を返します。数字の意味はHTTPで定義されますが、どの場合に返すかは教材サーバーの実装です。</p>
+<p>検査を通ると、GNewsへの問い合わせ内容を組み立てます。</p>
+<pre class="code-block"><code class="language-javascript">const params = new URLSearchParams({ q: keyword, lang: &#39;ja&#39;, country: &#39;jp&#39;, max: &#39;5&#39; });
+try {
+  // APIキーをクエリ文字列に含めず、ヘッダーで渡す。
+  const response = await fetch(`https://gnews.io/api/v4/search?${params}`, {
+    headers: { &#39;X-Api-Key&#39;: apiKey },
+    signal: AbortSignal.timeout(9000),
+  });</code></pre>
+<p><code>URLSearchParams</code>は、<code>q</code>、<code>lang</code>、<code>country</code>、<code>max</code>などのパラメーターをURL用に組み立てます。<code>q</code>は検索語、<code>lang: &#39;ja&#39;</code>は日本語の記事の指定、<code>country: &#39;jp&#39;</code>は掲載国に関する指定、<code>max: &#39;5&#39;</code>は取得件数の上限として要求する値です。実際に返る記事の件数や内容は、GNewsに依存します。</p>
+<p><code>X-Api-Key</code>ヘッダーでGNewsへキーを渡し、URLへの記載を避けています。<code>AbortSignal.timeout(9000)</code>は約9秒で通信を中断します。</p>
+<p>GNewsが正常に応答すると、サーバーは<code>data.articles</code>が配列であることを確認し、記事から<code>title</code>、<code>description</code>、<code>url</code>、<code>image</code>、<code>publishedAt</code>、<code>source.name</code>などを取り出してブラウザへ返します。GNewsの応答全体をそのままブラウザへ送り返すのではなく、必要な項目を選んでいます。このレスポンスにはAPIキーを含めていません。</p>
+<h2 id="69-読み解く取得結果をニュースカードとして表示する">6.9 読み解く：取得結果をニュースカードとして表示する</h2>
+<p>ブラウザに戻ってきた記事データは<code>displayNews</code>がHTML要素へ変換します。初めに<code>newsBox.replaceChildren()</code>で以前の内容を取り除き、受け取った記事を一つずつ処理します。次のコードは、記事タイトルをリンクとして作る部分の<strong>抜粋</strong>です。</p>
+<pre class="code-block"><code class="language-javascript">const link = document.createElement(&#39;a&#39;);
+link.href = url;
+link.target = &#39;_blank&#39;;
+link.rel = &#39;noopener noreferrer&#39;;
+link.textContent = article.title;
+content.append(link);</code></pre>
+<p><code>document.createElement(&#39;a&#39;)</code>でリンク要素を作り、<code>href</code>に記事のURLを設定します。<code>target=&quot;_blank&quot;</code>はリンク先を新しい閲覧コンテキストで開くため、<code>rel=&quot;noopener noreferrer&quot;</code>は開いたページとの関係を制限するための設定です。</p>
+<p>外部の文章は<code>innerHTML</code>ではなく<code>textContent</code>で表示します。<code>safeWebUrl</code>では<code>http:</code>／<code>https:</code>のURLのみを許可します。</p>
+<p>記事画像は<code>img</code>で表示し、<code>loading = &#39;lazy&#39;</code>で遅延読み込みします。<code>alt = &#39;&#39;</code>はタイトルとの重複を避ける設定です。画像がなくても記事の文字情報は表示できます。</p>
+<p>もし有効なURLやタイトルを持つ記事が一つも表示できなければ、<code>newsBox</code>には「表示できるニュースがありません。」と表示されます。ここまでで、<strong>JSONのデータがDOM要素になり、CSSによってニュースカードとして見える</strong>までの道筋がつながりました。</p>
+<h2 id="610-考える失敗したときどこで何が起こるか">6.10 考える：失敗したとき、どこで何が起こるか</h2>
+<p>通信が失敗した原因は一つとは限りません。ブラウザから見たエラーと、サーバーがGNewsから受け取ったエラーも区別する必要があります。</p>
+<table><thead><tr><th>状況</th><th>教材サーバーの応答</th><th>ブラウザ側での結果</th></tr></thead><tbody><tr><td><code>.env</code>のキーが空</td><td>503と設定確認のメッセージ</td><td><code>catch</code>に進み、エラーメッセージをニュース欄へ表示</td></tr><tr><td>許可していない<code>keyword</code>を指定</td><td>400と「未対応のジャンルです。」</td><td><code>catch</code>に進み、エラーを表示</td></tr><tr><td>GNewsが401・403・429などを返す</td><td>サーバーが状況に応じた文面を選び、ブラウザには502を返す</td><td>エラーを表示</td></tr><tr><td>通信がタイムアウトするなどして失敗</td><td>サーバーが502と通信失敗のメッセージを返す</td><td>エラーを表示</td></tr><tr><td>記事として表示できるものがない</td><td>正常な応答の内容次第</td><td>「表示できるニュースがありません。」と表示する場合がある</td></tr></tbody></table>
+<p>上の「502」は、<strong>GNewsから返ったステータスをそのまま転送した数字ではありません</strong>。GNews側が401でも、この教材サーバーはブラウザへ502を返す構造です。開発者ツールに表示される値と元のサービスの応答を混同しないようにしてください。</p>
+<p>また、<code>newsStarted</code>は取得開始時に<code>true</code>になり、失敗しても<code>false</code>へ戻しません。ニュースタブをいったん離れて開き直しても通信は再試行されません。改めて確認する際は、ページを再読み込みします。</p>
+<h2 id="611-考える5分間のキャッシュと公開範囲">6.11 考える：5分間のキャッシュと公開範囲</h2>
+<p><code>server.mjs</code>では、取得した記事を<code>cache</code>という<code>Map</code>に保存します。<strong>キャッシュ</strong>とは、一度取得した結果を一時的に保存して、同じ依頼に再利用する仕組みです。教材の<code>ttlMs = 5 * 60 * 1000</code>は、保存結果を5分間利用する設定です。</p>
+<p><code>/api/news?keyword=テクノロジー</code>へ短時間に同じ依頼が来た場合、条件が合えばサーバーはGNewsに改めて問い合わせず、保存済みの記事を返します。応答JSONの<code>cache</code>が<code>true</code>なら保存結果から、<code>false</code>なら新たに取得した結果から返したことを表します。</p>
+<h2 id="612-試すAPIキーなしでサーバーを起動する">6.12 試す：APIキーなしでサーバーを起動する</h2>
+<p>まず、秘密キーを用意せずに確認できる範囲から始めます。以下の操作は、元の教材ファイルを壊さずに進められます。</p>
+<ol><li><code>index.html</code>、<code>style.css</code>、<code>app.js</code>、<code>server.mjs</code>、<code>.env.example</code>、<code>.gitignore</code>を同じフォルダーに置きます。Node.js 20.6以降が利用できることを<code>node --version</code>で確認します。</li><li><code>.env.example</code>をコピーし、コピーしたファイル名を<code>.env</code>にします。<strong>見本の「ここに新しく発行したキーを設定」という文字列は必ず消し</strong>、次のようにキーの値を空にします。見本の文字列を残したままでは、コードは「未設定」と判定しません。</li></ol>
+<pre class="code-block"><code class="language-dotenv">   GNEWS_API_KEY=
+   PORT=3000</code></pre>
+<ol><li>フォルダーをターミナルで開き、<code>node --env-file=.env server.mjs</code>を実行します。起動メッセージのURLを確認します。ポートが使用中などで起動しない場合は、そのエラーを先に解決します。</li><li>ブラウザで<code>http://127.0.0.1:3000/</code>を開き、検索タブが表示されていることを確認します。次にニュースタブを押すと、キー未設定を知らせるメッセージが表示されるはずです。</li><li>開発者ツールのNetworkで<code>/api/news</code>の通信を探し、HTTPステータスとJSONの<code>error</code>を記録します。<strong>期待するサーバーの応答は503</strong>です。</li><li>確認後、ターミナルで<code>Ctrl+C</code>を押してサーバーを止めます。<code>.env</code>は秘密情報を入れる可能性があるため、提出物や公開リポジトリへ含めないでください。</li></ol>
+<p><strong>注意：</strong> <code>.env</code>のファイル自体が存在しない場合は、Node.jsの<code>--env-file</code>が起動時にエラーを出すことがあります。「ファイルはあるがキーが空」と「設定ファイルがない」は別の状態です。実験では前者を再現します。</p>
+<h2 id="613-試す一か所だけ変えエラーの意味を確かめる">6.13 試す：一か所だけ変え、エラーの意味を確かめる</h2>
+<p><strong>実験A：</strong> キーを空にし、<code>http://127.0.0.1:3000/api/news?keyword=テクノロジー</code>で503を確認します。<code>keyword</code>だけ<code>未登録</code>にすると400になります。コードで検査順序を調べましょう。</p>
+<p><strong>実験B：</strong> <code>http://127.0.0.1:3000/.env</code>と<code>http://127.0.0.1:3000/server.mjs</code>の404を確認します。<code>staticFiles</code>を読んで理由を調べましょう。</p>
+<p><strong>実験C：</strong> <code>app.js</code>の<code>encodeURIComponent(&#39;テクノロジー&#39;)</code>を<code>&#39;AI&#39;</code>に変え、ブラウザを再読み込みします。Networkで<code>keyword=AI</code>を確認し、実験後に戻します。</p>
+<p>有効なAPIキーを取得できる場合は、任意の実験として記事表示の成功も確認できます。<a href="https://docs.gnews.io/#__docusaurus_skipToContent_fallback">GNews APIの利用開始手順</a>で取得方法と利用条件を確認してください。APIキーの設定は必須演習ではありません。外部通信、記事数、画像表示はネットワークや外部サービスに依存するため、キーなしでも本章の主要な学習目標を達成できます。</p>
+<h2 id="614-根拠を確かめるNetworkと公式資料を照らし合わせる">6.14 根拠を確かめる：Networkと公式資料を照らし合わせる</h2>
+<p>Networkで<code>/api/news</code>の<strong>Request URL</strong>・<strong>Status</strong>・<strong>Response</strong>を確認します。キー未設定なら503と<code>GNEWS_API_KEY</code>のエラーを記録しましょう。</p>
+<p>次にGNews公式資料で、Search Endpointの<code>q</code>、<code>lang</code>、<code>country</code>、<code>max</code>の意味と、<code>X-Api-Key</code>による認証を確認します。Node.js公式資料では<code>--env-file</code>の利用方法を、MDNでは<code>fetch</code>がHTTPエラーステータスだけでは例外を投げないことを確認します。<strong>資料に定義された動作</strong>と、<strong>教材で採用したエラー番号や表示文言</strong>を分けて記録してください。</p>
+<p>生成AIにこの通信経路を説明させた場合も、「APIキーをHTMLに直接書き込む」「ブラウザからGNewsへキーを送る」といった提案が含まれていないか、実際の<code>server.mjs</code>と公式資料で検証できます。説明の自然さよりも、コードと根拠が一致しているかを判断材料にしましょう。</p>
+<h2 id="615-ふりかえり画面の外で動く処理も追えるようになる">6.15 ふりかえり：画面の外で動く処理も追えるようになる</h2>
+<p>本章では、ニュースタブの操作を起点に、ブラウザの<code>app.js</code>がローカルサーバーの<code>/api/news</code>へ依頼し、<code>server.mjs</code>がGNewsに問い合わせ、結果を<code>displayNews</code>が画面へ表示するまでを追いました。HTMLは表示場所を用意し、CSSはカードの外観を整え、ブラウザのJavaScriptは通信とDOMの更新を担当します。Node.jsサーバーはAPIキーを管理し、外部サービスとの通信を担当します。</p>
+<p>確認してほしいのは、次の四つです。</p>
+<ul><li>ニュースを開いたとき、どの関数がどの条件で呼ばれるか説明できますか。</li><li>ブラウザとサーバーの通信先を区別し、APIキーの置き場所を説明できますか。</li><li><code>fetch</code>、<code>await</code>、<code>response.ok</code>、<code>catch</code>を実際の表示と結び付けられますか。</li><li>キー未設定による503、未対応ジャンルによる400、配信対象外ファイルによる404を、Networkで確かめられますか。</li></ul>
+<p>これらができれば、「動いた／動かない」という結果だけでなく、<strong>どの段階で何が起こったか</strong>を説明できます。次章の具体的な内容は今回の資料には示されていませんが、本章で身につけた通信の経路と表示の対応を調べる方法は、今後データの種類や機能が増えても使える考え方です。</p>
+</section></article>
+<article class="book-unit" id="unit-07" data-unit="07">
+<header class="book-unit-header"><p class="book-unit-kicker">第7章</p><h1 class="book-unit-title">エラーを見つけて修正する</h1></header>
+<section class="book-body">
+<h1 id="第7章-エラーを見つけて修正する">第7章　エラーを見つけて修正する</h1>
+<h2 id="71-知る完成した機能を確かめられるようにする">7.1 知る：完成した機能を「確かめられる」ようにする</h2>
+<p>機能が増えると、一つの症状にも複数の原因が考えられます。本章では、問題を思いつきで直さず、<strong>症状を再現し、仮説を立て、確かめてから、必要な部分だけを修正する</strong>方法を学びます。原因が分からないまま複数のファイルを変えると、結果が変わった理由を追えません。これが<strong>デバッグ</strong>の基本です。</p>
+<p>本章では、Node.jsの自動テストとブラウザの開発者ツールを併用します。学習の目標は次の四つです。</p>
+<ul><li>HTMLの構造、JavaScriptの構文、HTTP通信のどこに問題があるかを切り分ける。</li><li><code>test.mjs</code>が何を検査しており、何を検査していないかを説明する。</li><li>テストをわざと失敗させ、失敗内容から原因を読み取って復元する。</li><li>自動テストの結果と、ブラウザで観察した事実を区別して記録する。</li></ul>
+<p>大事なのは、最初からすべてのエラーを解決できることではありません。<strong>確認できたことと、まだ確かめていないことを分けられる</strong>ことです。</p>
+<h2 id="72-知る症状仮説確認を分ける">7.2 知る：症状、仮説、確認を分ける</h2>
+<p>デバッグの最初の一歩は、「何が起きたか」を具体的にすることです。</p>
+<blockquote><p>ニュースが壊れた</p></blockquote>
+<p>よりも、</p>
+<blockquote><p>ニュースタブを初めて開くと『ニュースを取得できません』と表示され、Networkには503が記録された</p></blockquote>
+<p>のほうが原因を絞り込めます。</p>
+<p>調査は、おおむね次の順番で進めます。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/07-debug/assets/V-07-0001.svg" alt="症状の再現から仮説を立て、HTML・JavaScript・通信・サーバー内キャッシュのいずれを確認するか選び、小さな修正の後に再検証する流れ。"></figure>
+<p><em>図 V-07-001：デバッグの基本的な流れと、問題の種類に応じた確認先。キャッシュは本教材ではサーバー内の<code>Map</code>に保持され、ブラウザのApplication画面へ自動的に保存されるわけではありません。</em></p>
+<p>どこを調べるか迷ったときは、次の対応を手掛かりにします。</p>
+<table><thead><tr><th>目に見える症状</th><th>最初に疑う場所</th><th>主な確認方法</th></tr></thead><tbody><tr><td>タブとパネルが対応しない</td><td><code>index.html</code>の<code>id</code>と<code>aria-controls</code></td><td>構造テスト、Elements</td></tr><tr><td>JavaScriptが実行できない</td><td><code>app.js</code>や<code>server.mjs</code>の文法</td><td><code>node --check</code>、テスト、Console</td></tr><tr><td>ニュースを取得できない</td><td><code>/api/news</code>の応答やサーバー設定</td><td>Network、HTTPテスト、サーバー側コード</td></tr><tr><td>一度取得したニュースが再利用される</td><td>サーバー内のキャッシュ</td><td><code>server.mjs</code>の<code>cache</code>と時間判定、応答の<code>cache</code>値</td></tr></tbody></table>
+<p>これらは調査の入口であって、原因を断定する表ではありません。たとえば、画面が切り替わらない場合にはHTMLの対応の誤りだけでなく、JavaScriptの例外も考えられます。</p>
+<h2 id="73-読み解く今回使用するファイルと自動テスト">7.3 読み解く：今回使用するファイルと自動テスト</h2>
+<p><code>test.mjs</code>はNode.jsで動くテスト用ファイルです。<code>.mjs</code>はECMAScriptモジュールとして扱う拡張子で、ブラウザ画面を作るものではありません。</p>
+<p>テストを実行するには、少なくとも次のファイルが同じ<code>07-debug</code>フォルダーに必要です。</p>
+<pre class="code-block"><code class="language-text">07-debug/
+├─ index.html       ← HTMLのタブ・パネルを検査
+├─ app.js           ← 構文を検査
+├─ style.css        ← ブラウザでの表示に使用
+├─ server.mjs       ← 構文とHTTP応答を検査
+└─ test.mjs         ← 今回読む自動テスト</code></pre>
+<p><code>index.html</code>と<code>app.js</code>は第6章で使ったものを引き継ぎます。</p>
+<pre class="code-block"><code class="language-bash">node --test test.mjs</code></pre>
+<p><code>--test</code>はNode.jsの<strong>テストランナー</strong>を使用する指定です。テストランナーは、登録された確認処理を実行し、成功・失敗をまとめて表示します。教材の<code>test.mjs</code>には三つのテストがあり、それぞれが独立した役割を持っています。</p>
+<table><thead><tr><th>テスト名（要約）</th><th>確認する内容</th><th>確認しない内容</th></tr></thead><tbody><tr><td>タブとパネルの対応</td><td>特定の<code>id</code>と<code>aria-controls</code>の個数・文字列の一致</td><td>実際のクリック動作、表示、重複IDの完全な検出</td></tr><tr><td>JavaScriptの構文</td><td><code>app.js</code>と<code>server.mjs</code>が構文として解釈できるか</td><td>実行時の例外や画面操作の正しさ</td></tr><tr><td>APIキー未設定時の応答</td><td><code>/</code>が200、<code>/api/news</code>が503、指定した秘密ファイルのパスが404</td><td>GNewsへの実接続、APIキーを設定した場合の成功、すべてのURLの安全性</td></tr></tbody></table>
+<p><strong>テストがすべて成功したことと、Webアプリのあらゆる動作が正しいこと</strong>は同一ではないことを留意しましょう。</p>
+<h2 id="74-読み解くテストを書くための基本部品">7.4 読み解く：テストを書くための基本部品</h2>
+<p><code>test.mjs</code>の冒頭には、次の読み込みがあります。</p>
+<pre class="code-block"><code class="language-javascript">import test from &#39;node:test&#39;;
+import assert from &#39;node:assert/strict&#39;;
+import { readFile } from &#39;node:fs/promises&#39;;
+import { spawn, spawnSync } from &#39;node:child_process&#39;;
+import { join, dirname } from &#39;node:path&#39;;
+import { fileURLToPath } from &#39;node:url&#39;;
+
+const folder = dirname(fileURLToPath(import.meta.url));</code></pre>
+<p><code>import</code>で機能を読み込みます。<code>node:test</code>はテスト、<code>node:assert/strict</code>は期待値の検証、<code>readFile</code>はファイルの読み込み、<code>spawn</code>・<code>spawnSync</code>は別プログラムの起動に使います。</p>
+<p><code>folder</code>は<code>test.mjs</code>のあるフォルダーを指し、<code>index.html</code>などの参照先を定めます。サーバー起動時にも<code>cwd: folder</code>を指定します。</p>
+<h2 id="75-読み解くHTMLの対応関係を自動で調べる">7.5 読み解く：HTMLの対応関係を自動で調べる</h2>
+<p>最初のテストは、タブとパネルの対応を調べます。</p>
+<pre class="code-block"><code class="language-javascript">test(&#39;タブ数とパネル数が一致し、aria-controlsが対応する&#39;, async () =&gt; {
+  const html = await readFile(join(folder, &#39;index.html&#39;), &#39;utf8&#39;);
+  const ids = [...html.matchAll(/id=&quot;(panel-[^&quot;]+)&quot;/g)].map(m =&gt; m[1]);
+  const controls = [...html.matchAll(/aria-controls=&quot;(panel-[^&quot;]+)&quot;/g)].map(m =&gt; m[1]);
+  assert.equal(ids.length, controls.length);
+  assert.deepEqual(ids.sort(), controls.sort());
+});</code></pre>
+<p>第4章で学んだように、タブの<code>aria-controls=&quot;panel-news&quot;</code>は、<code>id=&quot;panel-news&quot;</code>のパネルを指します。もし名前が違えば、JavaScriptが意図するパネルを探せなくなる可能性があります。そこで、このテストはHTMLファイルを文字列として読み込み、二つの名前の集まりを比較します。</p>
+<p><code>matchAll</code>で正規表現に一致する<code>id</code>と<code>aria-controls</code>を集めます。<code>assert.equal</code>は件数、<code>assert.deepEqual</code>は並び替え後の値を比較します。</p>
+<p>たとえば、ニュースタブの<code>aria-controls</code>だけを<code>panel-news-typo</code>に変更すれば、パネル側の<code>id</code>にはその名前が存在しないため、比較結果が一致しなくなります。ただし、このテストはHTMLをDOMとして解析していません。<strong>特定の書き方を正規表現で調べる簡易テスト</strong>です。</p>
+<h2 id="76-読み解くJavaScriptの構文を確認する">7.6 読み解く：JavaScriptの構文を確認する</h2>
+<p>二番目のテストは、JavaScriptの<strong>構文エラー</strong>を見つけるためのものです。構文エラーとは、括弧が閉じられていないなど、言語の書き方として解釈できない問題です。</p>
+<pre class="code-block"><code class="language-javascript">test(&#39;JavaScriptファイルに構文エラーがない&#39;, () =&gt; {
+  for (const filename of [&#39;app.js&#39;, &#39;server.mjs&#39;]) {
+    const result = spawnSync(
+      process.execPath,
+      [&#39;--check&#39;, join(folder, filename)],
+      { encoding: &#39;utf8&#39; }
+    );
+    assert.equal(result.status, 0, result.stderr);
+  }
+});</code></pre>
+<p><code>for...of</code>でファイルを順に調べ、<code>spawnSync</code>で<code>node --check</code>を実行します。<code>--check</code>はプログラムを動かさず構文だけを検査します。</p>
+<p><code>result.status</code>が<code>0</code>なら、コマンドは正常終了したと判断して次へ進みます。<code>0</code>以外であれば、<code>assert.equal</code>が失敗し、エラーの詳細がテスト結果に表示されます。<code>result.stderr</code>は、コマンドがエラー内容などを書き出すための出力です。</p>
+<p><code>node --check</code>でわかるのは構文の誤りだけです。正しい動作は実行して別途確かめる必要があります。</p>
+<h2 id="77-読み解くサーバーを起動しHTTP応答を検査する">7.7 読み解く：サーバーを起動し、HTTP応答を検査する</h2>
+<p>三番目のテストは、自分のNode.jsサーバーを一時的に起動し、実際にHTTPリクエストを送ります。HTTPは、ブラウザとサーバーが情報をやり取りするときの規則です。サーバーは処理結果を<code>200</code>や<code>503</code>などの<strong>ステータスコード</strong>で返します。</p>
+<p>最初に、テストがサーバーを起動する部分を見ます。</p>
+<pre class="code-block"><code class="language-javascript">test(&#39;APIキー未設定ならニュースAPIは503で、秘密ファイルは配信しない&#39;, async () =&gt; {
+  const child = spawn(process.execPath, [&#39;server.mjs&#39;], {
+    cwd: folder,
+    env: { ...process.env, GNEWS_API_KEY: &#39;&#39;, PORT: &#39;0&#39; },
+    stdio: [&#39;ignore&#39;, &#39;pipe&#39;, &#39;pipe&#39;]
+  });
+  // 以下にサーバーへの確認と終了処理が続く（省略）
+});</code></pre>
+<p><code>spawn</code>でサーバーを起動します。<code>cwd</code>は作業場所、<code>env</code>はテスト用の環境変数、<code>PORT: &#39;0&#39;</code>はOSによる空きポートの選択です。</p>
+<p>このテストは、通常のニュース取得が成功するかどうかを調べるものではありません。<strong>APIキーが設定されていない場合に、サーバーが想定どおりの失敗を返すか</strong>を確認します。<code>server.mjs</code>には次の条件があります。</p>
+<pre class="code-block"><code class="language-javascript">async function news(reqUrl, res) {
+  const keyword = reqUrl.searchParams.get(&#39;keyword&#39;) || &#39;テクノロジー&#39;;
+  if (!keywords.has(keyword)) return json(res, 400, { error: &#39;未対応のジャンルです。&#39; });
+  if (!apiKey) return json(res, 503, { error: &#39;GNEWS_API_KEY が未設定です。.env を確認してください。&#39; });
+  // 以下は省略
+}</code></pre>
+<p>この教材では、キーが空ならGNewsへ問い合わせる前に<code>503</code>を返す設計です。HTTPの一般的な意味として<code>503</code>はサービスがリクエストに対応できない状態を示しますが、<strong>キー未設定を503で表現することは教材サーバーの実装上の判断</strong>です。すべてのWeb APIが同じ条件で503を返すわけではありません。</p>
+<p>テストの応答確認部分では、次の処理が実行されます。</p>
+<pre class="code-block"><code class="language-javascript">const html = await fetch(url);
+assert.equal(html.status, 200);
+const news = await fetch(url + &#39;/api/news&#39;);
+assert.equal(news.status, 503);
+assert.match((await news.json()).error, /GNEWS_API_KEY/);
+for (const path of [&#39;/server.mjs&#39;, &#39;/.env&#39;, &#39;/.env.example&#39;]) {
+  assert.equal((await fetch(url + path)).status, 404);
+}</code></pre>
+<p><code>fetch</code>で<code>/</code>の200、ニュースAPIの503、対象パスの404を確認します。<code>assert.match</code>でエラーメッセージに<code>GNEWS_API_KEY</code>が含まれるか検査します。</p>
+<p><code>server.mjs</code>は<code>staticFiles</code>の登録対象のみ配信します。<code>/.env</code>と<code>/server.mjs</code>の404を確認しますが、この結果だけで安全性全体は保証できません。</p>
+<p>なお、三番目のテストの終わりでは<code>finally</code>を使い、成功・失敗にかかわらず起動したサーバープロセスに<code>child.kill()</code>を呼びます。テスト用のサーバーを起動したままにしないための処理です。<code>try</code>と<code>finally</code>は、途中でエラーがあっても後始末を実行するために使います。</p>
+<h2 id="78-読み解くテストの成功失敗を読む">7.8 読み解く：テストの成功・失敗を読む</h2>
+<p>テストランナーが表示する結果では、<code>ok</code>が成功、<code>not ok</code>が失敗を表します。三つのテストが成功したときは、概ね次のような表示になります。これは<strong>表示形式を説明するための例</strong>であり、実行時間などは環境によって異なります。</p>
+<pre class="code-block"><code class="language-text">TAP version 13
+# Subtest: タブ数とパネル数が一致し、aria-controlsが対応する
+ok 1 - タブ数とパネル数が一致し、aria-controlsが対応する
+# Subtest: JavaScriptファイルに構文エラーがない
+ok 2 - JavaScriptファイルに構文エラーがない
+# Subtest: APIキー未設定ならニュースAPIは503で、秘密ファイルは配信しない
+ok 3 - APIキー未設定ならニュースAPIは503で、秘密ファイルは配信しない
+1..3
+# tests 3
+# pass 3
+# fail 0</code></pre>
+<p><strong>TAP</strong>はテスト結果の表示形式です。<code>pass</code>は成功数、<code>fail</code>は失敗数。<code>not ok</code>の項目で期待値と実際の値を比べましょう。</p>
+<h2 id="79-試す意図的にHTMLを壊し修正する">7.9 試す：意図的にHTMLを壊し、修正する</h2>
+<p>まず、自動テストが問題を見つける様子を確かめます。変更対象は一か所だけです。作業前にファイルのコピーを保存してもかまいません。</p>
+<ol><li><strong>変更前を確認する</strong>：<code>node --test test.mjs</code>を実行し、三つのテストが成功することを確かめます。</li><li><strong>予測する</strong>：ニュースタブの<code>aria-controls</code>が存在しないパネル名を指したら、何番目のテストが失敗するか記録します。</li><li><strong>一か所だけ変更する</strong>：<code>index.html</code>の<code>aria-controls=&quot;panel-news&quot;</code>を<code>aria-controls=&quot;panel-news-typo&quot;</code>へ変更します。パネル側の<code>id=&quot;panel-news&quot;</code>は変更しません。</li><li><strong>結果を確認する</strong>：再度<code>node --test test.mjs</code>を実行し、<code>not ok</code>になったテスト名と、表示された二つの配列の違いを書き留めます。</li><li><strong>理由を説明する</strong>：テストが「値の個数」ではなく「値の一致」で失敗した理由を、<code>assert.deepEqual</code>の行と結び付けて説明します。</li><li><strong>元に戻す</strong>：<code>aria-controls=&quot;panel-news&quot;</code>へ戻し、同じコマンドを実行して成功することを確かめます。</li></ol>
+<p>この実験では、HTMLを壊しても構文テストは成功する場合があります。テストが別々の条件を調べているからです。失敗を一つ作っただけで、三つすべてが同時に失敗するわけではない点にも注目してください。</p>
+<h2 id="710-試す構文エラーと実行時の問題を区別する">7.10 試す：構文エラーと実行時の問題を区別する</h2>
+<p>次は、JavaScriptの構文検査が何を見つけるかを確かめます。ここでも変更は一か所に限定します。</p>
+<ol><li><strong>変更前を確認する</strong>：<code>node --check app.js</code>を実行し、正常終了することを確かめます。</li><li><strong>予測する</strong>：ファイルの末尾に閉じられていない括弧があったら、何が起こるかを予測します。</li><li><strong>一か所だけ変更する</strong>：<code>app.js</code>の末尾に、次の<strong>意図的に不完全な一行</strong>を追加します。これは動作するコード例ではありません。</li></ol>
+<pre class="code-block"><code class="language-javascript">   function broken( {</code></pre>
+<ol><li><strong>結果を確認する</strong>：<code>node --check app.js</code>と<code>node --test test.mjs</code>を順に実行し、<code>SyntaxError</code>などのメッセージと、失敗するテストの名前を確認します。</li><li><strong>理由を説明する</strong>：構文として解釈できないため、タブやニュースの動作を調べる段階まで進めないことを説明します。</li><li><strong>元に戻す</strong>：追加した一行を完全に削除し、構文検査と三つのテストが再び成功することを確認します。</li></ol>
+<p>構文検査が成功した場合でも、ブラウザ上の動作まで保証されません。たとえば<code>id</code>の書き間違いによる<code>null</code>の扱いは、実行したときに初めて問題になることがあります。その場合には、次節の開発者ツールを使います。</p>
+<h2 id="711-試す開発者ツールのElementsとConsoleを使う">7.11 試す：開発者ツールのElementsとConsoleを使う</h2>
+<p>ブラウザの<strong>開発者ツール</strong>は、表示されているページの要素や、JavaScriptのエラー、通信内容などを確認するための道具です。Chromium系ブラウザでは主にElements、Console、Networkなどの名前で表示されます。ブラウザによって名称や配置は異なります。</p>
+<p><strong>Elements</strong>で<code>tab-news</code>と<code>panel-news</code>の<code>aria-selected</code>・<code>hidden</code>を確認します。状態が正しければ、次はCSSを調べます。</p>
+<pre class="code-block"><code class="language-css">.filetab[aria-selected=&quot;true&quot;] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}</code></pre>
+<p>この規則は、タブの選択状態を見た目に反映する部分です。選択状態が更新されない問題と、選択状態は変わるのに色が変わらない問題では、調べる場所が異なります。</p>
+<p><strong>Console</strong>では、JavaScriptのエラーメッセージを確認したり、式を入力したりできます。次の式は説明のための確認用であり、<code>app.js</code>に追加する必要はありません。</p>
+<pre class="code-block"><code class="language-javascript">document.querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;).length
+// この教材では通常 2
+
+document.getElementById(&#39;tab-news&#39;).getAttribute(&#39;aria-controls&#39;)
+// 通常 &quot;panel-news&quot;
+
+document.getElementById(&#39;panel-news&#39;) !== null
+// 通常 true</code></pre>
+<p><code>SyntaxError</code>が表示されたらコードの書き方を調べます。一方、<code>TypeError</code>のような実行中の例外が出た場合は、エラーの前後で取得した要素が存在していたか、操作する値が想定どおりかを調べます。最初に出たエラーを記録するのは、後から発生したエラーが、その影響で起きている可能性があるためです。</p>
+<h2 id="712-試すNetworkで通信の失敗を読み取る">7.12 試す：Networkで通信の失敗を読み取る</h2>
+<p>ニュースの通信を調べるときはローカルサーバーを起動し、<code>http://127.0.0.1:3000/</code>を開きます。<code>file://</code>では<code>/api/news</code>を正しく試せません。</p>
+<p>APIキー未設定時の動作を安全に確認する場合は、教材フォルダーに<code>.env</code>を用意し、少なくとも次のようにキーの値を空欄にします。実際のAPIキーを本文や実験記録に貼り付ける必要はありません。</p>
+<pre class="code-block"><code class="language-dotenv">GNEWS_API_KEY=
+PORT=3000</code></pre>
+<p>Node.js 20.6以上の環境では、次のコマンドで起動できます。</p>
+<pre class="code-block"><code class="language-bash">node --env-file=.env server.mjs</code></pre>
+<p>環境変数がすでに別の場所で設定されている場合は、<code>.env</code>の値だけで上書きされるとは限らないため注意してください。キーが確実に空であることを試す自動テストでは、前述のようにテスト用プロセスの<code>env</code>を明示的に指定しています。</p>
+<p><strong>Network</strong>で<code>/api/news?keyword=...</code>の応答を確認します。キーが空なら503と<code>GNEWS_API_KEY</code>を含むエラーになり、画面は取得失敗を表示します。</p>
+<p>503という番号だけで原因は決まりません。応答メッセージも確認しましょう。キー未設定時はGNewsへ通信せずにサーバーが応答します。</p>
+<p>なお、教材の<code>app.js</code>には<code>newsStarted</code>という変数があり、ニュースを初めて開いたときだけ<code>loadNews()</code>を実行します。<strong>一度エラーになっても、タブを往復するだけでは再度取得しません。</strong></p>
+<h2 id="713-考えるキャッシュはどこに保存されているか">7.13 考える：キャッシュはどこに保存されているか</h2>
+<p>ニュースが前と同じ内容に見えるとき、キャッシュの影響を疑うことがあります。<strong>キャッシュ</strong>とは、取得や計算を繰り返さずに済むよう、以前の結果を一時的に保持する仕組みです。ただし、どこに保存するかは実装によって異なります。</p>
+<p>本教材の<code>server.mjs</code>には、次のコードがあります。</p>
+<pre class="code-block"><code class="language-javascript">const ttlMs = 5 * 60 * 1000;
+const cache = new Map();</code></pre>
+<p>ニュースのキャッシュはサーバーの<code>Map</code>にあり、ブラウザのApplicationでは直接見られません。<code>server.mjs</code>とNetworkの<code>cache</code>値で確認します。成功した取得がない場合は検証できません。</p>
+<p>また、<code>server.mjs</code>のAPI応答には<code>Cache-Control: no-store</code>が設定されています。これはブラウザなどに対するHTTPキャッシュの指定であり、<strong>サーバーのメモリ内にある<code>Map</code>とは別の仕組み</strong>です。同じ「キャッシュ」という名前でも、場所と目的を確かめる必要があります。</p>
+<h2 id="714-考える自動テストで確認できないことを見極める">7.14 考える：自動テストで確認できないことを見極める</h2>
+<p>自動テストは、繰り返し確かめたい条件を一定の方法で検査できる点が強みです。今回のテストは、HTMLの一部の対応、JavaScriptの構文、キー未設定時のサーバー応答という、外部サービスに頼らず確認しやすい条件を選んでいます。この範囲であれば、修正後に同じコマンドを再実行し、以前の条件が維持されているかを調べられます。</p>
+<p>新しい機能を追加したときは、まず「何ができれば成功なのか」を具体的に書き出してみてください。自動化するかどうかは、その条件を繰り返し確認する必要があるか、結果をプログラムで判定できるかによって考えます。目で確かめたこと、テストによって判定したこと、外部条件のため未検証のことを、同じ「確認済み」とまとめないことが大切です。</p>
+<h2 id="715-章末演習小さなデバッグ記録を作る">7.15 章末演習：小さなデバッグ記録を作る</h2>
+<p>最後に、実験9または10のどちらか一方を選び、次の表を埋めてみましょう。原因を最初から知っていても、あえて「予測」と「観察」を別の欄に書きます。</p>
+<table><thead><tr><th>記録する項目</th><th>記入例（HTMLの対応を変えた場合）</th></tr></thead><tbody><tr><td>症状</td><td>構造テストが<code>not ok</code>になった</td></tr><tr><td>仮説</td><td><code>aria-controls</code>とパネルの<code>id</code>が一致しない</td></tr><tr><td>変更した一か所</td><td><code>panel-news</code>を<code>panel-news-typo</code>にした</td></tr><tr><td>確認方法</td><td><code>node --test test.mjs</code></td></tr><tr><td>観察した事実</td><td>名前の配列が一致しないと報告された</td></tr><tr><td>修正と再検証</td><td>元の値へ戻し、テストの成功を確認した</td></tr></tbody></table>
+<p><strong>発展課題：</strong> <code>node --check app.js</code>が成功してもタブが動かない例を考えます。ElementsとConsoleで確かめ、変更した場合は必ず元に戻しましょう。</p>
+<p><strong>発展課題：</strong> AIの修正案について、必要な理由と確認方法を説明しましょう。変更は一度に一か所とし、動作を検証します。</p>
+<h2 id="716-ふりかえり確認の結果を根拠に直す">7.16 ふりかえり：確認の結果を根拠に直す</h2>
+<p>本章では、エラーを再現し、仮説を確かめ、修正後に再検証する方法を学びました。<code>test.mjs</code>・Elements・Console・Networkは、それぞれ異なる問題を調べる道具です。</p>
+<p>これまでの章では、機能を一つずつ作り、その動作を確かめてきました。ここで身につけたデバッグの手順は、今後新しい機能を加えるときや、制作物を見直すときにも役立ちます。<strong>「動いたかどうか」だけでなく、「どの条件を、どの根拠で確認できたか」を説明できること</strong>が、自分で学び続けるための土台になります。</p>
+</section></article>
+<article class="book-unit" id="unit-08" data-unit="08">
+<header class="book-unit-header"><p class="book-unit-kicker">第8章</p><h1 class="book-unit-title">完成・検証・拡張</h1></header>
+<section class="book-body">
+<h1 id="第8章-完成検証拡張">第8章　完成・検証・拡張</h1>
+<h2 id="知る完成は次の制作への出発点">知る：完成は、次の制作への出発点</h2>
+<p>ここまで、私たちは「New Tab」という一つのWebアプリを通して、HTMLで画面の構造を作り、CSSで見た目を整え、JavaScriptで操作を加える方法を学んできました。 はじめは別々に見えていた技術も、一つの作品の中でつながっていることが分かってきたのではないでしょうか。</p>
+<p>では、この「New Tab」は完成したのでしょうか。</p>
+<p>検索・タブ・ニュースの表示には、さらに改善できる点があります。</p>
+<p>作品には、必ずしも「これで完成」という明確な終点があるわけではありません。しかし、いつまでも作り続けなければならないわけでもありません。</p>
+<p><strong>何を実現できたら一区切りとするのか。その判断基準を持つことも、制作の大切な一部です。</strong></p>
+<p>そこで本章では、これまでの制作を振り返り、動作を確かめ、結果を記録する方法を学びます。そして、その経験を次の作品へどうつなげるかを考えます。</p>
+<p>本章の到達目標は、次の三つです。</p>
+<ol><li>「New Tab」の仕組みと動作を振り返り、確認した結果を説明できる。</li><li>制作の成果をREADMEや設計メモとして残せる。</li><li>新しい機能や作品について、目的と確かめる方法を考えられる。</li></ol>
+<p>制作を終えることは、学びを終えることではありません。これまでに得た知識や発見を、次の制作でも使える形に整えていきましょう。</p>
+<h2 id="読み解くNew-Tabを支える仕組み">読み解く：「New Tab」を支える仕組み</h2>
+<p>まずは、完成したアプリの全体像を振り返ってみましょう。</p>
+<p>「New Tab」では、HTML、CSS、JavaScript、Node.jsサーバーが、それぞれ異なる役割を担っています。</p>
+<pre class="code-block"><code class="language-text">HTML ── 画面の構造 ──┐
+CSS ─── 画面の見た目 ─┼── ブラウザの画面
+JavaScript ─ 操作 ───┘        │
+                              │ ニュースを要求
+                              ▼
+                       Node.jsサーバー
+                              │
+                              │ 外部APIと通信
+                              ▼
+                           GNews API</code></pre>
+<p><em>図：New Tabを構成する技術の関係（概念図）。ニュースの取得では、JavaScriptが自分のサーバーに要求を送り、サーバーがGNews APIから得た情報をブラウザへ返す。</em></p>
+<p>画面に表示されるものだけでなく、その裏側でどのような処理が行われているかも、少しずつ理解してきました。</p>
+<table><thead><tr><th>仕組み</th><th>主な役割</th><th>確認に使うもの</th></tr></thead><tbody><tr><td>HTML</td><td>検索フォーム、タブ、表示領域などを構成する</td><td>Elements</td></tr><tr><td>CSS</td><td>色、余白、配置、フォーカス時の見た目を整える</td><td>画面、Styles</td></tr><tr><td>JavaScript</td><td>操作を受け取り、タブの切り替えやニュースの表示を制御する</td><td>Console、Elements、Network</td></tr><tr><td>Node.jsサーバー</td><td>ファイルの配信、APIキーの管理、外部APIとの通信を行う</td><td>起動ログ、HTTP応答</td></tr><tr><td>自動テスト</td><td>あらかじめ決めた条件が満たされているかを検査する</td><td>テスト結果、エラー</td></tr></tbody></table>
+<p>これらは、互いに独立しているわけではありません。</p>
+<p>たとえば、タブの見た目が切り替わらないとき、原因がCSSにあるとは限りません。HTMLの属性とJavaScriptの処理が正しく対応していない可能性もあります。</p>
+<p>だからこそ、問題が起きたときには、<strong>画面に見えている現象と、その現象を生み出している仕組みを分けて考える</strong>ことが大切です。</p>
+<h3 id="動作を一つずつ確かめる">動作を一つずつ確かめる</h3>
+<p>作品を一区切りにする前に、今ある機能を実際に操作してみましょう。</p>
+<p>「正しく動く」と思っている機能も、操作方法や実行環境を変えると、思いがけない結果になることがあります。</p>
+<p>次の表を使い、確認できたことを記録してください。</p>
+<table><thead><tr><th>確認対象</th><th>試す操作・条件</th><th>確かめること</th></tr></thead><tbody><tr><td>初期表示</td><td>ページを開く</td><td>検索タブとフォームが表示されるか</td></tr><tr><td>検索</td><td>検索語を入力して送信する</td><td>送信先URLと<code>q</code>の値が対応しているか</td></tr><tr><td>タブ</td><td>タブをクリックする</td><td><code>aria-selected</code>と<code>hidden</code>が適切に変わるか</td></tr><tr><td>キーボード</td><td>Tab、左右矢印、Home、Endを試す</td><td>フォーカスと選択状態がどう変わるか</td></tr><tr><td>ショートカット</td><td>Alt+1、Alt+2、<code>/</code>を試す</td><td>意図した操作ができるか、ブラウザなどと競合しないか</td></tr><tr><td>ニュース</td><td>ニュースタブを開く</td><td><code>/api/news</code>への要求と表示結果が対応しているか</td></tr><tr><td>再取得</td><td>再取得ボタンを押す</td><td>新しい通信が発生するか</td></tr><tr><td>キャッシュ</td><td>短時間で再びニュースを表示する</td><td>保存されたデータが使われるか、通信が発生するか</td></tr><tr><td>通信失敗</td><td>APIキーを設定せず起動する</td><td>HTTP応答とエラー案内がどうなるか</td></tr><tr><td>配色・画面幅</td><td>ダークモードや狭い画面で開く</td><td>文字やレイアウトが読みやすいか</td></tr><tr><td>画像</td><td>画面外のニュース画像を観察する</td><td>読み込みのタイミングがどう変わるか</td></tr></tbody></table>
+<p>実際の結果は、別の欄やメモに書き加えましょう。ブラウザの開発者ツールを使えば、画面だけでは分からない属性や通信の状態も確認できます。</p>
+<p>なお、すべての操作が、どの環境でも同じ結果になるとは限りません。</p>
+<p>たとえば、ショートカットキーはOSやブラウザの操作と重なる場合があります。また、画像の遅延読み込みは、ブラウザの判断によって読み込みのタイミングが変わります。</p>
+<p>重要なのは、予想どおりに動いたかどうかだけではありません。<strong>どの条件で、何が起きたのかを確かめること</strong>です。</p>
+<h2 id="考える次にタブを増やすなら">考える：次にタブを増やすなら</h2>
+<p>現在の「New Tab」に、もう一つタブを追加するとしたら、どのような機能が欲しいでしょうか。</p>
+<p>たとえば、制作中に思いついたことを残せる「メモ」タブがあると便利かもしれません。</p>
+<p>ただし、すぐにコードを書き始める必要はありません。まずは、何を作りたいのかを言葉にしてみましょう。</p>
+<h3 id="小さな設計メモを作る">小さな設計メモを作る</h3>
+<p>次の表は、「メモ」タブを追加する場合の設計例です。</p>
+<table><thead><tr><th>考えること</th><th>設計メモの例</th></tr></thead><tbody><tr><td>追加する機能</td><td>短い文章を入力し、保存したメモを表示する</td></tr><tr><td>入力するもの</td><td>メモの文章</td></tr><tr><td>保存する場所</td><td>ブラウザの<code>localStorage</code>を利用する案を検討する</td></tr><tr><td>変更するファイル</td><td>タブを定義するHTML、見た目を指定するCSS、操作を処理するJavaScript</td></tr><tr><td>確かめる方法</td><td>タブ切り替え、保存、再表示、キーボード操作を確認する</td></tr></tbody></table>
+<p><code>localStorage</code>は、ブラウザ側にデータを保存するための仕組みの一つです。ページを開き直してもデータを利用できるため、簡単なメモ機能の候補になります。ただし、保存先のブラウザやサイトの条件に依存するため、どこでも同じメモを利用できるわけではありません。</p>
+<p>ここでは、保存機能を完成させることが目的ではありません。何が必要で、どこを変更し、どう確認するのかを考えることが目的です。</p>
+<h3 id="既存の仕組みとのつながりを考える">既存の仕組みとのつながりを考える</h3>
+<p>タブを追加するときには、見た目だけでなく、HTMLとJavaScriptの関係も考える必要があります。</p>
+<p>HTMLでは、新しいタブの<code>id</code>と<code>aria-controls</code>、対応するパネルの<code>id</code>と<code>aria-labelledby</code>が、正しい要素を指すようにします。</p>
+<p>JavaScriptでは、タブを管理する処理が三つ目のタブにも対応できるかを調べます。たとえば、数字のショートカットが二つのタブだけを想定していないか、確認が必要です。</p>
+<p>さらに、キーボード操作や自動テストも、新しいタブを含めて確かめられるようにします。</p>
+<p>ここで作る成果物は、完成したコードではなくても構いません。</p>
+<p><strong>「追加する機能」「変更するファイル」「確かめる方法」</strong>の三つを説明できる設計メモを残してください。</p>
+<p>変更するファイル名は、実際の「New Tab」の構成を調べて記入しましょう。</p>
+<p>生成AIに実装案を提案してもらう場合も、この設計メモが判断の基準になります。提案されたコードに、実際には存在しない関数や属性が含まれていないかを確かめ、採用するかどうかを決めましょう。</p>
+<h2 id="根拠を確かめる予測と実測を分けて記録する">根拠を確かめる：予測と実測を分けて記録する</h2>
+<p>制作中には、「なぜ動かなかったのだろう」「この変更で本当に直ったのだろう」と考える場面があります。</p>
+<p>そんなときに役立つのが、予測と実測を分けて記録する方法です。</p>
+<p>確認の記録は、次の五つを一組にすると、後から読み返しやすくなります。</p>
+<table><thead><tr><th>記録すること</th><th>書く内容</th></tr></thead><tbody><tr><td>① 対象と条件</td><td>何を、どの環境で、どう操作したか</td></tr><tr><td>② 予測</td><td>操作する前に何が起きると思ったか</td></tr><tr><td>③ 実測</td><td>画面、属性、通信、テスト結果など、実際に確認した事実</td></tr><tr><td>④ 判断</td><td>予測と実測は一致したか。どの資料やコードが根拠になるか</td></tr><tr><td>⑤ 次の行動</td><td>修正するか、元に戻すか、別の条件で試すか</td></tr></tbody></table>
+<p>たとえば、ニュースの再取得に失敗した場面を考えてみましょう。</p>
+<p>単に「ニュースが表示されなかった」と書くだけでは、後から原因を調べることが難しくなります。</p>
+<p>一方、APIキーを設定せずに起動した場合の動作を調べ、実際にHTTPステータス503が返されたのであれば、次のように記録できます。</p>
+<blockquote><p><strong>条件：</strong> APIキーを設定せずサーバーを起動し、再取得ボタンを押した。 <strong>予測：</strong> ニュースを取得できず、エラー案内が表示される。 <strong>実測：</strong> Networkで<code>/api/news</code>への要求と503応答を確認し、画面にエラー案内が表示された。 <strong>判断：</strong> APIキー未設定時のサーバー処理と、ブラウザ側の表示処理を照合する。 <strong>次の行動：</strong> APIキーを正しく設定した状態で、もう一度確認する。</p></blockquote>
+<p>※これは記録方法の例です。503という応答が返るかどうかは実際のサーバー実装によります。記録には、自分で観察した値を書いてください。</p>
+<p>このように記録しておけば、何を確認し、何を根拠に判断したのかが明確になります。</p>
+<p>自動テストは、決めた条件を繰り返し検査するときに役立ちます。一方、画面の読みやすさや実際の操作感は、ブラウザを使って確かめる必要があります。</p>
+<p>どちらか一方だけでなく、両方を組み合わせることが大切です。</p>
+<figure class="book-figure"><img src="./source/chapters/new-tab-8chapters/08-complete/assets/V-08-001.svg" alt="図 V-08-001：目的と予測から、小さな変更、自動テストとブラウザでの確認、結果の記録、次の改善へと循環する検証サイクル。"></figure>
+<p><em>図 V-08-001：検証サイクル。目的を決め、小さく変更し、結果を確かめて記録する。その繰り返しが、次の改善につながる。</em></p>
+<p>思いどおりに動かなかったことも、大切な結果です。</p>
+<p>失敗を隠すのではなく、「どこまで確かめられたか」「何がまだ分からないか」を書き残しましょう。その記録は、次に問題と向き合うときの手掛かりになります。</p>
+<h2 id="残す未来の自分に作品を引き継ぐ">残す：未来の自分に作品を引き継ぐ</h2>
+<p>ここまでで、アプリの構造を振り返り、動作を確かめ、結果を記録しました。</p>
+<p>では、しばらく時間が経ってから、もう一度「New Tab」を開く場面を想像してみましょう。</p>
+<p>起動するために必要なコマンドは何だったでしょうか。APIキーはどこで設定したでしょうか。まだ直していない問題はあったでしょうか。</p>
+<p>制作した直後には覚えていることも、時間が経つと忘れてしまいます。</p>
+<p>そこで役立つのが、作品の説明書となる<code>README.md</code>です。</p>
+<h3 id="READMEmd作品の説明書を作る">README.md：作品の説明書を作る</h3>
+<p><code>README.md</code>は、作品の概要や使い方などを記録するテキストファイルです。</p>
+<p>Markdownという書き方を使えば、<code>#</code>で見出しを付けたり、箇条書きで情報を整理したりできます。</p>
+<p>「New Tab」のフォルダーにもREADMEを作り、まずは次のような情報をまとめてみましょう。</p>
+<pre class="code-block"><code class="language-markdown"># New Tab
+
+## 作品の概要
+検索とニュースの閲覧ができるWebアプリです。
+
+## 主な機能
+- キーワードを入力して検索する
+- タブで表示内容を切り替える
+- ニュースを取得して表示する
+
+## 起動方法
+1. 必要な実行環境を準備する
+2. APIキーを所定の方法で設定する
+3. ［確認した起動コマンド］を実行する
+4. ［確認したURL］をブラウザで開く
+
+## 動作確認
+- ［確認したテストコマンド］
+- ［確認したブラウザと環境］
+
+## 今後の改善
+- ［追加したい機能］
+- ［まだ確認できていないこと］</code></pre>
+<p>これは書き方の一例です。角かっこで示した部分は、実際に使ったコマンドや確認した内容に書き換えてください。</p>
+<p>READMEには、実際に試していない操作や、存在しないファイル名を書かないようにしましょう。</p>
+<p>また、APIキーなどの秘密情報は記載せず、設定方法だけを説明します。</p>
+<p>最初から立派な説明書を作る必要はありません。まずは、<strong>数週間後の自分が迷わず作品を起動できること</strong>を目標にしてください。</p>
+<h3 id="読みやすいコードも記録の一つ">読みやすいコードも記録の一つ</h3>
+<p>読みやすさは、READMEだけでなく、コードの中でも大切です。</p>
+<p>たとえば、ニュース記事の一覧を表す変数なら、<code>data</code>という名前よりも、<code>newsArticles</code>のように役割が分かる名前のほうが、後から処理を理解しやすくなります。</p>
+<p>これは命名の例であり、「New Tab」の完成版に同名の変数があるという意味ではありません。</p>
+<p>コメントを書くときも、処理をそのまま言い換えるだけでなく、「なぜこの処理が必要なのか」を補足すると役立ちます。</p>
+<p>ただし、説明と実際の動作が食い違っていては、かえって混乱を招きます。コードを変更したときには、コメントやREADMEも見直しましょう。</p>
+<p>分かりやすい記録を残すことは、未来の自分を助けることでもあります。</p>
+<h2 id="広げる次の制作に向けて">広げる：次の制作に向けて</h2>
+<p>「New Tab」で学んだのは、一つのアプリの作り方だけではありません。</p>
+<p>目的を考え、仕組みを調べ、コードを読み、小さく変更し、結果を確かめる。この進め方は、これから制作する別の作品にも応用できます。</p>
+<p>ここからは、その経験をどう広げていくかを考えましょう。</p>
+<h3 id="アイデアは身近な気付きから生まれる">アイデアは、身近な気付きから生まれる</h3>
+<p>新しい作品のきっかけは、日常の小さな不便や興味の中にあります。</p>
+<p>「授業の予定を、もっと簡単に確認したい」</p>
+<p>「好きな分野のニュースだけをまとめて読みたい」</p>
+<p>「制作中に見つけた参考資料を、忘れずに整理したい」</p>
+<p>こうした気付きが、次の制作の出発点になります。</p>
+<p>思いついたことは、実現方法が分からなくても、まずメモに残してみてください。</p>
+<p>そのときに考えたいのは、<strong>「誰が、どのような場面で、何をできるようにしたいのか」</strong>ということです。</p>
+<p>たとえば、「授業の予定を表示するアプリ」を作るなら、最初から多くの機能を考える必要はありません。</p>
+<p>まずは今日の予定を一件表示する。その次に、複数の予定を表示する。必要になったら、日付による切り替えを追加する。</p>
+<p>このように、小さな目標から始めれば、作りながら必要な知識を増やしていけます。</p>
+<p>設計メモは、その最初の一歩になります。</p>
+<h3 id="GitHubやCodePenから学ぶ">GitHubやCodePenから学ぶ</h3>
+<p>自分で作るだけでなく、ほかの人がどのように制作しているかを観察することも、学習の助けになります。</p>
+<p><a href="https://github.com/">GitHub</a>は、ソースコードや変更履歴を管理・共有できるサービスです。公開された作品のファイル構成を調べたり、自分の制作過程を残したりするときに役立ちます。</p>
+<p><a href="https://codepen.io/">CodePen</a>では、HTML、CSS、JavaScriptを編集し、その結果を画面で確認できます。小さな表現や操作を試したいときに便利です。ただし、Node.jsサーバーを含む「New Tab」全体が、そのまま動くわけではありません。</p>
+<p>参考になる作品を見つけたら、コードをすぐにコピーするのではなく、まず動きを観察してみましょう。</p>
+<p>どのような目的で作られているのか。どの部分が使いやすいのか。自分の作品に取り入れるとしたら、何を変える必要があるのか。</p>
+<p>そう考えることで、単なる模倣ではなく、自分の目的に合わせた工夫につながります。</p>
+<p>なお、公開されているコードや画像であっても、自由に再利用できるとは限りません。利用条件やライセンスを確認し、参考にした資料を記録しておきましょう。</p>
+<p>自分の作品を公開するときも、APIキーなどの秘密情報が含まれていないかを確認してください。</p>
+<h3 id="自分で作ることと既存の仕組みを使うこと">自分で作ることと、既存の仕組みを使うこと</h3>
+<p>プログラミングには、「車輪の再発明」という言葉があります。</p>
+<p>すでに存在する仕組みを、同じ目的のために一から作り直すことを指します。</p>
+<p>既存のライブラリやAPIを活用すれば、すべての機能を自分で用意する必要はありません。</p>
+<p>「New Tab」でGNews APIを利用したのも、ニュースの収集機能を一から作る代わりに、外部の仕組みを活用した例です。</p>
+<p>一方で、学習のために自分で作ることにも意味があります。</p>
+<p>タブ切り替えを自分で実装したからこそ、HTMLの属性とJavaScriptの処理がどのようにつながるのかを、具体的に確かめられました。</p>
+<p>大切なのは、すべてを自作することでも、すべてを既存の仕組みに任せることでもありません。</p>
+<p><strong>仕組みを学ぶために作るのか。作品の目的を実現するために既存のものを使うのか。</strong></p>
+<p>その違いを考え、目的に合った方法を選びましょう。</p>
+<h3 id="情報デザインとプログラミングをつなげる">情報デザインとプログラミングをつなげる</h3>
+<p>情報デザインは、単に情報を美しく並べることではありません。</p>
+<p>誰に、何を、どのように伝え、どのように使ってもらうのかを考えることです。</p>
+<p>Webアプリでも、見た目だけでなく、操作したときの反応や、問題が起きたときの案内まで含めて、利用者の体験が形作られます。</p>
+<p>「New Tab」では、HTMLで情報の関係を示し、CSSで読みやすさを整え、JavaScriptで操作に反応する仕組みを作りました。さらに、キーボード操作や通信失敗時の表示も確かめました。</p>
+<p>これらは、考えたデザインを、実際に使える体験へとつなげる過程です。</p>
+<p>情報デザインを学ぶ人が、全員プログラマーになる必要はありません。</p>
+<p>それでも、プログラミングの基本を理解していれば、自分のアイデアを小さく試し、技術者と具体的に相談し、生成AIの提案が目的に合っているかを判断しやすくなります。</p>
+<p>「何が作れるか」と同じくらい、「誰のために作るのか」「どのように使われるのか」を大切にしてください。</p>
+<h2 id="ふりかえり学びはここから続いていく">ふりかえり：学びは、ここから続いていく</h2>
+<p>本書では、完成した「New Tab」を最初からすべて理解しようとはしませんでした。</p>
+<p>HTMLで構造を見つけ、CSSで画面との関係を確かめ、JavaScriptの処理を読み解きました。さらに、外部APIとの通信を調べ、問題が起きたときにはテストや開発者ツールを使って原因を探ってきました。</p>
+<p>一つひとつの学習は小さなものだったかもしれません。</p>
+<p>しかし、その積み重ねによって、画面に表示されたものをただ使うだけでなく、<strong>「なぜこのように動くのだろう」と仕組みに目を向ける方法</strong>を学んできました。</p>
+<p>最終章で大切にしたのは、「動いた」という結果だけで制作を終えないことです。</p>
+<p>何を確かめ、どこまで実現できて、何がまだ残っているのか。それらを記録すれば、今回の制作で得た経験を、次の制作へ引き継ぐことができます。</p>
+<p>これからの制作では、生成AIや既存のライブラリが、さらに多くの場面で力になってくれるでしょう。</p>
+<p>しかし、何を作りたいのかを考え、提案された方法を確かめ、最終的に採用するかを決めるのは、作り手であるあなた自身です。</p>
+<p>すべてを理解してから、作り始める必要はありません。</p>
+<p>分からないことがあれば、資料を探す。小さく試す。結果を観察する。必要なら作り直す。</p>
+<p>その繰り返しの中で、できることは少しずつ増えていきます。</p>
+<p>この本は、ここで終わります。</p>
+<p>けれども、あなたの制作まで、ここで終える必要はありません。</p>
+<p>次に作りたいものが見つかったとき、最初の一行をどう書けばよいか迷ったときには、これまで身につけた方法を思い出してください。</p>
+<p><strong>目的を持ち、仕組みを知り、試し、確かめる。</strong></p>
+<p>その小さな積み重ねが、まだ形になっていないアイデアを、いつか誰かが使える作品へと変えていきます。</p>
+</section></article>
+<article class="book-unit" id="unit--1" data-unit="-1">
+<header class="book-unit-header"><p class="book-unit-kicker">まとめ</p><h1 class="book-unit-title">まとめ</h1></header>
+<section class="book-body">
+<h1 id="学習のまとめ">学習のまとめ</h1>
+<h2 id="読者の皆様へ">読者の皆様へ</h2>
+<p>第1〜3章で設計とHTML・CSS、第4〜6章で操作と通信、第7〜8章で検証と完成を扱いました。変更したい機能に対応するファイルを確かめてみましょう。</p>
+<p>今回はフレームワークを使わず、素のJavaScriptで実装しました。次は別の方法も調べ、小さな制作で試してみてください。</p>
+<h2 id="本書における参考資料">本書における参考資料</h2>
+<ul><li><a href="https://developer.mozilla.org/ja/docs/Learn_web_development/Getting_started/Your_first_website/What_will_your_website_look_like">MDN Web Docs「ウェブサイトをどんな外見にするか」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Learn_web_development/Getting_started/Your_first_website">MDN Web Docs「初めてのウェブサイト」</a></li><li><a href="https://www.w3.org/WAI/ARIA/apg/patterns/tabs/">W3C WAI「ARIA Authoring Practices Guide: Tabs Pattern」</a></li><li><a href="https://html.spec.whatwg.org/multipage/">WHATWG — HTML Living Standard</a></li><li><a href="https://developer.mozilla.org/ja/docs/Learn_web_development/Getting_started/Your_first_website/Creating_the_content">MDN — HTMLの基本</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Element/form">MDN — form要素</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Global_attributes/hidden">MDN — hidden属性</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-controls">MDN — aria-controls属性</a></li><li><a href="https://code.visualstudio.com/docs/languages/emmet">Visual Studio Code — Emmet</a></li><li><a href="https://www.w3.org/TR/css-variables-1/">W3C — CSS Custom Properties for Cascading Variables Module Level 1</a></li><li><a href="https://www.w3.org/TR/mediaqueries-4/">W3C — Media Queries Level 4</a></li><li><a href="https://www.w3.org/TR/css-flexbox-1/">W3C — CSS Flexible Box Layout Module Level 1</a></li><li><a href="https://www.w3.org/TR/css-color-adjust-1/">W3C — CSS Color Adjustment Module Level 1</a></li><li><a href="https://developer.mozilla.org/ja/docs/Learn_web_development/Core/Styling_basics/What_is_CSS">MDN — CSSの構造</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Guides/Cascading_variables/Using_custom_properties">MDN — CSSカスタムプロパティ（変数）の使用</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Guides/Flexible_box_layout/Basic_concepts">MDN — フレックスボックスの基本概念</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Reference/Properties/box-sizing">MDN — box-sizing</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Guides/Media_queries/Using">MDN — メディアクエリの使用</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Reference/At-rules/%40media/prefers-color-scheme">MDN — prefers-color-scheme</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Reference/Properties/color-scheme">MDN — color-scheme</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion">MDN — prefers-reduced-motion</a></li><li><a href="https://developer.chrome.com/docs/devtools/rendering/emulate-css/">Chrome for Developers — Emulate CSS media features</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Document/querySelectorAll">MDN Web Docs「Document: querySelectorAll() メソッド」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Element/getAttribute">MDN Web Docs「Element: getAttribute() メソッド」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Element/setAttribute">MDN Web Docs「Element: setAttribute() メソッド」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener">MDN Web Docs「EventTarget: addEventListener() メソッド」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/HTMLElement/tabIndex">MDN Web Docs「HTMLElement: tabIndex プロパティ」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/HTMLElement/hidden">MDN Web Docs「HTMLElement: hidden プロパティ」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Global_attributes/hidden">MDN Web Docs「HTML hidden グローバル属性」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-selected">MDN Web Docs「aria-selected」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Elements/script">MDN Web Docs「0 スクリプト要素」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/KeyboardEvent/key">MDN Web Docs「KeyboardEvent: key プロパティ」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Event/preventDefault">MDN Web Docs「Event: preventDefault() メソッド」</a></li><li><a href="https://html.spec.whatwg.org/multipage/form-control-infrastructure.html">WHATWG「HTML Living Standard — Form control infrastructure」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Elements/form">MDN Web Docs「フォーム要素」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Elements/input/search">MDN Web Docs「0」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Elements/label">MDN Web Docs「0 ラベル要素」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Attributes/required">MDN Web Docs「0 属性」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTML/Reference/Global_attributes/enterkeyhint">MDN Web Docs「0 グローバル属性」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/HTMLElement/focus">MDN Web Docs「0」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Element/closest">MDN Web Docs「0」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Event/defaultPrevented">MDN Web Docs「0」</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Document/activeElement">MDN Web Docs「0」</a></li><li><a href="https://nodejs.org/api/test.html">Node.js公式：Test runner</a></li><li><a href="https://nodejs.org/api/assert.html">Node.js公式：Assert</a></li><li><a href="https://nodejs.org/api/cli.html">Node.js公式：Command-line API</a></li><li><a href="https://nodejs.org/api/child_process.html">Node.js公式：Child process</a></li><li><a href="https://developer.mozilla.org/ja/docs/Learn_web_development/Howto/Tools_and_setup/What_are_browser_developer_tools">MDN Web Docs：ブラウザーの開発者ツールとは</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Errors">MDN Web Docs：JavaScript エラーリファレンス</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTTP/Reference/Status">MDN Web Docs：HTTP レスポンスステータスコード</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/HTTP/Reference/Headers/Cache-Control">MDN Web Docs：Cache-Control</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/HTMLImageElement/loading">MDN：HTMLImageElement.loading</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/API/Web_Storage_API">MDN：Web Storage API</a></li><li><a href="https://developer.mozilla.org/ja/docs/Web/CSS/Reference/At-rules/@media/prefers-color-scheme">MDN：prefers-color-scheme</a></li><li><a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes">GitHub Docs：About READMEs</a></li><li><a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository">GitHub Docs：Licensing a repository</a></li><li><a href="https://blog.codepen.io/documentation/pen-editor/">CodePen：The Pen Editor</a></li><li><a href="https://docs.gnews.io/endpoints/search-endpoint">GNews Search Endpoint</a></li><li><a href="https://docs.gnews.io/authentication">GNews Authentication</a></li></ul>
+</section></article>
+</main></body></html>

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>エラーを見つけて修正する | New Tab 教材</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<link rel="stylesheet" href="../styles/page.css">
+<link rel="stylesheet" href="../styles/layout.css">
+<link rel="stylesheet" href="../styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-07" data-unit="07">
+<header class="book-unit-header"><p class="book-unit-kicker">第7章</p><h1 class="book-unit-title">エラーを見つけて修正する</h1></header>
+<section class="book-body">
+<h1 id="第7章-エラーを見つけて修正する">第7章　エラーを見つけて修正する</h1>
+<h2 id="71-知る完成した機能を確かめられるようにする">7.1 知る：完成した機能を「確かめられる」ようにする</h2>
+<p>機能が増えると、一つの症状にも複数の原因が考えられます。本章では、問題を思いつきで直さず、<strong>症状を再現し、仮説を立て、確かめてから、必要な部分だけを修正する</strong>方法を学びます。原因が分からないまま複数のファイルを変えると、結果が変わった理由を追えません。これが<strong>デバッグ</strong>の基本です。</p>
+<p>本章では、Node.jsの自動テストとブラウザの開発者ツールを併用します。学習の目標は次の四つです。</p>
+<ul><li>HTMLの構造、JavaScriptの構文、HTTP通信のどこに問題があるかを切り分ける。</li><li><code>test.mjs</code>が何を検査しており、何を検査していないかを説明する。</li><li>テストをわざと失敗させ、失敗内容から原因を読み取って復元する。</li><li>自動テストの結果と、ブラウザで観察した事実を区別して記録する。</li></ul>
+<p>大事なのは、最初からすべてのエラーを解決できることではありません。<strong>確認できたことと、まだ確かめていないことを分けられる</strong>ことです。</p>
+<h2 id="72-知る症状仮説確認を分ける">7.2 知る：症状、仮説、確認を分ける</h2>
+<p>デバッグの最初の一歩は、「何が起きたか」を具体的にすることです。</p>
+<blockquote><p>ニュースが壊れた</p></blockquote>
+<p>よりも、</p>
+<blockquote><p>ニュースタブを初めて開くと『ニュースを取得できません』と表示され、Networkには503が記録された</p></blockquote>
+<p>のほうが原因を絞り込めます。</p>
+<p>調査は、おおむね次の順番で進めます。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/07-debug/assets/V-07-0001.svg" alt="症状の再現から仮説を立て、HTML・JavaScript・通信・サーバー内キャッシュのいずれを確認するか選び、小さな修正の後に再検証する流れ。"></figure>
+<p><em>図 V-07-001：デバッグの基本的な流れと、問題の種類に応じた確認先。キャッシュは本教材ではサーバー内の<code>Map</code>に保持され、ブラウザのApplication画面へ自動的に保存されるわけではありません。</em></p>
+<p>どこを調べるか迷ったときは、次の対応を手掛かりにします。</p>
+<table><thead><tr><th>目に見える症状</th><th>最初に疑う場所</th><th>主な確認方法</th></tr></thead><tbody><tr><td>タブとパネルが対応しない</td><td><code>index.html</code>の<code>id</code>と<code>aria-controls</code></td><td>構造テスト、Elements</td></tr><tr><td>JavaScriptが実行できない</td><td><code>app.js</code>や<code>server.mjs</code>の文法</td><td><code>node --check</code>、テスト、Console</td></tr><tr><td>ニュースを取得できない</td><td><code>/api/news</code>の応答やサーバー設定</td><td>Network、HTTPテスト、サーバー側コード</td></tr><tr><td>一度取得したニュースが再利用される</td><td>サーバー内のキャッシュ</td><td><code>server.mjs</code>の<code>cache</code>と時間判定、応答の<code>cache</code>値</td></tr></tbody></table>
+<p>これらは調査の入口であって、原因を断定する表ではありません。たとえば、画面が切り替わらない場合にはHTMLの対応の誤りだけでなく、JavaScriptの例外も考えられます。</p>
+<h2 id="73-読み解く今回使用するファイルと自動テスト">7.3 読み解く：今回使用するファイルと自動テスト</h2>
+<p><code>test.mjs</code>はNode.jsで動くテスト用ファイルです。<code>.mjs</code>はECMAScriptモジュールとして扱う拡張子で、ブラウザ画面を作るものではありません。</p>
+<p>テストを実行するには、少なくとも次のファイルが同じ<code>07-debug</code>フォルダーに必要です。</p>
+<pre class="code-block"><code class="language-text">07-debug/
+├─ index.html       ← HTMLのタブ・パネルを検査
+├─ app.js           ← 構文を検査
+├─ style.css        ← ブラウザでの表示に使用
+├─ server.mjs       ← 構文とHTTP応答を検査
+└─ test.mjs         ← 今回読む自動テスト</code></pre>
+<p><code>index.html</code>と<code>app.js</code>は第6章で使ったものを引き継ぎます。</p>
+<pre class="code-block"><code class="language-bash">node --test test.mjs</code></pre>
+<p><code>--test</code>はNode.jsの<strong>テストランナー</strong>を使用する指定です。テストランナーは、登録された確認処理を実行し、成功・失敗をまとめて表示します。教材の<code>test.mjs</code>には三つのテストがあり、それぞれが独立した役割を持っています。</p>
+<table><thead><tr><th>テスト名（要約）</th><th>確認する内容</th><th>確認しない内容</th></tr></thead><tbody><tr><td>タブとパネルの対応</td><td>特定の<code>id</code>と<code>aria-controls</code>の個数・文字列の一致</td><td>実際のクリック動作、表示、重複IDの完全な検出</td></tr><tr><td>JavaScriptの構文</td><td><code>app.js</code>と<code>server.mjs</code>が構文として解釈できるか</td><td>実行時の例外や画面操作の正しさ</td></tr><tr><td>APIキー未設定時の応答</td><td><code>/</code>が200、<code>/api/news</code>が503、指定した秘密ファイルのパスが404</td><td>GNewsへの実接続、APIキーを設定した場合の成功、すべてのURLの安全性</td></tr></tbody></table>
+<p><strong>テストがすべて成功したことと、Webアプリのあらゆる動作が正しいこと</strong>は同一ではないことを留意しましょう。</p>
+<h2 id="74-読み解くテストを書くための基本部品">7.4 読み解く：テストを書くための基本部品</h2>
+<p><code>test.mjs</code>の冒頭には、次の読み込みがあります。</p>
+<pre class="code-block"><code class="language-javascript">import test from &#39;node:test&#39;;
+import assert from &#39;node:assert/strict&#39;;
+import { readFile } from &#39;node:fs/promises&#39;;
+import { spawn, spawnSync } from &#39;node:child_process&#39;;
+import { join, dirname } from &#39;node:path&#39;;
+import { fileURLToPath } from &#39;node:url&#39;;
+
+const folder = dirname(fileURLToPath(import.meta.url));</code></pre>
+<p><code>import</code>で機能を読み込みます。<code>node:test</code>はテスト、<code>node:assert/strict</code>は期待値の検証、<code>readFile</code>はファイルの読み込み、<code>spawn</code>・<code>spawnSync</code>は別プログラムの起動に使います。</p>
+<p><code>folder</code>は<code>test.mjs</code>のあるフォルダーを指し、<code>index.html</code>などの参照先を定めます。サーバー起動時にも<code>cwd: folder</code>を指定します。</p>
+<h2 id="75-読み解くHTMLの対応関係を自動で調べる">7.5 読み解く：HTMLの対応関係を自動で調べる</h2>
+<p>最初のテストは、タブとパネルの対応を調べます。</p>
+<pre class="code-block"><code class="language-javascript">test(&#39;タブ数とパネル数が一致し、aria-controlsが対応する&#39;, async () =&gt; {
+  const html = await readFile(join(folder, &#39;index.html&#39;), &#39;utf8&#39;);
+  const ids = [...html.matchAll(/id=&quot;(panel-[^&quot;]+)&quot;/g)].map(m =&gt; m[1]);
+  const controls = [...html.matchAll(/aria-controls=&quot;(panel-[^&quot;]+)&quot;/g)].map(m =&gt; m[1]);
+  assert.equal(ids.length, controls.length);
+  assert.deepEqual(ids.sort(), controls.sort());
+});</code></pre>
+<p>第4章で学んだように、タブの<code>aria-controls=&quot;panel-news&quot;</code>は、<code>id=&quot;panel-news&quot;</code>のパネルを指します。もし名前が違えば、JavaScriptが意図するパネルを探せなくなる可能性があります。そこで、このテストはHTMLファイルを文字列として読み込み、二つの名前の集まりを比較します。</p>
+<p><code>matchAll</code>で正規表現に一致する<code>id</code>と<code>aria-controls</code>を集めます。<code>assert.equal</code>は件数、<code>assert.deepEqual</code>は並び替え後の値を比較します。</p>
+<p>たとえば、ニュースタブの<code>aria-controls</code>だけを<code>panel-news-typo</code>に変更すれば、パネル側の<code>id</code>にはその名前が存在しないため、比較結果が一致しなくなります。ただし、このテストはHTMLをDOMとして解析していません。<strong>特定の書き方を正規表現で調べる簡易テスト</strong>です。</p>
+<h2 id="76-読み解くJavaScriptの構文を確認する">7.6 読み解く：JavaScriptの構文を確認する</h2>
+<p>二番目のテストは、JavaScriptの<strong>構文エラー</strong>を見つけるためのものです。構文エラーとは、括弧が閉じられていないなど、言語の書き方として解釈できない問題です。</p>
+<pre class="code-block"><code class="language-javascript">test(&#39;JavaScriptファイルに構文エラーがない&#39;, () =&gt; {
+  for (const filename of [&#39;app.js&#39;, &#39;server.mjs&#39;]) {
+    const result = spawnSync(
+      process.execPath,
+      [&#39;--check&#39;, join(folder, filename)],
+      { encoding: &#39;utf8&#39; }
+    );
+    assert.equal(result.status, 0, result.stderr);
+  }
+});</code></pre>
+<p><code>for...of</code>でファイルを順に調べ、<code>spawnSync</code>で<code>node --check</code>を実行します。<code>--check</code>はプログラムを動かさず構文だけを検査します。</p>
+<p><code>result.status</code>が<code>0</code>なら、コマンドは正常終了したと判断して次へ進みます。<code>0</code>以外であれば、<code>assert.equal</code>が失敗し、エラーの詳細がテスト結果に表示されます。<code>result.stderr</code>は、コマンドがエラー内容などを書き出すための出力です。</p>
+<p><code>node --check</code>でわかるのは構文の誤りだけです。正しい動作は実行して別途確かめる必要があります。</p>
+<h2 id="77-読み解くサーバーを起動しHTTP応答を検査する">7.7 読み解く：サーバーを起動し、HTTP応答を検査する</h2>
+<p>三番目のテストは、自分のNode.jsサーバーを一時的に起動し、実際にHTTPリクエストを送ります。HTTPは、ブラウザとサーバーが情報をやり取りするときの規則です。サーバーは処理結果を<code>200</code>や<code>503</code>などの<strong>ステータスコード</strong>で返します。</p>
+<p>最初に、テストがサーバーを起動する部分を見ます。</p>
+<pre class="code-block"><code class="language-javascript">test(&#39;APIキー未設定ならニュースAPIは503で、秘密ファイルは配信しない&#39;, async () =&gt; {
+  const child = spawn(process.execPath, [&#39;server.mjs&#39;], {
+    cwd: folder,
+    env: { ...process.env, GNEWS_API_KEY: &#39;&#39;, PORT: &#39;0&#39; },
+    stdio: [&#39;ignore&#39;, &#39;pipe&#39;, &#39;pipe&#39;]
+  });
+  // 以下にサーバーへの確認と終了処理が続く（省略）
+});</code></pre>
+<p><code>spawn</code>でサーバーを起動します。<code>cwd</code>は作業場所、<code>env</code>はテスト用の環境変数、<code>PORT: &#39;0&#39;</code>はOSによる空きポートの選択です。</p>
+<p>このテストは、通常のニュース取得が成功するかどうかを調べるものではありません。<strong>APIキーが設定されていない場合に、サーバーが想定どおりの失敗を返すか</strong>を確認します。<code>server.mjs</code>には次の条件があります。</p>
+<pre class="code-block"><code class="language-javascript">async function news(reqUrl, res) {
+  const keyword = reqUrl.searchParams.get(&#39;keyword&#39;) || &#39;テクノロジー&#39;;
+  if (!keywords.has(keyword)) return json(res, 400, { error: &#39;未対応のジャンルです。&#39; });
+  if (!apiKey) return json(res, 503, { error: &#39;GNEWS_API_KEY が未設定です。.env を確認してください。&#39; });
+  // 以下は省略
+}</code></pre>
+<p>この教材では、キーが空ならGNewsへ問い合わせる前に<code>503</code>を返す設計です。HTTPの一般的な意味として<code>503</code>はサービスがリクエストに対応できない状態を示しますが、<strong>キー未設定を503で表現することは教材サーバーの実装上の判断</strong>です。すべてのWeb APIが同じ条件で503を返すわけではありません。</p>
+<p>テストの応答確認部分では、次の処理が実行されます。</p>
+<pre class="code-block"><code class="language-javascript">const html = await fetch(url);
+assert.equal(html.status, 200);
+const news = await fetch(url + &#39;/api/news&#39;);
+assert.equal(news.status, 503);
+assert.match((await news.json()).error, /GNEWS_API_KEY/);
+for (const path of [&#39;/server.mjs&#39;, &#39;/.env&#39;, &#39;/.env.example&#39;]) {
+  assert.equal((await fetch(url + path)).status, 404);
+}</code></pre>
+<p><code>fetch</code>で<code>/</code>の200、ニュースAPIの503、対象パスの404を確認します。<code>assert.match</code>でエラーメッセージに<code>GNEWS_API_KEY</code>が含まれるか検査します。</p>
+<p><code>server.mjs</code>は<code>staticFiles</code>の登録対象のみ配信します。<code>/.env</code>と<code>/server.mjs</code>の404を確認しますが、この結果だけで安全性全体は保証できません。</p>
+<p>なお、三番目のテストの終わりでは<code>finally</code>を使い、成功・失敗にかかわらず起動したサーバープロセスに<code>child.kill()</code>を呼びます。テスト用のサーバーを起動したままにしないための処理です。<code>try</code>と<code>finally</code>は、途中でエラーがあっても後始末を実行するために使います。</p>
+<h2 id="78-読み解くテストの成功失敗を読む">7.8 読み解く：テストの成功・失敗を読む</h2>
+<p>テストランナーが表示する結果では、<code>ok</code>が成功、<code>not ok</code>が失敗を表します。三つのテストが成功したときは、概ね次のような表示になります。これは<strong>表示形式を説明するための例</strong>であり、実行時間などは環境によって異なります。</p>
+<pre class="code-block"><code class="language-text">TAP version 13
+# Subtest: タブ数とパネル数が一致し、aria-controlsが対応する
+ok 1 - タブ数とパネル数が一致し、aria-controlsが対応する
+# Subtest: JavaScriptファイルに構文エラーがない
+ok 2 - JavaScriptファイルに構文エラーがない
+# Subtest: APIキー未設定ならニュースAPIは503で、秘密ファイルは配信しない
+ok 3 - APIキー未設定ならニュースAPIは503で、秘密ファイルは配信しない
+1..3
+# tests 3
+# pass 3
+# fail 0</code></pre>
+<p><strong>TAP</strong>はテスト結果の表示形式です。<code>pass</code>は成功数、<code>fail</code>は失敗数。<code>not ok</code>の項目で期待値と実際の値を比べましょう。</p>
+<h2 id="79-試す意図的にHTMLを壊し修正する">7.9 試す：意図的にHTMLを壊し、修正する</h2>
+<p>まず、自動テストが問題を見つける様子を確かめます。変更対象は一か所だけです。作業前にファイルのコピーを保存してもかまいません。</p>
+<ol><li><strong>変更前を確認する</strong>：<code>node --test test.mjs</code>を実行し、三つのテストが成功することを確かめます。</li><li><strong>予測する</strong>：ニュースタブの<code>aria-controls</code>が存在しないパネル名を指したら、何番目のテストが失敗するか記録します。</li><li><strong>一か所だけ変更する</strong>：<code>index.html</code>の<code>aria-controls=&quot;panel-news&quot;</code>を<code>aria-controls=&quot;panel-news-typo&quot;</code>へ変更します。パネル側の<code>id=&quot;panel-news&quot;</code>は変更しません。</li><li><strong>結果を確認する</strong>：再度<code>node --test test.mjs</code>を実行し、<code>not ok</code>になったテスト名と、表示された二つの配列の違いを書き留めます。</li><li><strong>理由を説明する</strong>：テストが「値の個数」ではなく「値の一致」で失敗した理由を、<code>assert.deepEqual</code>の行と結び付けて説明します。</li><li><strong>元に戻す</strong>：<code>aria-controls=&quot;panel-news&quot;</code>へ戻し、同じコマンドを実行して成功することを確かめます。</li></ol>
+<p>この実験では、HTMLを壊しても構文テストは成功する場合があります。テストが別々の条件を調べているからです。失敗を一つ作っただけで、三つすべてが同時に失敗するわけではない点にも注目してください。</p>
+<h2 id="710-試す構文エラーと実行時の問題を区別する">7.10 試す：構文エラーと実行時の問題を区別する</h2>
+<p>次は、JavaScriptの構文検査が何を見つけるかを確かめます。ここでも変更は一か所に限定します。</p>
+<ol><li><strong>変更前を確認する</strong>：<code>node --check app.js</code>を実行し、正常終了することを確かめます。</li><li><strong>予測する</strong>：ファイルの末尾に閉じられていない括弧があったら、何が起こるかを予測します。</li><li><strong>一か所だけ変更する</strong>：<code>app.js</code>の末尾に、次の<strong>意図的に不完全な一行</strong>を追加します。これは動作するコード例ではありません。</li></ol>
+<pre class="code-block"><code class="language-javascript">   function broken( {</code></pre>
+<ol><li><strong>結果を確認する</strong>：<code>node --check app.js</code>と<code>node --test test.mjs</code>を順に実行し、<code>SyntaxError</code>などのメッセージと、失敗するテストの名前を確認します。</li><li><strong>理由を説明する</strong>：構文として解釈できないため、タブやニュースの動作を調べる段階まで進めないことを説明します。</li><li><strong>元に戻す</strong>：追加した一行を完全に削除し、構文検査と三つのテストが再び成功することを確認します。</li></ol>
+<p>構文検査が成功した場合でも、ブラウザ上の動作まで保証されません。たとえば<code>id</code>の書き間違いによる<code>null</code>の扱いは、実行したときに初めて問題になることがあります。その場合には、次節の開発者ツールを使います。</p>
+<h2 id="711-試す開発者ツールのElementsとConsoleを使う">7.11 試す：開発者ツールのElementsとConsoleを使う</h2>
+<p>ブラウザの<strong>開発者ツール</strong>は、表示されているページの要素や、JavaScriptのエラー、通信内容などを確認するための道具です。Chromium系ブラウザでは主にElements、Console、Networkなどの名前で表示されます。ブラウザによって名称や配置は異なります。</p>
+<p><strong>Elements</strong>で<code>tab-news</code>と<code>panel-news</code>の<code>aria-selected</code>・<code>hidden</code>を確認します。状態が正しければ、次はCSSを調べます。</p>
+<pre class="code-block"><code class="language-css">.filetab[aria-selected=&quot;true&quot;] {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}</code></pre>
+<p>この規則は、タブの選択状態を見た目に反映する部分です。選択状態が更新されない問題と、選択状態は変わるのに色が変わらない問題では、調べる場所が異なります。</p>
+<p><strong>Console</strong>では、JavaScriptのエラーメッセージを確認したり、式を入力したりできます。次の式は説明のための確認用であり、<code>app.js</code>に追加する必要はありません。</p>
+<pre class="code-block"><code class="language-javascript">document.querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;).length
+// この教材では通常 2
+
+document.getElementById(&#39;tab-news&#39;).getAttribute(&#39;aria-controls&#39;)
+// 通常 &quot;panel-news&quot;
+
+document.getElementById(&#39;panel-news&#39;) !== null
+// 通常 true</code></pre>
+<p><code>SyntaxError</code>が表示されたらコードの書き方を調べます。一方、<code>TypeError</code>のような実行中の例外が出た場合は、エラーの前後で取得した要素が存在していたか、操作する値が想定どおりかを調べます。最初に出たエラーを記録するのは、後から発生したエラーが、その影響で起きている可能性があるためです。</p>
+<h2 id="712-試すNetworkで通信の失敗を読み取る">7.12 試す：Networkで通信の失敗を読み取る</h2>
+<p>ニュースの通信を調べるときはローカルサーバーを起動し、<code>http://127.0.0.1:3000/</code>を開きます。<code>file://</code>では<code>/api/news</code>を正しく試せません。</p>
+<p>APIキー未設定時の動作を安全に確認する場合は、教材フォルダーに<code>.env</code>を用意し、少なくとも次のようにキーの値を空欄にします。実際のAPIキーを本文や実験記録に貼り付ける必要はありません。</p>
+<pre class="code-block"><code class="language-dotenv">GNEWS_API_KEY=
+PORT=3000</code></pre>
+<p>Node.js 20.6以上の環境では、次のコマンドで起動できます。</p>
+<pre class="code-block"><code class="language-bash">node --env-file=.env server.mjs</code></pre>
+<p>環境変数がすでに別の場所で設定されている場合は、<code>.env</code>の値だけで上書きされるとは限らないため注意してください。キーが確実に空であることを試す自動テストでは、前述のようにテスト用プロセスの<code>env</code>を明示的に指定しています。</p>
+<p><strong>Network</strong>で<code>/api/news?keyword=...</code>の応答を確認します。キーが空なら503と<code>GNEWS_API_KEY</code>を含むエラーになり、画面は取得失敗を表示します。</p>
+<p>503という番号だけで原因は決まりません。応答メッセージも確認しましょう。キー未設定時はGNewsへ通信せずにサーバーが応答します。</p>
+<p>なお、教材の<code>app.js</code>には<code>newsStarted</code>という変数があり、ニュースを初めて開いたときだけ<code>loadNews()</code>を実行します。<strong>一度エラーになっても、タブを往復するだけでは再度取得しません。</strong></p>
+<h2 id="713-考えるキャッシュはどこに保存されているか">7.13 考える：キャッシュはどこに保存されているか</h2>
+<p>ニュースが前と同じ内容に見えるとき、キャッシュの影響を疑うことがあります。<strong>キャッシュ</strong>とは、取得や計算を繰り返さずに済むよう、以前の結果を一時的に保持する仕組みです。ただし、どこに保存するかは実装によって異なります。</p>
+<p>本教材の<code>server.mjs</code>には、次のコードがあります。</p>
+<pre class="code-block"><code class="language-javascript">const ttlMs = 5 * 60 * 1000;
+const cache = new Map();</code></pre>
+<p>ニュースのキャッシュはサーバーの<code>Map</code>にあり、ブラウザのApplicationでは直接見られません。<code>server.mjs</code>とNetworkの<code>cache</code>値で確認します。成功した取得がない場合は検証できません。</p>
+<p>また、<code>server.mjs</code>のAPI応答には<code>Cache-Control: no-store</code>が設定されています。これはブラウザなどに対するHTTPキャッシュの指定であり、<strong>サーバーのメモリ内にある<code>Map</code>とは別の仕組み</strong>です。同じ「キャッシュ」という名前でも、場所と目的を確かめる必要があります。</p>
+<h2 id="714-考える自動テストで確認できないことを見極める">7.14 考える：自動テストで確認できないことを見極める</h2>
+<p>自動テストは、繰り返し確かめたい条件を一定の方法で検査できる点が強みです。今回のテストは、HTMLの一部の対応、JavaScriptの構文、キー未設定時のサーバー応答という、外部サービスに頼らず確認しやすい条件を選んでいます。この範囲であれば、修正後に同じコマンドを再実行し、以前の条件が維持されているかを調べられます。</p>
+<p>新しい機能を追加したときは、まず「何ができれば成功なのか」を具体的に書き出してみてください。自動化するかどうかは、その条件を繰り返し確認する必要があるか、結果をプログラムで判定できるかによって考えます。目で確かめたこと、テストによって判定したこと、外部条件のため未検証のことを、同じ「確認済み」とまとめないことが大切です。</p>
+<h2 id="715-章末演習小さなデバッグ記録を作る">7.15 章末演習：小さなデバッグ記録を作る</h2>
+<p>最後に、実験9または10のどちらか一方を選び、次の表を埋めてみましょう。原因を最初から知っていても、あえて「予測」と「観察」を別の欄に書きます。</p>
+<table><thead><tr><th>記録する項目</th><th>記入例（HTMLの対応を変えた場合）</th></tr></thead><tbody><tr><td>症状</td><td>構造テストが<code>not ok</code>になった</td></tr><tr><td>仮説</td><td><code>aria-controls</code>とパネルの<code>id</code>が一致しない</td></tr><tr><td>変更した一か所</td><td><code>panel-news</code>を<code>panel-news-typo</code>にした</td></tr><tr><td>確認方法</td><td><code>node --test test.mjs</code></td></tr><tr><td>観察した事実</td><td>名前の配列が一致しないと報告された</td></tr><tr><td>修正と再検証</td><td>元の値へ戻し、テストの成功を確認した</td></tr></tbody></table>
+<p><strong>発展課題：</strong> <code>node --check app.js</code>が成功してもタブが動かない例を考えます。ElementsとConsoleで確かめ、変更した場合は必ず元に戻しましょう。</p>
+<p><strong>発展課題：</strong> AIの修正案について、必要な理由と確認方法を説明しましょう。変更は一度に一か所とし、動作を検証します。</p>
+<h2 id="716-ふりかえり確認の結果を根拠に直す">7.16 ふりかえり：確認の結果を根拠に直す</h2>
+<p>本章では、エラーを再現し、仮説を確かめ、修正後に再検証する方法を学びました。<code>test.mjs</code>・Elements・Console・Networkは、それぞれ異なる問題を調べる道具です。</p>
+<p>これまでの章では、機能を一つずつ作り、その動作を確かめてきました。ここで身につけたデバッグの手順は、今後新しい機能を加えるときや、制作物を見直すときにも役立ちます。<strong>「動いたかどうか」だけでなく、「どの条件を、どの根拠で確認できたか」を説明できること</strong>が、自分で学び続けるための土台になります。</p>
+</section></article>
+</main></body></html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>検索機能を実装する | New Tab 教材</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<link rel="stylesheet" href="../styles/page.css">
+<link rel="stylesheet" href="../styles/layout.css">
+<link rel="stylesheet" href="../styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-05" data-unit="05">
+<header class="book-unit-header"><p class="book-unit-kicker">第5章</p><h1 class="book-unit-title">検索機能を実装する</h1></header>
+<section class="book-body">
+<h1 id="第5章-検索機能を実装する">第5章　検索機能を実装する</h1>
+<h2 id="51-知るタブで選べる画面を使える検索画面にする">5.1 知る：タブで選べる画面を、使える検索画面にする</h2>
+<p>本章では検索フォームを読み解きます。検索語の送信はHTML、検索タブへ戻って検索欄に移動する処理はJavaScript、入力欄の外観はCSSが担当します。この分担を実際のコードで確かめましょう。</p>
+<h2 id="52-知る検索クエリとフォーカスは別のもの">5.2 知る：検索クエリとフォーカスは別のもの</h2>
+<p><strong>検索クエリ</strong>とは検索条件として渡す文字列です。<code>HTML CSS</code>を入力して送信すると、その文字列が検索サービスに渡されます。</p>
+<p>一方、<strong>フォーカス</strong>は、現在どの要素がキーボード入力などを受け取る対象になっているかを表す状態です。入力欄にフォーカスがあれば、利用者は改めて欄をクリックしなくても文字を入力できます。「検索欄を表示すること」と「検索欄にフォーカスを移すこと」は、似ていますが同じではありません。</p>
+<p>これを踏まえて、検索に関わる処理を見てみます。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/05-search/assets/V-05-001.svg" alt="HTMLフォームによるGET送信と、JavaScriptによる検索欄へのフォーカス移動を別の経路として示した図"></figure>
+<p><em>図 V-05-001：検索語を送信するHTMLの経路（上）と、検索欄へ移動するJavaScriptの経路（下）。CSSはフォーカスされた入力欄の見た目を担当する。</em></p>
+<p>フォーム送信はHTMLとブラウザの機能です。<code>/</code>キーで検索欄へ移る動作だけはJavaScriptで追加しています。</p>
+<h2 id="53-読み解く三つのファイルと画面の対応を把握する">5.3 読み解く：三つのファイルと画面の対応を把握する</h2>
+<p>今回の教材は、<code>05-search/index.html</code>、<code>05-search/style.css</code>、<code>05-search/app.js</code>の三つを同じフォルダーに置く構成です。添付された実際のHTMLの<code>&lt;head&gt;</code>には、次の読み込み指定があります。</p>
+<pre class="code-block"><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+&lt;script src=&quot;app.js&quot; defer&gt;&lt;/script&gt;</code></pre>
+<p><code>app.js</code>は第4章のタブ切り替えを引き継ぎ、検索欄へフォーカスする処理を加えています。</p>
+<p>表示上の主な対応は次のとおりです。</p>
+<table><thead><tr><th>画面上の部分</th><th>HTMLの要素</th><th>CSSの主な指定</th><th>JavaScriptとの関係</th></tr></thead><tbody><tr><td>「1 検索」タブ</td><td><code>#tab-search</code></td><td><code>.filetab</code></td><td><code>activateTab(0)</code>で選択する</td></tr><tr><td>検索パネル</td><td><code>#panel-search</code></td><td><code>.panel</code>、<code>[hidden]</code></td><td>選択したときに表示する</td></tr><tr><td>検索語の入力欄</td><td><code>#search-input</code></td><td><code>.search-input</code>、<code>.search-input:focus</code></td><td><code>searchInput.focus()</code>でフォーカスする</td></tr><tr><td>「検索」ボタン</td><td><code>button[type=&quot;submit&quot;]</code></td><td><code>.search-button</code></td><td>HTMLフォームの送信を行う</td></tr></tbody></table>
+<p>次節からは、この全体像のうち、検索フォームそのもの、見た目、JavaScriptによる操作の順に調べていきます。</p>
+<h2 id="54-読み解く検索語を送信するHTMLフォーム">5.4 読み解く：検索語を送信するHTMLフォーム</h2>
+<p><code>index.html</code>の検索パネルからフォームの部分を抜粋します。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-search&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-search&quot;&gt;
+  &lt;!-- 検索はJavaScriptなしでもフォームのGET送信で動作します --&gt;
+  &lt;form class=&quot;search-form&quot; action=&quot;https://www.google.com/search&quot; method=&quot;get&quot; role=&quot;search&quot;&gt;
+    &lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;
+    &lt;input class=&quot;search-input&quot; id=&quot;search-input&quot; name=&quot;q&quot; type=&quot;search&quot;
+      placeholder=&quot;Googleで検索&quot; autocomplete=&quot;off&quot; enterkeyhint=&quot;search&quot; required&gt;
+    &lt;button class=&quot;search-button&quot; type=&quot;submit&quot;&gt;検索&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/section&gt;</code></pre>
+<p><strong><code>form</code></strong>は、入力された値をまとめて送信するためのHTMLの仕組みです。ここでは、入力欄と送信ボタンをひとつの<code>form</code>で囲んでいます。<code>role=&quot;search&quot;</code>は、これが検索に使う領域であることを支援技術に伝えるための指定です。</p>
+<p>フォームを理解するときに、最初に見るのは次の三つです。</p>
+<table><thead><tr><th>記述</th><th>この教材での値</th><th>担当すること</th></tr></thead><tbody><tr><td><code>action</code></td><td><code>https://www.google.com/search</code></td><td>フォームの送信先URLを指定する</td></tr><tr><td><code>method</code></td><td><code>get</code></td><td>入力値をURLのクエリ部分に付けて送信する</td></tr><tr><td>入力欄の<code>name</code></td><td><code>q</code></td><td>送信される項目名を決める</td></tr></tbody></table>
+<p>たとえば<code>HTML CSS</code>と入力して送信した場合、ブラウザは概ね次の形式のURLを使います。</p>
+<pre class="code-block"><code class="language-text">https://www.google.com/search?q=HTML+CSS</code></pre>
+<p>URLの<code>?</code>以降が<strong>クエリ文字列</strong>です。<code>q</code>が項目名、<code>HTML+CSS</code>が値で、<code>+</code>は空白を表します。<code>q</code>は検索先に合わせた名前で、HTMLの固定ルールではありません。</p>
+<p>HTMLのフォームはクリックやEnterキーで送信できます。検索語を送るための独自JavaScriptは不要です。秘密情報の送信には使わないでください。</p>
+<h2 id="55-読み解く入力欄ラベル送信ボタンが持つ意味">5.5 読み解く：入力欄・ラベル・送信ボタンが持つ意味</h2>
+<p><code>type=&quot;search&quot;</code>は検索入力欄、<code>placeholder</code>は未入力時のヒントです。<code>placeholder</code>は正式なラベルの代わりにはなりません。</p>
+<p>そこで、この教材には次のラベルがあります。</p>
+<pre class="code-block"><code class="language-html">&lt;label class=&quot;sr-only&quot; for=&quot;search-input&quot;&gt;検索キーワード&lt;/label&gt;</code></pre>
+<p><code>for=&quot;search-input&quot;</code>と<code>id=&quot;search-input&quot;</code>でラベルを入力欄に結び付けます。<code>.sr-only</code>はラベルを視覚的に隠しつつ、支援技術から使えるようにします。</p>
+<p><code>required</code>は入力必須、<code>autocomplete=&quot;off&quot;</code>は自動補完を控えるヒント、<code>enterkeyhint=&quot;search&quot;</code>は仮想キーボードの表示用ヒントです。</p>
+<p>最後の<code>&lt;button type=&quot;submit&quot;&gt;検索&lt;/button&gt;</code>は、フォームを送信するボタンです。<code>type=&quot;submit&quot;</code>はボタンの役割をHTMLで明示します。ここでもJavaScriptでクリックイベントを登録する必要はありません。第4章のタブボタンに付いていた<code>type=&quot;button&quot;</code>とは、目的の違う指定です。</p>
+<h2 id="57-読み解くappjsに加わった検索欄の取得とフォーカス">5.7 読み解く：<code>app.js</code>に加わった検索欄の取得とフォーカス</h2>
+<p>第4章ではJavaScriptを<code>tabs.js</code>から読み込んでいましたが、本章のHTMLが読み込むのは<code>app.js</code>です。<code>app.js</code>には前章のタブ切り替え処理が引き継がれ、検索欄の取得とショートカット処理が追加されています。</p>
+<p>冒頭の要素取得を確認します。実際のコードのうち、タブと検索欄を取得する部分です。</p>
+<pre class="code-block"><code class="language-javascript">const tabs = [...document.querySelectorAll(&#39;[role=&quot;tab&quot;]&#39;)];
+const panels = tabs.map(tab =&gt; document.getElementById(tab.getAttribute(&#39;aria-controls&#39;)));
+const searchInput = document.getElementById(&#39;search-input&#39;);</code></pre>
+<p><code>searchInput</code>は<code>id=&quot;search-input&quot;</code>の要素です。<code>getElementById</code>で取得するため、HTML側の<code>id</code>を変えたらJavaScript側も合わせます。</p>
+<p>検索欄へ移る処理の中心は、次の二行です。これは後述のイベント処理から抜粋したものです。</p>
+<pre class="code-block"><code class="language-javascript">activateTab(0);
+searchInput.focus();</code></pre>
+<p><code>activateTab(0)</code>で検索パネルを表示してから、<code>searchInput.focus()</code>で入力欄へ移動します。<strong>表示してからフォーカスする順序</strong>が重要です。</p>
+<p>ここで新しい検索実行関数は定義されていません。<code>app.js</code>には<code>form.addEventListener(&#39;submit&#39;, ...)</code>や<code>fetch()</code>による検索送信もありません。フォームの送信がHTMLに任されていることを思い出してください。</p>
+<h2 id="58-読み解くAltDとをどのように受け取るか">5.8 読み解く：<code>Alt+D</code>と<code>/</code>をどのように受け取るか</h2>
+<p>次は、<code>app.js</code>のキー操作を受け取る部分の抜粋です。</p>
+<pre class="code-block"><code class="language-javascript">window.addEventListener(&#39;keydown&#39;, event =&gt; {
+  if (event.defaultPrevented || event.isComposing || event.ctrlKey
+    || event.metaKey || event.shiftKey) return;
+  if (event.altKey &amp;&amp; (event.key === &#39;1&#39; || event.key === &#39;2&#39;)) {
+    const index = Number(event.key) - 1;
+    if (index &lt; tabs.length) {
+      event.preventDefault();
+      activateTab(index);
+    }
+  } else if (event.altKey &amp;&amp; event.key.toLowerCase() === &#39;d&#39;) {
+    event.preventDefault();
+    activateTab(0);
+    searchInput.focus();
+  } else if (!event.altKey &amp;&amp; event.key === &#39;/&#39; &amp;&amp;
+    !event.target.closest(&#39;input, textarea, select, [contenteditable=&quot;true&quot;]&#39;)) {
+    event.preventDefault();
+    activateTab(0);
+    searchInput.focus();
+  }
+});</code></pre>
+<p><code>window.addEventListener(&#39;keydown&#39;, ...)</code>は、キーが押されたときに実行する処理を登録しています。<code>event</code>には押されたキーや、Altキーなどの同時押しの情報が入ります。処理を上から一行ずつ暗記するより、<strong>どの条件に当てはまると、どの処理が実行されるか</strong>を先に見ましょう。</p>
+<table><thead><tr><th>操作と条件</th><th>実行する処理</th><th>期待する結果</th></tr></thead><tbody><tr><td>Alt+1、Alt+2</td><td><code>activateTab(index)</code></td><td>検索・ニュースのタブを切り替える</td></tr><tr><td>Alt+D</td><td><code>activateTab(0)</code>、<code>searchInput.focus()</code></td><td>検索パネルを開いて検索欄へ移る</td></tr><tr><td>入力欄など以外で<code>/</code></td><td>同じ二つの処理</td><td>検索欄へ移る</td></tr><tr><td>入力欄などで<code>/</code></td><td>このショートカット処理を行わない</td><td><code>/</code>を通常の入力として使える</td></tr></tbody></table>
+<p>最初の<code>if</code>は、すでに別の処理が既定の動作を取り消したイベント（<code>defaultPrevented</code>）、日本語入力などの変換中を表すイベント（<code>isComposing</code>）、Ctrl・Meta・Shiftのいずれかを押している場合を除外します。ショートカットを無条件に発動させないための判定です。<code>Alt+D</code>の比較では、<code>event.key.toLowerCase()</code>で大文字と小文字の違いを吸収しています。</p>
+<p><code>/</code>の条件は、もう少し丁寧に読みます。</p>
+<pre class="code-block"><code class="language-javascript">!event.target.closest(&#39;input, textarea, select, [contenteditable=&quot;true&quot;]&#39;)</code></pre>
+<p><code>event.target</code>は、今回のキー入力イベントが発生した対象です。<code>closest(...)</code>は、対象の要素自身とその親要素を調べ、指定したCSSセレクターに一致するものを探します。ここでは、入力欄（<code>input</code>）、複数行の入力欄（<code>textarea</code>）、選択欄（<code>select</code>）、編集可能な領域（<code>[contenteditable=&quot;true&quot;]</code>）を対象にしています。</p>
+<p>入力中は<code>/</code>を文字として使えるよう、<code>closest(...)</code>で編集可能な要素を確認します。対象外なら検索欄へフォーカスします。</p>
+<p><code>event.preventDefault()</code>は、取り消し可能なキー入力イベントに対してブラウザの既定の動作を抑えるための処理です。</p>
+<h2 id="59-試すフォームの送信とフォーカスを別々に検証する">5.9 試す：フォームの送信とフォーカスを別々に検証する</h2>
+<p>以下の作業に入る前に、<code>index.html</code>、<code>style.css</code>、<code>app.js</code>が同じフォルダーにあり、HTMLから読み込めているかを確認してください。</p>
+<p><code>HTML CSS</code>を入力し、クリックとEnterの両方で送信します。URLの<code>q</code>を確認しましょう。検索結果が出なくても、フォームによるURL生成とは分けて考えます。</p>
+<p>外部のページへ移動せずにフォームの入力値だけを確かめたい場合は、検索語を入力した状態でConsoleに次のコードを入力します。以下は<strong>検証用</strong>であり、<code>app.js</code>に追加するコードではありません。</p>
+<pre class="code-block"><code class="language-javascript">new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;q&#39;)
+// &quot;HTML CSS&quot;（入力した値に応じて変わる）</code></pre>
+<p>続いて、検索欄を空にして次の式を試します。</p>
+<pre class="code-block"><code class="language-javascript">document.querySelector(&#39;.search-form&#39;).checkValidity()
+// false（requiredがあり、入力が空の場合）</code></pre>
+<p>これはHTMLの入力チェックを確認するための操作です。検索ボタンを押しても、入力が空ならブラウザが送信を止めることも確かめましょう。</p>
+<p>次に、ニュースタブをクリックしてから<code>/</code>を押します。検索パネルが表示され、検索欄へフォーカスが移るかを確認してください。Consoleでは、次のように現在のフォーカス先を確かめられます。</p>
+<pre class="code-block"><code class="language-javascript">document.activeElement.id
+// &quot;search-input&quot;（検索欄にフォーカスがある場合）</code></pre>
+<p><code>document.activeElement</code>でフォーカス先を確認します。検索欄では<code>/</code>が文字として入力されることも試しましょう。Alt+Dはブラウザが優先する場合があります。</p>
+<h2 id="510-試す一か所を変え予測して元に戻す">5.10 試す：一か所を変え、予測して、元に戻す</h2>
+<h3 id="実験1requiredを取り外す">実験1：<code>required</code>を取り外す</h3>
+<p>空欄で<code>checkValidity()</code>が<code>false</code>になることを確認し、<code>required</code>だけ外して再実行します。変化を記録し、最後に<code>required</code>を戻してください。</p>
+<p>この実験では、入力欄の見た目やJavaScriptのショートカットを変えなくても、HTMLの属性だけで入力チェックを変えられることがわかります。</p>
+<h3 id="実験2送信する項目名を変える">実験2：送信する項目名を変える</h3>
+<p>変更前に、検索欄へ<code>HTML CSS</code>と入力して<code>new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;q&#39;)</code>の結果を確認します。変更後の結果を予測してから、<code>index.html</code>の<code>name=&quot;q&quot;</code>を<strong><code>name=&quot;keyword&quot;</code>だけ</strong>に変更してください。再読み込みして同じ語を入力し、Consoleで次を試します。</p>
+<pre class="code-block"><code class="language-javascript">new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;keyword&#39;)
+// &quot;HTML CSS&quot;（入力した値に応じて変わる）
+
+new FormData(document.querySelector(&#39;.search-form&#39;)).get(&#39;q&#39;)
+// null</code></pre>
+<p>この結果は、入力欄の<code>name</code>が送信項目の名前を決めることを示しています。この状態で送信すると、URLには<code>keyword=...</code>という項目が入るため、元の<code>q=...</code>とは異なる要求になります。Google側でどう解釈されるかまでは、HTMLの仕様だけでは保証されません。</p>
+<h3 id="実験3JavaScriptなしでも送信できるか">実験3：JavaScriptなしでも送信できるか</h3>
+<p>変更前に<code>/</code>で検索欄へ移動できることと、検索ボタンで送信できることを確かめます。次に<code>index.html</code>のscript要素の読み込み指定という一行だけ選択後<code>ctrl + /</code>で一時的にHTMLコメントにします。</p>
+<pre class="code-block"><code class="language-html">&lt;!-- &lt;script src=&quot;app.js&quot; defer&gt;&lt;/script&gt; --&gt;</code></pre>
+<p>再読み込みして、タブのクリックや<code>/</code>による切り替えができなくなることを確かめます。そのうえで、初めから表示されている検索欄へ文字を入力し、検索ボタンやEnterキーによる送信を試してください。<strong>送信はフォームの機能なので、JavaScriptを読み込まなくても基本的に動作します</strong>。</p>
+<h2 id="511-考える操作を便利にするときの設計判断">5.11 考える：操作を便利にするときの設計判断</h2>
+<p>Webアプリを作るとき、すべてをJavaScriptで実装する必要はありません。フォームには送信、入力欄には値の保持や入力チェック、ボタンには送信という基本的な仕組みが備わっています。その上に、検索欄へすぐ移動するショートカットを追加するのが本教材の考え方です。</p>
+<p><code>/</code>は入力中の文字と競合するため、<code>closest(...)</code>で判定します。Alt+Dはブラウザや日本語入力と競合することがあるので、代替操作も残しましょう。</p>
+<p>発展課題として、生成AIに</p>
+<blockquote><p>「フォームをすべてJavaScriptの<code>fetch()</code>で送信する案」と「HTMLフォームのままにする案」の違い</p></blockquote>
+<p>を尋ねてみてください。ただし、その提案をすぐに採用する必要はありません。 本章で使っている<code>action</code>、<code>method</code>、<code>name</code>、<code>required</code>がどこまで担当しているかを確認し、<strong>新しいコードを追加する理由が本当にあるか</strong>を考えることを課題とします。</p>
+<h2 id="512-ふりかえり">5.12 ふりかえり</h2>
+<p>本章では、検索フォームの送信と、検索欄へ移動する処理を分けて読み解きました。<code>index.html</code>は<code>form</code>のGET送信を担当し、<code>app.js</code>はタブを開いて検索欄にフォーカスする処理を加え、<code>style.css</code>はフォームの配置やフォーカス時の外観を決めていました。</p>
+<p>振り返りとして、次の内容を自分の言葉で説明してみてください。</p>
+<ol><li><code>HTML CSS</code>という入力値が、<code>name=&quot;q&quot;</code>と<code>method=&quot;get&quot;</code>によってURLのどこに表れるか。</li><li>なぜ<code>activateTab(0)</code>の後に<code>searchInput.focus()</code>を呼ぶのか。</li><li>なぜ検索欄で入力した<code>/</code>はショートカットとして扱わないのか。</li><li>JavaScriptを読み込まなくても、検索フォームの送信が残るのはなぜか。</li></ol>
+<p>答えが曖昧なときは、該当するHTML・CSS・JavaScriptの行を見つけ、ブラウザで再確認しましょう。コードの意味を知るだけでなく、動作を根拠付きで説明できることが、今後の制作で役立ちます。</p>
+</section></article>
+</main></body></html>

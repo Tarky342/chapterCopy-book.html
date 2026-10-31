@@ -1,0 +1,38 @@
+/*
+ * New Tab 印刷スタイル v1.2 — 和文横組・技術教材用
+ * ここを編集すると chapterCopy 再生成時に反映されます。
+ * 生成された chapterCopy/styles/ を直接編集しないでください。
+ *
+ * 基本方針：本文は38字相当の行長。コード・表・図は広い印刷幅を利用。
+ * 数値は印刷の試作値であり、紙とブラウザとフォントを固定して実物確認します。
+ */
+:root {
+  /* 明朝本文。通常文書はIPAex明朝を優先し、IPAmj明朝は補助候補とします。 */
+  --font-body: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "IPAexMincho", "IPAmjMincho", serif;
+  --font-heading: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans CJK JP", "Noto Sans JP", "IPAexGothic", sans-serif;
+  --font-code: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* 本文組み：38字相当 ≒ 120.65mm（9pt × 38） */
+  --body-size: 9pt;
+  --body-leading: 1.75;          /* 行送り 15.75pt。行間の空きは約 6.75pt */
+  --body-align: justify;        /* justify / left */
+  --paragraph-indent: 1em;      /* 段落の最初の行を全角1字相当下げる */
+  --paragraph-gap: 0.35em;      /* 0 にすると書籍本文に近い詰め方 */
+  --prose-chars: 38;            /* 1行の字詰めの目安。32〜40で調整 */
+  --prose-measure: calc(var(--body-size) * var(--prose-chars));
+
+  --body-color: #171717;
+  --muted-color: #555;
+  --rule-color: #c5c5c5;
+  --accent-color: #214e65;
+
+  --h1-size: 18pt;
+  --h2-size: 13pt;
+  --h3-size: 11pt;
+  --code-size: 8.5pt;
+  --code-leading: 1.55;
+  --caption-size: 8.5pt;
+  --list-indent: 1.85em;        /* 箇条書き本文の開始位置。折返し行もここへ揃える */
+  --section-gap: 1.2em;
+  --figure-max-height: 210mm;   /* 図とキャプションが1ページに入るか実物で確認 */
+}

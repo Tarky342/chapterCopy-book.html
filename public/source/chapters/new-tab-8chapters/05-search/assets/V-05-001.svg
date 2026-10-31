@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="480" viewBox="0 0 1280 480" role="img" aria-labelledby="title desc">
+<title id="title">検索機能を構成する二つの経路</title>
+<desc id="desc">上段は入力欄からHTMLのGETフォームを経て送信先URLへ至る流れ。下段はキー入力をJavaScriptが受け、検索タブを開いて入力欄へフォーカスし、CSSが枠線を表示する流れ。</desc>
+<defs>
+  <style>
+    .bg { fill:#fff; }
+    .lane { fill:#fafbf8;stroke:#d2d9d2;stroke-width:1.6; }
+    .node { fill:#fff;stroke:#466654;stroke-width:2; }
+    .node-alt { fill:#fff;stroke:#5a6770;stroke-width:2; }
+    .h { font: 700 22px 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif; fill:#1e2923; }
+    .lab { font: 700 20px 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif; fill:#1e2923; }
+    .txt { font: 500 18px 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif; fill:#1e2923; }
+    .small { font: 400 15px 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif; fill:#3c5145; }
+    .code { font: 500 17px 'DejaVu Sans Mono', monospace; fill:#1e2923; }
+    .arrow { stroke:#456454;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round; }
+  </style>
+  <marker id="arrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L9 5.5 L1 10" fill="none" stroke="#456454" stroke-width="2"/></marker>
+</defs>
+<rect class="bg" width="1280" height="480"/>
+<text x="60" y="42" class="h">検索機能を構成する二つの経路</text>
+<rect class="lane" x="30" y="68" width="1220" height="180" rx="16"/>
+<rect class="lane" x="30" y="262" width="1220" height="184" rx="16"/>
+<text x="58" y="103" class="lab">A　検索語を送る（HTML）</text>
+<text x="58" y="295" class="lab">B　検索欄へ移る（JavaScript → CSS）</text>
+<!-- first lane -->
+<rect class="node" x="58" y="124" width="254" height="90" rx="12"/>
+<text class="txt" x="185" y="159" text-anchor="middle">検索語を入力</text>
+<text class="code" x="185" y="187" text-anchor="middle">name="q"</text>
+<path class="arrow" d="M320 169 L352 169" marker-end="url(#arrow)"/>
+<rect class="node" x="370" y="124" width="240" height="90" rx="12"/>
+<text class="txt" x="490" y="159" text-anchor="middle">フォームを送信</text>
+<text class="code" x="490" y="187" text-anchor="middle">method="get"</text>
+<path class="arrow" d="M618 169 L650 169" marker-end="url(#arrow)"/>
+<rect class="node" x="670" y="124" width="550" height="90" rx="12"/>
+<text class="txt" x="945" y="155" text-anchor="middle">送信先URLにクエリが付く</text>
+<text class="code" x="945" y="187" text-anchor="middle">google.com/search?q=HTML+CSS</text>
+<!-- second lane -->
+<rect class="node-alt" x="58" y="316" width="250" height="95" rx="12"/>
+<text class="txt" x="183" y="352" text-anchor="middle">キーを押す</text>
+<text class="small" x="183" y="382" text-anchor="middle">Alt+D または /</text>
+<path class="arrow" d="M317 364 L349 364" marker-end="url(#arrow)"/>
+<rect class="node-alt" x="366" y="316" width="255" height="95" rx="12"/>
+<text class="txt" x="494" y="350" text-anchor="middle">検索タブを表示</text>
+<text class="code" x="494" y="381" text-anchor="middle">activateTab(0)</text>
+<path class="arrow" d="M630 364 L662 364" marker-end="url(#arrow)"/>
+<rect class="node-alt" x="680" y="316" width="264" height="95" rx="12"/>
+<text class="txt" x="812" y="350" text-anchor="middle">入力先を移す</text>
+<text class="code" x="812" y="381" text-anchor="middle">searchInput.focus()</text>
+<path class="arrow" d="M953 364 L985 364" marker-end="url(#arrow)"/>
+<rect class="node-alt" x="1002" y="316" width="218" height="95" rx="12"/>
+<text class="txt" x="1111" y="350" text-anchor="middle">枠線で示す</text>
+<text class="code" x="1111" y="381" text-anchor="middle">CSS :focus</text>
+</svg>

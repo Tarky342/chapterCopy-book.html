@@ -1,0 +1,7 @@
+/*
+ * 最後に読み込まれる自由調整用CSS。
+ * 例:
+ * .book-body h2 { color: #333; }
+ * .book-body figure { margin-block: 1.5em; }
+ * 既存の安全ルールを上書きすると、印刷時にはみ出す場合があります。
+ */

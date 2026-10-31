@@ -1,0 +1,12 @@
+{
+  "name": "chaptercopy-book",
+  "private": true,
+  "scripts": {
+    "build": "echo Static assets are already in public/",
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

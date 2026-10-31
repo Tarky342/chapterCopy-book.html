@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ニュースを自動取得する | New Tab 教材</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<link rel="stylesheet" href="../styles/page.css">
+<link rel="stylesheet" href="../styles/layout.css">
+<link rel="stylesheet" href="../styles/overrides.css">
+</head>
+<body><main class="book">
+<article class="book-unit" id="unit-06" data-unit="06">
+<header class="book-unit-header"><p class="book-unit-kicker">第6章</p><h1 class="book-unit-title">ニュースを自動取得する</h1></header>
+<section class="book-body">
+<h1 id="第6章-ニュースを自動取得する">第6章　ニュースを自動取得する</h1>
+<h2 id="61-知る画面の中に外部の情報を取り込む">6.1 知る：画面の中に、外部の情報を取り込む</h2>
+<p>本章では「2 ニュース」タブに外部の記事を表示します。ブラウザのJavaScript、Node.jsのローカルサーバー、GNews APIの連携を学びます。</p>
+<p>本章の到達目標は、「何を送り、何を受け取り、画面のどの要素を書き換えているか」を説明し、成功時だけでなく失敗時も根拠を持って観察できるようになることです。 特に、<strong>APIキーをブラウザに渡さない理由</strong>と、<strong>外部通信の結果をそのまま信じない理由</strong>を考えます。</p>
+<h2 id="62-知るAPIと三つの担当者">6.2 知る：APIと三つの担当者</h2>
+<p><strong>API（Application Programming Interface）</strong>は、別のプログラムが提供する機能やデータを、決められた方法で利用するための窓口です。 GNews APIでは、検索語を指定してニュース記事のデータを取得できます。本教材では、GNewsに直接アクセスするのはブラウザではなく、自分のNode.jsサーバーです。</p>
+<table><thead><tr><th>担当</th><th>教材のファイル・相手</th><th>主な仕事</th></tr></thead><tbody><tr><td>ブラウザ</td><td><code>index.html</code>、<code>style.css</code>、<code>app.js</code></td><td>操作を受け付け、自分のサーバーに依頼し、受け取った記事を画面へ表示する</td></tr><tr><td>ローカルサーバー</td><td><code>server.mjs</code></td><td>ブラウザからの依頼を確認し、APIキーを使ってGNewsへ問い合わせる</td></tr><tr><td>外部サービス</td><td>GNews Search API</td><td>検索条件に対応する記事データを返す</td></tr></tbody></table>
+<p>ここでいう<strong>サーバー</strong>は、リクエスト（依頼）を受けてレスポンス（応答）を返すプログラムです。<strong>Node.js</strong>は、JavaScriptをブラウザの外でも実行できる環境です。同じJavaScriptでも、ブラウザで実行する<code>app.js</code>は画面を操作し、Node.jsで実行する<code>server.mjs</code>はHTTP通信とファイル配信を担当します。</p>
+<figure class="book-figure"><img src="../source/chapters/new-tab-8chapters/06-news/assets/V-06-001.svg" alt="ブラウザ、ローカルサーバー、GNews APIの三者間のリクエストと応答を示し、APIキーをサーバー側だけに置くことを明示した図。"></figure>
+<p><em>図 V-06-001：ニュース取得の通信経路。ブラウザは<code>/api/news</code>へ問い合わせ、ローカルサーバーが<code>X-Api-Key</code>ヘッダーを付けてGNews APIへ問い合わせます。記事データはサーバーを経由してブラウザに戻り、APIキーはブラウザへ返しません。</em></p>
+<p>この構造を採るのは、秘密にすべきAPIキーを、ブラウザから取得できるHTMLやJavaScriptに書き込まないためです。ブラウザ用のコードは利用者が開発者ツールで読むことができます。サーバー側でキーを管理すれば、本教材の通常の応答にキーを含めずに外部APIを利用できます。</p>
+<h2 id="63-知るなぜindexhtmlを直接開かないのか">6.3 知る：なぜ<code>index.html</code>を直接開かないのか</h2>
+<p>第4章と第5章は、HTMLファイルをブラウザで直接開いて動きを観察できました。しかし本章の<code>app.js</code>は、次のようなURLへアクセスします。</p>
+<pre class="code-block"><code class="language-javascript">fetch(&#39;/api/news?keyword=&#39; + encodeURIComponent(&#39;テクノロジー&#39;));</code></pre>
+<p>先頭が<code>/</code>のURLは、今開いているページと同じオリジン（通信先のスキーム・ホスト・ポートの組み合わせ）を基準にしたパスです。この教材を<code>http://127.0.0.1:3000/</code>から開いていれば、問い合わせ先は<code>http://127.0.0.1:3000/api/news?...</code>になります。一方、<code>file://</code>で<code>index.html</code>を直接開いても、<code>/api/news</code>に応答するNode.jsサーバーは起動しません。</p>
+<p>そこで本章では、Node.jsサーバーを先に起動し、ブラウザからそのサーバーへ接続します。画面の表示に使うHTML・CSS・JavaScriptも、同じサーバーから配信される構成です。今後、通信の不具合を調べるときは、まず「どのURLからページを開いたか」を確認してください。</p>
+<h2 id="64-読み解くHTMLとCSSはニュースの表示場所を用意する">6.4 読み解く：HTMLとCSSはニュースの表示場所を用意する</h2>
+<p><code>index.html</code>では、ニュースタブに対応するパネルが次のように定義されています。ここでは関係のある部分だけを抜粋しています。</p>
+<pre class="code-block"><code class="language-html">&lt;section id=&quot;panel-news&quot; class=&quot;panel&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;tab-news&quot; hidden&gt;
+  &lt;div class=&quot;news-card&quot;&gt;
+    &lt;div class=&quot;news-heading&quot;&gt;
+      &lt;h2 id=&quot;news-title&quot;&gt;ニュース&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;p id=&quot;news-genre&quot; class=&quot;news-genre&quot;&gt;ニュースタブを開くと、ニュースを取得します。&lt;/p&gt;
+    &lt;div id=&quot;news&quot; aria-live=&quot;polite&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+<p><code>panel-news</code>は切り替え対象、<code>news-genre</code>は取得状況、<code>news</code>は記事一覧です。<code>aria-live=&quot;polite&quot;</code>は内容の変化を支援技術に知らせます。</p>
+<p>CSSは記事の配置と外観を担当します。たとえば、教材には次の指定があります。</p>
+<pre class="code-block"><code class="language-css">.news-item { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+.news-image { width: 120px; height: 80px; flex: 0 0 120px; object-fit: cover; border-radius: 8px; }
+.news-content { min-width: 0; }
+.error { color: var(--error); }</code></pre>
+<p><code>.news-item</code>が記事内の画像と文章を横並びにし、<code>.news-image</code>が画像の大きさをそろえます。<code>.error</code>は失敗時の文字色です。<strong>記事をどこに作るかはHTMLとJavaScript、作られた記事をどう見せるかはCSS</strong>という役割分担は、前章までと同じです。</p>
+<h2 id="65-読み解くニュースタブを初めて開いたときだけ取得する">6.5 読み解く：ニュースタブを初めて開いたときだけ取得する</h2>
+<p>まずブラウザ側の<code>app.js</code>を、大きな単位で読みます。第4・5章のタブ切り替えと検索欄へのフォーカス処理は残り、ニュース取得に必要な要素と状態が追加されました。</p>
+<pre class="code-block"><code class="language-javascript">const newsBox = document.getElementById(&#39;news&#39;);
+const genreBox = document.getElementById(&#39;news-genre&#39;);
+let newsStarted = false;</code></pre>
+<p><code>newsBox</code>と<code>genreBox</code>はHTML要素の参照、<code>newsStarted</code>は取得開始済みかを記録する値です。後で書き換えるため<code>let</code>を使います。</p>
+<p><code>activateTab</code>には、次の処理が追加されています。</p>
+<pre class="code-block"><code class="language-javascript">if (index === 1 &amp;&amp; !newsStarted) {
+  newsStarted = true;
+  loadNews();
+}</code></pre>
+<p>ニュースタブ（<code>index === 1</code>）を初めて開いたときだけ<code>newsStarted</code>を<code>true</code>にし、<code>loadNews()</code>を呼びます。</p>
+<p>このように、画面を開いたときではなく必要になったときに処理を始める方法は、初期表示で不要な通信を避けるための一つの設計です。</p>
+<h2 id="66-読み解くfetchとasyncawaitで応答を待つ">6.6 読み解く：<code>fetch</code>と<code>async/await</code>で応答を待つ</h2>
+<p>ニュースを取得する中心は<code>loadNews</code>です。次は教材の実際のコードです。</p>
+<pre class="code-block"><code class="language-javascript">async function loadNews() {
+  newsBox.textContent = &#39;ニュースを取得しています…&#39;;
+  genreBox.textContent = &#39;取得中&#39;;
+  try {
+    const response = await fetch(&#39;/api/news?keyword=&#39; + encodeURIComponent(&#39;テクノロジー&#39;));
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+    genreBox.textContent = `ジャンル：${data.genre}`;
+    displayNews(data.articles);
+  } catch (error) {
+    genreBox.textContent = &#39;ニュースを取得できません&#39;;
+    newsBox.textContent = error.message;
+    newsBox.classList.add(&#39;error&#39;);
+  }
+}</code></pre>
+<p><code>fetch</code>はHTTPで通信し、応答を非同期に受け取ります。<code>async</code>関数内の<code>await</code>で結果を待てます。</p>
+<p>最初の2行で「取得しています…」「取得中」と表示するのは、利用者に通信中であることを知らせるためです。その後、<code>await fetch(...)</code>でサーバーへ依頼し、<code>await response.json()</code>で応答本文をJavaScriptのデータとして読み取ります。<strong>JSON</strong>は、文字列・数値・配列などを組み合わせてデータを表す形式で、サーバーとブラウザ間などプログラム同士のデータの受け渡しによく利用されます。</p>
+<p><code>encodeURIComponent</code>は文字列をURL用に変換します。<code>fetch</code>は404などでも自動的には例外を投げないため、<code>response.ok</code>を確認し、失敗時は<code>throw</code>と<code>catch</code>で表示を切り替えます。</p>
+<p>成功した場合は<code>data.genre</code>を表示し、<code>data.articles</code>を<code>displayNews</code>に渡します。ここで大切なのは、<strong>通信してデータを受け取る処理</strong>と、<strong>画面の要素を組み立てる処理</strong>を別の関数にしていることです。表示方法を変えたいとき、まず<code>displayNews</code>を探せます。</p>
+<h2 id="67-読み解くサーバーがAPIキーを読み込み問い合わせを制限する">6.7 読み解く：サーバーがAPIキーを読み込み、問い合わせを制限する</h2>
+<p>サーバー側の<code>server.mjs</code>は、ブラウザとは別のNode.jsプロセスで実行します。まず、通信先の設定とAPIキーの管理を見ます。</p>
+<pre class="code-block"><code class="language-javascript">// 第6章：APIキーはサーバー側の環境変数から読み込み、ブラウザへ返さない。
+// 起動: node --env-file=.env server.mjs （Node.js 20.6以上）
+import { createServer } from &#39;node:http&#39;;
+import { readFile } from &#39;node:fs/promises&#39;;
+import { fileURLToPath } from &#39;node:url&#39;;
+import { dirname, join } from &#39;node:path&#39;;
+
+const folder = dirname(fileURLToPath(import.meta.url));
+const port = Number(process.env.PORT ?? &#39;3000&#39;);
+const apiKey = process.env.GNEWS_API_KEY?.trim();
+const keywords = new Set([&#39;テクノロジー&#39;, &#39;AI&#39;, &#39;経済&#39;, &#39;政治&#39;, &#39;科学&#39;]);
+const ttlMs = 5 * 60 * 1000;
+const cache = new Map();</code></pre>
+<p><code>process.env</code>は、Node.jsで環境変数を参照する仕組みです。環境変数を使うと、APIキーなどの設定値をソースコードに直接書かず、実行時に渡せます。本教材では<code>.env</code>を<code>--env-file</code>で読み込み、<code>GNEWS_API_KEY</code>を取得します。<code>.env.example</code>は書式の見本であり、秘密のキーを書き込んで共有してはいけません。 <code>keywords</code>は受け付ける検索語の集合です。<code>Set</code>の<code>has</code>で登録済みかを調べ、外部APIに送る入力を限定しています。</p>
+<h2 id="68-読み解くブラウザの依頼からGNewsへのリクエストまで">6.8 読み解く：ブラウザの依頼からGNewsへのリクエストまで</h2>
+<p><code>server.mjs</code>の<code>news</code>関数は、まず依頼された検索語を読み、値を確認します。以下は実コードの抜粋です。</p>
+<pre class="code-block"><code class="language-javascript">const keyword = reqUrl.searchParams.get(&#39;keyword&#39;) || &#39;テクノロジー&#39;;
+if (!keywords.has(keyword)) return json(res, 400, { error: &#39;未対応のジャンルです。&#39; });
+if (!apiKey) return json(res, 503, { error: &#39;GNEWS_API_KEY が未設定です。.env を確認してください。&#39; });</code></pre>
+<p>許可外の<code>keyword</code>には<strong>400</strong>、APIキー未設定には<strong>503</strong>を返します。数字の意味はHTTPで定義されますが、どの場合に返すかは教材サーバーの実装です。</p>
+<p>検査を通ると、GNewsへの問い合わせ内容を組み立てます。</p>
+<pre class="code-block"><code class="language-javascript">const params = new URLSearchParams({ q: keyword, lang: &#39;ja&#39;, country: &#39;jp&#39;, max: &#39;5&#39; });
+try {
+  // APIキーをクエリ文字列に含めず、ヘッダーで渡す。
+  const response = await fetch(`https://gnews.io/api/v4/search?${params}`, {
+    headers: { &#39;X-Api-Key&#39;: apiKey },
+    signal: AbortSignal.timeout(9000),
+  });</code></pre>
+<p><code>URLSearchParams</code>は、<code>q</code>、<code>lang</code>、<code>country</code>、<code>max</code>などのパラメーターをURL用に組み立てます。<code>q</code>は検索語、<code>lang: &#39;ja&#39;</code>は日本語の記事の指定、<code>country: &#39;jp&#39;</code>は掲載国に関する指定、<code>max: &#39;5&#39;</code>は取得件数の上限として要求する値です。実際に返る記事の件数や内容は、GNewsに依存します。</p>
+<p><code>X-Api-Key</code>ヘッダーでGNewsへキーを渡し、URLへの記載を避けています。<code>AbortSignal.timeout(9000)</code>は約9秒で通信を中断します。</p>
+<p>GNewsが正常に応答すると、サーバーは<code>data.articles</code>が配列であることを確認し、記事から<code>title</code>、<code>description</code>、<code>url</code>、<code>image</code>、<code>publishedAt</code>、<code>source.name</code>などを取り出してブラウザへ返します。GNewsの応答全体をそのままブラウザへ送り返すのではなく、必要な項目を選んでいます。このレスポンスにはAPIキーを含めていません。</p>
+<h2 id="69-読み解く取得結果をニュースカードとして表示する">6.9 読み解く：取得結果をニュースカードとして表示する</h2>
+<p>ブラウザに戻ってきた記事データは<code>displayNews</code>がHTML要素へ変換します。初めに<code>newsBox.replaceChildren()</code>で以前の内容を取り除き、受け取った記事を一つずつ処理します。次のコードは、記事タイトルをリンクとして作る部分の<strong>抜粋</strong>です。</p>
+<pre class="code-block"><code class="language-javascript">const link = document.createElement(&#39;a&#39;);
+link.href = url;
+link.target = &#39;_blank&#39;;
+link.rel = &#39;noopener noreferrer&#39;;
+link.textContent = article.title;
+content.append(link);</code></pre>
+<p><code>document.createElement(&#39;a&#39;)</code>でリンク要素を作り、<code>href</code>に記事のURLを設定します。<code>target=&quot;_blank&quot;</code>はリンク先を新しい閲覧コンテキストで開くため、<code>rel=&quot;noopener noreferrer&quot;</code>は開いたページとの関係を制限するための設定です。</p>
+<p>外部の文章は<code>innerHTML</code>ではなく<code>textContent</code>で表示します。<code>safeWebUrl</code>では<code>http:</code>／<code>https:</code>のURLのみを許可します。</p>
+<p>記事画像は<code>img</code>で表示し、<code>loading = &#39;lazy&#39;</code>で遅延読み込みします。<code>alt = &#39;&#39;</code>はタイトルとの重複を避ける設定です。画像がなくても記事の文字情報は表示できます。</p>
+<p>もし有効なURLやタイトルを持つ記事が一つも表示できなければ、<code>newsBox</code>には「表示できるニュースがありません。」と表示されます。ここまでで、<strong>JSONのデータがDOM要素になり、CSSによってニュースカードとして見える</strong>までの道筋がつながりました。</p>
+<h2 id="610-考える失敗したときどこで何が起こるか">6.10 考える：失敗したとき、どこで何が起こるか</h2>
+<p>通信が失敗した原因は一つとは限りません。ブラウザから見たエラーと、サーバーがGNewsから受け取ったエラーも区別する必要があります。</p>
+<table><thead><tr><th>状況</th><th>教材サーバーの応答</th><th>ブラウザ側での結果</th></tr></thead><tbody><tr><td><code>.env</code>のキーが空</td><td>503と設定確認のメッセージ</td><td><code>catch</code>に進み、エラーメッセージをニュース欄へ表示</td></tr><tr><td>許可していない<code>keyword</code>を指定</td><td>400と「未対応のジャンルです。」</td><td><code>catch</code>に進み、エラーを表示</td></tr><tr><td>GNewsが401・403・429などを返す</td><td>サーバーが状況に応じた文面を選び、ブラウザには502を返す</td><td>エラーを表示</td></tr><tr><td>通信がタイムアウトするなどして失敗</td><td>サーバーが502と通信失敗のメッセージを返す</td><td>エラーを表示</td></tr><tr><td>記事として表示できるものがない</td><td>正常な応答の内容次第</td><td>「表示できるニュースがありません。」と表示する場合がある</td></tr></tbody></table>
+<p>上の「502」は、<strong>GNewsから返ったステータスをそのまま転送した数字ではありません</strong>。GNews側が401でも、この教材サーバーはブラウザへ502を返す構造です。開発者ツールに表示される値と元のサービスの応答を混同しないようにしてください。</p>
+<p>また、<code>newsStarted</code>は取得開始時に<code>true</code>になり、失敗しても<code>false</code>へ戻しません。ニュースタブをいったん離れて開き直しても通信は再試行されません。改めて確認する際は、ページを再読み込みします。</p>
+<h2 id="611-考える5分間のキャッシュと公開範囲">6.11 考える：5分間のキャッシュと公開範囲</h2>
+<p><code>server.mjs</code>では、取得した記事を<code>cache</code>という<code>Map</code>に保存します。<strong>キャッシュ</strong>とは、一度取得した結果を一時的に保存して、同じ依頼に再利用する仕組みです。教材の<code>ttlMs = 5 * 60 * 1000</code>は、保存結果を5分間利用する設定です。</p>
+<p><code>/api/news?keyword=テクノロジー</code>へ短時間に同じ依頼が来た場合、条件が合えばサーバーはGNewsに改めて問い合わせず、保存済みの記事を返します。応答JSONの<code>cache</code>が<code>true</code>なら保存結果から、<code>false</code>なら新たに取得した結果から返したことを表します。</p>
+<h2 id="612-試すAPIキーなしでサーバーを起動する">6.12 試す：APIキーなしでサーバーを起動する</h2>
+<p>まず、秘密キーを用意せずに確認できる範囲から始めます。以下の操作は、元の教材ファイルを壊さずに進められます。</p>
+<ol><li><code>index.html</code>、<code>style.css</code>、<code>app.js</code>、<code>server.mjs</code>、<code>.env.example</code>、<code>.gitignore</code>を同じフォルダーに置きます。Node.js 20.6以降が利用できることを<code>node --version</code>で確認します。</li><li><code>.env.example</code>をコピーし、コピーしたファイル名を<code>.env</code>にします。<strong>見本の「ここに新しく発行したキーを設定」という文字列は必ず消し</strong>、次のようにキーの値を空にします。見本の文字列を残したままでは、コードは「未設定」と判定しません。</li></ol>
+<pre class="code-block"><code class="language-dotenv">   GNEWS_API_KEY=
+   PORT=3000</code></pre>
+<ol><li>フォルダーをターミナルで開き、<code>node --env-file=.env server.mjs</code>を実行します。起動メッセージのURLを確認します。ポートが使用中などで起動しない場合は、そのエラーを先に解決します。</li><li>ブラウザで<code>http://127.0.0.1:3000/</code>を開き、検索タブが表示されていることを確認します。次にニュースタブを押すと、キー未設定を知らせるメッセージが表示されるはずです。</li><li>開発者ツールのNetworkで<code>/api/news</code>の通信を探し、HTTPステータスとJSONの<code>error</code>を記録します。<strong>期待するサーバーの応答は503</strong>です。</li><li>確認後、ターミナルで<code>Ctrl+C</code>を押してサーバーを止めます。<code>.env</code>は秘密情報を入れる可能性があるため、提出物や公開リポジトリへ含めないでください。</li></ol>
+<p><strong>注意：</strong> <code>.env</code>のファイル自体が存在しない場合は、Node.jsの<code>--env-file</code>が起動時にエラーを出すことがあります。「ファイルはあるがキーが空」と「設定ファイルがない」は別の状態です。実験では前者を再現します。</p>
+<h2 id="613-試す一か所だけ変えエラーの意味を確かめる">6.13 試す：一か所だけ変え、エラーの意味を確かめる</h2>
+<p><strong>実験A：</strong> キーを空にし、<code>http://127.0.0.1:3000/api/news?keyword=テクノロジー</code>で503を確認します。<code>keyword</code>だけ<code>未登録</code>にすると400になります。コードで検査順序を調べましょう。</p>
+<p><strong>実験B：</strong> <code>http://127.0.0.1:3000/.env</code>と<code>http://127.0.0.1:3000/server.mjs</code>の404を確認します。<code>staticFiles</code>を読んで理由を調べましょう。</p>
+<p><strong>実験C：</strong> <code>app.js</code>の<code>encodeURIComponent(&#39;テクノロジー&#39;)</code>を<code>&#39;AI&#39;</code>に変え、ブラウザを再読み込みします。Networkで<code>keyword=AI</code>を確認し、実験後に戻します。</p>
+<p>有効なAPIキーを取得できる場合は、任意の実験として記事表示の成功も確認できます。<a href="https://docs.gnews.io/#__docusaurus_skipToContent_fallback">GNews APIの利用開始手順</a>で取得方法と利用条件を確認してください。APIキーの設定は必須演習ではありません。外部通信、記事数、画像表示はネットワークや外部サービスに依存するため、キーなしでも本章の主要な学習目標を達成できます。</p>
+<h2 id="614-根拠を確かめるNetworkと公式資料を照らし合わせる">6.14 根拠を確かめる：Networkと公式資料を照らし合わせる</h2>
+<p>Networkで<code>/api/news</code>の<strong>Request URL</strong>・<strong>Status</strong>・<strong>Response</strong>を確認します。キー未設定なら503と<code>GNEWS_API_KEY</code>のエラーを記録しましょう。</p>
+<p>次にGNews公式資料で、Search Endpointの<code>q</code>、<code>lang</code>、<code>country</code>、<code>max</code>の意味と、<code>X-Api-Key</code>による認証を確認します。Node.js公式資料では<code>--env-file</code>の利用方法を、MDNでは<code>fetch</code>がHTTPエラーステータスだけでは例外を投げないことを確認します。<strong>資料に定義された動作</strong>と、<strong>教材で採用したエラー番号や表示文言</strong>を分けて記録してください。</p>
+<p>生成AIにこの通信経路を説明させた場合も、「APIキーをHTMLに直接書き込む」「ブラウザからGNewsへキーを送る」といった提案が含まれていないか、実際の<code>server.mjs</code>と公式資料で検証できます。説明の自然さよりも、コードと根拠が一致しているかを判断材料にしましょう。</p>
+<h2 id="615-ふりかえり画面の外で動く処理も追えるようになる">6.15 ふりかえり：画面の外で動く処理も追えるようになる</h2>
+<p>本章では、ニュースタブの操作を起点に、ブラウザの<code>app.js</code>がローカルサーバーの<code>/api/news</code>へ依頼し、<code>server.mjs</code>がGNewsに問い合わせ、結果を<code>displayNews</code>が画面へ表示するまでを追いました。HTMLは表示場所を用意し、CSSはカードの外観を整え、ブラウザのJavaScriptは通信とDOMの更新を担当します。Node.jsサーバーはAPIキーを管理し、外部サービスとの通信を担当します。</p>
+<p>確認してほしいのは、次の四つです。</p>
+<ul><li>ニュースを開いたとき、どの関数がどの条件で呼ばれるか説明できますか。</li><li>ブラウザとサーバーの通信先を区別し、APIキーの置き場所を説明できますか。</li><li><code>fetch</code>、<code>await</code>、<code>response.ok</code>、<code>catch</code>を実際の表示と結び付けられますか。</li><li>キー未設定による503、未対応ジャンルによる400、配信対象外ファイルによる404を、Networkで確かめられますか。</li></ul>
+<p>これらができれば、「動いた／動かない」という結果だけでなく、<strong>どの段階で何が起こったか</strong>を説明できます。次章の具体的な内容は今回の資料には示されていませんが、本章で身につけた通信の経路と表示の対応を調べる方法は、今後データの種類や機能が増えても使える考え方です。</p>
+</section></article>
+</main></body></html>

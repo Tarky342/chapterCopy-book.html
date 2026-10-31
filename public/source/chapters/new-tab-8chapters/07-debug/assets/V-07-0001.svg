@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="800" viewBox="0 0 1320 800" role="img" aria-labelledby="title desc">
+ <title id="title">図 V-07-001 デバッグの流れと確認先</title>
+ <desc id="desc">症状を再現して仮説を立て、HTML、JavaScript、通信、サーバー内キャッシュに応じた確認先を選ぶ。小さく修正したら同じ操作で再検証する。</desc>
+ <defs>
+  <style>
+    text {font-family:'Noto Sans CJK JP','Noto Sans JP',sans-serif;fill:#1f2937}
+    .heading{font-size:29px;font-weight:700}
+    .primary{font-size:23px;font-weight:700}
+    .secondary{font-size:18px;fill:#4b5563}
+    .small{font-size:16px;fill:#4b5563}
+    .line{stroke:#66758b;stroke-width:3;fill:none;marker-end:url(#arrow)}
+  </style>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#66758b"/></marker>
+ </defs>
+ <rect width="1320" height="800" fill="#fcfdfd"/>
+ <text x="56" y="65" class="heading">症状から原因を絞り込む</text>
+ <text x="56" y="100" class="secondary">「どこを変更するか」の前に、「何を確かめるか」を決める</text>
+ <rect x="60" y="143" width="322" height="122" rx="18" fill="#e5f2ee" stroke="#91b9ab" stroke-width="2"/>
+ <text x="221" y="194" text-anchor="middle" class="primary">1  症状を再現</text>
+ <text x="221" y="229" text-anchor="middle" class="secondary">操作・画面・エラーを記録</text>
+ <path class="line" d="M384 202 H481"/>
+ <rect x="483" y="143" width="350" height="122" rx="18" fill="#e9effb" stroke="#9eb8e0" stroke-width="2"/>
+ <text x="658" y="194" text-anchor="middle" class="primary">2  仮説を立てる</text>
+ <text x="658" y="229" text-anchor="middle" class="secondary">原因候補を一つ選ぶ</text>
+ <path class="line" d="M835 202 H932"/>
+ <rect x="935" y="143" width="323" height="122" rx="18" fill="#fbefdf" stroke="#e3bf8a" stroke-width="2"/>
+ <text x="1096" y="194" text-anchor="middle" class="primary">3  確認先を選択</text>
+ <text x="1096" y="229" text-anchor="middle" class="secondary">コード・テスト・開発者ツール</text>
+ <path d="M1096 265 V311 H657 V352" stroke="#66758b" stroke-width="3" fill="none"/>
+ <path d="M1096 311 H239 V352" stroke="#66758b" stroke-width="3" fill="none"/>
+ <path d="M1096 311 H1088 V352" stroke="#66758b" stroke-width="3" fill="none"/>
+ <path d="M657 311 V352" stroke="#66758b" stroke-width="3" fill="none"/>
+ <g>
+  <rect x="60" y="352" width="280" height="153" rx="16" fill="#fff" stroke="#a9b6c5" stroke-width="2"/>
+  <rect x="376" y="352" width="280" height="153" rx="16" fill="#fff" stroke="#a9b6c5" stroke-width="2"/>
+  <rect x="692" y="352" width="280" height="153" rx="16" fill="#fff" stroke="#a9b6c5" stroke-width="2"/>
+  <rect x="1008" y="352" width="252" height="153" rx="16" fill="#fff" stroke="#a9b6c5" stroke-width="2"/>
+  <text x="200" y="398" class="primary" text-anchor="middle">HTMLの対応</text>
+  <text x="200" y="432" class="secondary" text-anchor="middle">構造テスト</text>
+  <text x="200" y="463" class="secondary" text-anchor="middle">Elements</text>
+  <text x="516" y="398" class="primary" text-anchor="middle">JavaScript</text>
+  <text x="516" y="432" class="secondary" text-anchor="middle">構文テスト</text>
+  <text x="516" y="463" class="secondary" text-anchor="middle">Console</text>
+  <text x="832" y="398" class="primary" text-anchor="middle">HTTP通信</text>
+  <text x="832" y="432" class="secondary" text-anchor="middle">HTTPテスト</text>
+  <text x="832" y="463" class="secondary" text-anchor="middle">Network</text>
+  <text x="1134" y="398" class="primary" text-anchor="middle">キャッシュ</text>
+  <text x="1134" y="432" class="secondary" text-anchor="middle">server.mjs</text>
+  <text x="1134" y="463" class="secondary" text-anchor="middle">サーバー内 Map</text>
+ </g>
+ <path d="M200 505 V541 H660 V576" stroke="#66758b" stroke-width="3" fill="none"/>
+ <path d="M516 505 V541" stroke="#66758b" stroke-width="3" fill="none"/>
+ <path d="M832 505 V541 H660" stroke="#66758b" stroke-width="3" fill="none"/>
+ <path d="M1134 505 V541 H660" stroke="#66758b" stroke-width="3" fill="none"/>
+ <rect x="334" y="576" width="653" height="99" rx="18" fill="#f0eafa" stroke="#b3a2d8" stroke-width="2"/>
+ <text x="660" y="620" text-anchor="middle" class="primary">4  一か所だけ修正 → 5  同じ手順で再検証</text>
+ <text x="660" y="652" text-anchor="middle" class="secondary">成功・失敗・未確認を分けて記録する</text>
+ <path d="M334 627 H173 V284 H202 V267" class="line" stroke-dasharray="9 8"/>
+ <text x="56" y="737" class="small">注：この教材のニュースキャッシュは Node.js のメモリにあり、ブラウザの Application 画面には直接表示されません。</text>
+ <text x="56" y="768" class="small">図 V-07-001　デバッグの流れと確認先（教材コードに基づく概念図）</text>
+</svg>
